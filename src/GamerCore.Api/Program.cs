@@ -1,3 +1,7 @@
+using GamerCore.Infrastructure;
+using GamerCore.Infrastructure.Repositories;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -6,6 +10,13 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddDbContext<CatalogContext>(options =>
+{
+    options.UseSqlServer(builder.Configuration["ConnectionStrings:GamerCoreConnection"]);
+});
+
+builder.Services.AddScoped<IProductRepository, ProductRepository>();
 
 var app = builder.Build();
 
@@ -23,5 +34,8 @@ else
 app.UseAuthorization();
 
 app.MapControllers();
+
+// Development only
+CatalogContextSeed.EnsurePopulated(app);
 
 app.Run();
