@@ -1,0 +1,84 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Launch GamerCore API",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build-gamercore-api",
+      "program": "${workspaceFolder}/src/GamerCore.Api/bin/Debug/net8.0/GamerCore.Api.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/src/GamerCore.Api",
+      "stopAtEntry": false,
+      // "serverReadyAction": {
+      //   "action": "openExternally",
+      //   "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
+      // },
+      "env": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    },
+    {
+      "name": "Launch GamerCore Customer Site (MVC)",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build-gamercore-customer-site",
+      "program": "${workspaceFolder}/src/GamerCore.CustomerSite/bin/Debug/net8.0/GamerCore.CustomerSite.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/src/GamerCore.CustomerSite",
+      "stopAtEntry": false,
+      // "serverReadyAction": {
+      //   "action": "openExternally",
+      //   "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
+      // },
+      "env": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "sourceFileMap": {
+        "/Views": "${workspaceFolder}src/GamerCore.CustomerSite/Views"
+      }
+    },
+    {
+      "name": "Launch GamerCore Admin Site (React)",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "run",
+        "dev"
+      ],
+      "cwd": "${workspaceFolder}/src/GamerCore.AdminSite",
+      "stopOnEntry": false,
+      "skipFiles": [
+        "<node_internals>/**"
+      ]
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Launch GamerCore API and Customer Site",
+      "configurations": [
+        "Launch GamerCore API",
+        "Launch GamerCore Customer Site (MVC)"
+      ]
+    },
+    {
+      "name": "Launch GamerCore API and Admin Site",
+      "configurations": [
+        "Launch GamerCore API",
+        "Launch GamerCore Admin Site (React)"
+      ]
+    },
+    {
+      "name": "Launch GamerCore All",
+      "configurations": [
+        "Launch GamerCore API",
+        "Launch GamerCore Customer Site (MVC)",
+        "Launch GamerCore Admin Site (React)"
+      ]
+    }
+  ]
+}

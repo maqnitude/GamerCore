@@ -1,0 +1,27 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "build-gamercore-api",
+			"type": "process",
+			"command": "dotnet",
+			"args": [
+				"build",
+				"${workspaceFolder}/src/GamerCore.Api/GamerCore.Api.csproj"
+			],
+			"problemMatcher": "$msCompile",
+			"group": "build"
+		},
+		{
+			"label": "build-gamercore-customer-site",
+			"type": "process",
+			"command": "dotnet",
+			"args": [
+				"build",
+				"${workspaceFolder}/src/GamerCore.CustomerSite/GamerCore.CustomerSite.csproj"
+			],
+			"problemMatcher": "$msCompile",
+			"group": "build"
+		}
+	]
+}
