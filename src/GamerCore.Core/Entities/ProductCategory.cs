@@ -1,5 +1,3 @@
-using System.Text.Json.Serialization;
-
 namespace GamerCore.Core.Entities
 {
     public class ProductCategory

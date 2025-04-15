@@ -15,7 +15,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\GamerCore.Core\GamerCore.Core.csproj" />
     <ProjectReference Include="..\GamerCore.Infrastructure\GamerCore.Infrastructure.csproj" />
   </ItemGroup>
 

@@ -12,7 +12,7 @@ namespace GamerCore.Infrastructure.Repositories
             _context = context;
         }
 
-        public IQueryable<Product> GetProducts()
+        public IQueryable<Product> GetQueryableProducts()
         {
             return _context.Products
                 .Include(p => p.ProductCategories)

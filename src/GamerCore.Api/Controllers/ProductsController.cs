@@ -1,5 +1,4 @@
 using GamerCore.Api.Models;
-using GamerCore.Core.Entities;
 using GamerCore.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -20,29 +19,40 @@ namespace GamerCore.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Product>>> GetProductsAsync()
+        public async Task<ActionResult<List<ProductDto>>> GetProductsAsync()
         {
-            var products = await _repository.GetProducts().ToListAsync();
-
-            if (products == null || products.Count == 0)
+            try
             {
-                return NotFound();
-            }
+                var queryableProducts = _repository.GetQueryableProducts();
 
-            var productDtos = products.Select(p => new ProductDto
-            {
-                ProductId = p.ProductId,
-                Name = p.Name,
-                Description = p.Description,
-                Price = p.Price,
-                Categories = p.ProductCategories.Select(pc => new CategoryDto
+                if (!await queryableProducts.AnyAsync())
                 {
-                    CategoryId = pc.Category.CategoryId,
-                    Name = pc.Category.Name
-                }).ToList()
-            }).ToList();
+                    _logger.LogWarning("No products found.");
+                    return NoContent();
+                }
 
-            return Ok(productDtos);
+                var productDtos = await queryableProducts
+                    .Select(p => new ProductDto
+                    {
+                        ProductId = p.ProductId,
+                        Name = p.Name,
+                        Description = p.Description,
+                        Price = p.Price,
+                        Categories = p.ProductCategories.Select(pc => new CategoryDto
+                        {
+                            CategoryId = pc.Category.CategoryId,
+                            Name = pc.Category.Name
+                        }).ToList()
+                    }).ToListAsync();
+
+                _logger.LogInformation($"Retrieved {productDtos.Count} products.");
+                return Ok(productDtos);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while retrieving products.");
+                return StatusCode(500, "Internal Server Error");
+            }
         }
     }
 }

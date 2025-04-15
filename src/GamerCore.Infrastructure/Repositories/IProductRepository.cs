@@ -4,6 +4,6 @@ namespace GamerCore.Infrastructure.Repositories
 {
     public interface IProductRepository
     {
-        IQueryable<Product> GetProducts();
+        IQueryable<Product> GetQueryableProducts();
     }
 }
