@@ -1,4 +1,6 @@
 using System.Text.Json;
+using GamerCore.Core.Constants;
+using GamerCore.Core.Models;
 using GamerCore.CustomerSite.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -15,25 +17,38 @@ namespace GamerCore.CustomerSite.Controllers
             _logger = logger;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int page = 1)
         {
             try
             {
+                string apiUrl = "/api/Products/";
+
+                if (page > 1)
+                {
+                    apiUrl += $"Page/{page}";
+                }
+
                 var client = _httpClientFactory.CreateClient("GamerCoreDev");
-                var response = await client.GetAsync("/api/Products");
+                var response = await client.GetAsync(apiUrl);
 
                 if (response.IsSuccessStatusCode)
                 {
                     using var contentStream = await response.Content.ReadAsStreamAsync();
-                    var products = await JsonSerializer
-                        .DeserializeAsync<IEnumerable<ProductViewModel>>(contentStream) ?? [];
+                    var pagedResult = await JsonSerializer
+                        .DeserializeAsync<PagedResult<ProductViewModel>>(contentStream) ?? new();
 
                     var productListViewModel = new ProductListViewModel()
                     {
-                        Products = products
+                        Products = pagedResult.Items,
+                        Pagination = new PaginationMetadata()
+                        {
+                            Page = pagedResult.Page,
+                            PageSize = pagedResult.PageSize,
+                            TotalItems = pagedResult.TotalItems
+                        }
                     };
 
-                    _logger.LogInformation($"[STATUS CODE {response.StatusCode}] Successfully retrieved {products.Count()} products.");
+                    _logger.LogInformation($"[STATUS CODE {response.StatusCode}] Successfully retrieved {pagedResult.Items.Count} products.");
                     return View(productListViewModel);
                 }
                 else

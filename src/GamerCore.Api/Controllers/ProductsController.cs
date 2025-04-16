@@ -1,4 +1,6 @@
 using GamerCore.Api.Models;
+using GamerCore.Core.Constants;
+using GamerCore.Core.Models;
 using GamerCore.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -19,11 +21,40 @@ namespace GamerCore.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<ProductDto>>> GetProductsAsync()
+        [HttpGet("page/{page:int}")]
+        public async Task<ActionResult<List<ProductDto>>> GetProductsAsync(
+            int page = 1,
+            int? pageSize = null,
+            [FromQuery] int[]? categoryIds = null)
+        {
+            return await GetFilteredProductsAsync(page, pageSize, categoryIds);
+        }
+
+        private async Task<ActionResult<List<ProductDto>>> GetFilteredProductsAsync(
+            int page,
+            int? pageSize = null,
+            int[]? categoryIds = null)
         {
             try
             {
+                int effectivePage = page;
+                effectivePage = Math.Max(effectivePage, 1);
+
+                int effectivePageSize = pageSize ?? PaginationConstants.DefaultPageSize;
+                effectivePageSize = Math.Min(effectivePageSize, PaginationConstants.MaxPageSize);
+                effectivePageSize = Math.Max(effectivePageSize, 1);
+
                 var queryableProducts = _repository.GetQueryableProducts();
+
+                // Filter by categories
+                if (categoryIds != null && categoryIds.Length > 0)
+                {
+                    // Products must have all the specified categories
+                    queryableProducts = queryableProducts
+                        .Where(p => categoryIds
+                            .All(categoryId => p.ProductCategories
+                                .Any(pc => pc.CategoryId == categoryId)));
+                }
 
                 if (!await queryableProducts.AnyAsync())
                 {
@@ -31,7 +62,12 @@ namespace GamerCore.Api.Controllers
                     return NoContent();
                 }
 
+                // This is for pagination on client-side
+                var totalProducts = await queryableProducts.CountAsync();
+
                 var productDtos = await queryableProducts
+                    .Skip((effectivePage - 1) * effectivePageSize)
+                    .Take(effectivePageSize)
                     .Select(p => new ProductDto
                     {
                         ProductId = p.ProductId,
@@ -42,11 +78,19 @@ namespace GamerCore.Api.Controllers
                         {
                             CategoryId = pc.Category.CategoryId,
                             Name = pc.Category.Name
-                        }).ToList()
+                        })
                     }).ToListAsync();
 
+                var pagedResult = new PagedResult<ProductDto>
+                {
+                    Items = productDtos,
+                    Page = effectivePage,
+                    PageSize = effectivePageSize,
+                    TotalItems = totalProducts
+                };
+
                 _logger.LogInformation($"Retrieved {productDtos.Count} products.");
-                return Ok(productDtos);
+                return Ok(pagedResult);
             }
             catch (Exception ex)
             {
