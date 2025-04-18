@@ -1,0 +1,37 @@
+@model ProductFilterViewModel
+
+<div id="filterPanel" class="accordion">
+  <div class="accordion-item">
+    <h2 class="accordion-header">
+      <button class="accordion-button" type="button"
+              data-bs-toggle="collapse" data-bs-target="#categoryFilter"
+              aria-expanded="false" aria-controls="categoryFilter">
+        Catagories
+      </button>
+    </h2>
+    <!-- TODO: Maintain the accordion open/close state and not depending on the links -->
+    <div id="categoryFilter" class="accordion-collapse collapse @(Model.SelectedCategoryId != null ? "show" : "")">
+      <div class="accordion-body">
+        <div class="btn-group-vertical w-100" role="group" aria-label="Category Filter">
+          @* "All" button *@
+          <a class="btn @(Model.SelectedCategoryId == null ? "btn-primary" : "btn-outline-primary")"
+             asp-controller="Products" asp-action="Index"
+             asp-route-page="1">
+            All Categories
+          </a>
+
+          @foreach (var category in Model.Categories)
+          {
+            var isActive = Model.SelectedCategoryId == category.CategoryId;
+
+            <a class="btn @(isActive ? "btn-primary" : "btn-outline-primary")"
+               asp-controller="Products" asp-action="Index"
+               asp-route-page="1" asp-route-categoryId="@category.CategoryId">
+              @category.Name
+            </a>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

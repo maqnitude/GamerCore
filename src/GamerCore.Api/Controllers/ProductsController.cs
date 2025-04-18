@@ -21,13 +21,24 @@ namespace GamerCore.Api.Controllers
         }
 
         [HttpGet]
-        [HttpGet("page/{page:int}")]
         public async Task<ActionResult<List<ProductDto>>> GetProductsAsync(
-            int page = 1,
-            int? pageSize = null,
-            [FromQuery] int[]? categoryIds = null)
+            [FromQuery] int page = 1,
+            [FromQuery] int? pageSize = null,
+            [FromQuery] string? categoryIds = null)
         {
-            return await GetFilteredProductsAsync(page, pageSize, categoryIds);
+            int[]? categoryIdArray = null;
+
+            if (!string.IsNullOrWhiteSpace(categoryIds))
+            {
+                categoryIdArray = categoryIds
+                    .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                    .Select(id => int.TryParse(id, out int parsedId) ? parsedId : (int?)null)
+                    .Where(id => id != null)
+                    .Select(id => id!.Value)
+                    .ToArray();
+            }
+
+            return await GetFilteredProductsAsync(page, pageSize, categoryIdArray);
         }
 
         private async Task<ActionResult<List<ProductDto>>> GetFilteredProductsAsync(
@@ -49,11 +60,10 @@ namespace GamerCore.Api.Controllers
                 // Filter by categories
                 if (categoryIds != null && categoryIds.Length > 0)
                 {
-                    // Products must have all the specified categories
+                    // Products must have any of the specified categories
                     queryableProducts = queryableProducts
-                        .Where(p => categoryIds
-                            .All(categoryId => p.ProductCategories
-                                .Any(pc => pc.CategoryId == categoryId)));
+                        .Where(p => p.ProductCategories
+                            .Any(pc => categoryIds.Contains(pc.CategoryId)));
                 }
 
                 if (!await queryableProducts.AnyAsync())
@@ -72,14 +82,14 @@ namespace GamerCore.Api.Controllers
                     {
                         ProductId = p.ProductId,
                         Name = p.Name,
-                        Description = p.Description,
                         Price = p.Price,
                         Categories = p.ProductCategories.Select(pc => new CategoryDto
                         {
                             CategoryId = pc.Category.CategoryId,
                             Name = pc.Category.Name
                         })
-                    }).ToListAsync();
+                    })
+                    .ToListAsync();
 
                 var pagedResult = new PagedResult<ProductDto>
                 {

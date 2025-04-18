@@ -1,3 +1,4 @@
+using GamerCore.CustomerSite.Extensions;
 using GamerCore.CustomerSite.Models;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Razor.TagHelpers;
@@ -24,14 +25,16 @@ namespace GamerCore.CustomerSite.TagHelpers
                 ul.InnerHtml.AppendHtml(CreatePageLink(Pagination.Page - 1, "Previous"));
             }
 
+            int totalPages = Pagination.TotalPages;
+
             // Page numbners
-            for (int i = 1; i <= Pagination.TotalPages; i++)
+            for (int i = 1; i <= totalPages; i++)
             {
                 ul.InnerHtml.AppendHtml(CreatePageLink(i, i.ToString(), i == Pagination.Page));
             }
 
             // Next page link
-            if (Pagination.Page < Pagination.TotalPages)
+            if (Pagination.Page < totalPages)
             {
                 ul.InnerHtml.AppendHtml(CreatePageLink(Pagination.Page + 1, "Next"));
             }
@@ -51,7 +54,7 @@ namespace GamerCore.CustomerSite.TagHelpers
 
             var a = new TagBuilder("a");
             a.AddCssClass("page-link");
-            a.Attributes["href"] = $"{PageUrl}?page={page}";
+            a.Attributes["href"] = PageUrl.UpdateQueryParameter("page", $"{page}");
             a.InnerHtml.Append(text);
 
             li.InnerHtml.AppendHtml(a);

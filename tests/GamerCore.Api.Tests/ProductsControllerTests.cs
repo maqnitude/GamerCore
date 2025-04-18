@@ -39,7 +39,6 @@ namespace GamerCore.Api.Tests
             {
                 Assert.Equal(products[i].ProductId, productDtos[i].ProductId);
                 Assert.Equal(products[i].Name, productDtos[i].Name);
-                Assert.Equal(products[i].Description, productDtos[i].Description);
                 Assert.Equal(products[i].Price, productDtos[i].Price);
                 Assert.Equal(products[i].ProductCategories.First().Category.Name, productDtos[i].Categories.First().Name);
             }
@@ -208,14 +207,12 @@ namespace GamerCore.Api.Tests
             {
                 ProductId = 1,
                 Name = "Product 1",
-                Description = "Description 1",
                 Price = 10.00m
             };
             var product2 = new Product
             {
                 ProductId = 2,
                 Name = "Product 2",
-                Description = "Description 2",
                 Price = 20.00m
             };
 
@@ -254,7 +251,6 @@ namespace GamerCore.Api.Tests
                 {
                     ProductId = i,
                     Name = $"Product {i}",
-                    Description = $"Description {i}",
                     Price = i * 10.00m
                 };
 

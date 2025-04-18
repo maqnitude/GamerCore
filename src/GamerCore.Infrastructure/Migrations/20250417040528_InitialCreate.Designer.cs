@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GamerCore.Infrastructure.Migrations
 {
     [DbContext(typeof(CatalogContext))]
-    [Migration("20250414081556_InitialCreate")]
+    [Migration("20250417040528_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -48,10 +48,6 @@ namespace GamerCore.Infrastructure.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ProductId"));
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
                         .IsRequired()

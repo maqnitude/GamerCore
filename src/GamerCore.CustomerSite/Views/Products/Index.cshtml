@@ -5,14 +5,19 @@
 }
 
 <div class="d-flex gap-2">
+  <!-- Filter panel -->
   <div class="col-3 border border-dark rounded">
-    <p class="text-center sticky-top">Filter Panel</p>
+    <div class="sticky-top">
+      <partial name="_ProductFilterPartial" model="@Model.Filter">
+    </div>
   </div>
+
+  <!-- Products display -->
   <div class="col-9 border border-dark rounded">
     <div class="container">
       @if (Model.Products.Any())
       {
-        <div class="row">
+        <div class="row mb-4">
           @foreach (var product in Model.Products)
           {
             <div class="col-sm-6 col-md-4 col-lg-3">
@@ -23,10 +28,14 @@
       }
       else
       {
-        <span class="text-center">Found 0 products.</span>
+        <span class="text-center">No product found.</span>
       }
     </div>
 
-    <pagination pagination="@Model.Pagination" page-url="/Products"></pagination>
+    <div class="d-flex justify-content-center">
+      <pagination pagination="@Model.Pagination"
+                  page-url="@Url.Action("Index", "Products", new { page = Model.Pagination.Page, categoryId = Model.Filter.SelectedCategoryId })">
+      </pagination>
+    </div>
   </div>
 </div>

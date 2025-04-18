@@ -1,3 +1,5 @@
+using GamerCore.CustomerSite.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -7,6 +9,9 @@ builder.Services.AddHttpClient("GamerCoreDev", client =>
 {
     client.BaseAddress = new Uri(builder.Configuration["ApiSettings:BaseUrl"]!);
 });
+
+builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
 
 var app = builder.Build();
 
