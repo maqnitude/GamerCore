@@ -1,5 +1,6 @@
 using GamerCore.Api.Controllers;
 using GamerCore.Api.Models;
+using GamerCore.Api.Tests.Utilities;
 using GamerCore.Core.Constants;
 using GamerCore.Core.Entities;
 using GamerCore.Core.Models;
@@ -13,21 +14,28 @@ namespace GamerCore.Api.Tests
 {
     public class ProductsControllerTests
     {
+        private readonly Mock<IProductRepository> _mockRepository;
+        private readonly Mock<ILogger<ProductsController>> _mockLogger;
+        private readonly ProductsController _controller;
+
+        public ProductsControllerTests()
+        {
+            _mockRepository = new Mock<IProductRepository>();
+            _mockLogger = new Mock<ILogger<ProductsController>>();
+            _controller = new ProductsController(_mockRepository.Object, _mockLogger.Object);
+        }
+
         [Fact]
         public async Task GetProductsAsync_ReturnsOk_WithDefaultPagination_WhenProductsExist()
         {
             // Arrange
-            var products = GetTestProductList();
+            var products = ProductGenerator.Generate(productCount: 5, categoryCount: 2);
 
-            var mockRepository = new Mock<IProductRepository>();
-            mockRepository.Setup(repo => repo.GetQueryableProducts()).Returns(products.AsQueryable().BuildMock());
-
-            var mockLogger = new Mock<ILogger<ProductsController>>();
-
-            var controller = new ProductsController(mockRepository.Object, mockLogger.Object);
+            _mockRepository.Setup(repo => repo.GetQueryableProducts())
+                .Returns(products.AsQueryable().BuildMock());
 
             // Act
-            var result = await controller.GetProductsAsync();
+            var result = await _controller.GetProductsAsync();
 
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(result.Result);
@@ -43,7 +51,7 @@ namespace GamerCore.Api.Tests
                 Assert.Equal(products[i].ProductCategories.First().Category.Name, productDtos[i].Categories.First().Name);
             }
 
-            mockLogger.Verify(
+            _mockLogger.Verify(
                 x => x.Log(
                     LogLevel.Information,
                     It.IsAny<EventId>(),
@@ -57,17 +65,13 @@ namespace GamerCore.Api.Tests
         public async Task GetProductsAsync_ReturnsOk_WithCustomPagination_WhenProductsExist()
         {
             // Arrange
-            var products = GetLargeTestProductList(count: 20);
+            var products = ProductGenerator.Generate(productCount: 10, categoryCount: 2);
 
-            var mockRepository = new Mock<IProductRepository>();
-            mockRepository.Setup(repo => repo.GetQueryableProducts()).Returns(products.AsQueryable().BuildMock());
-
-            var mockLogger = new Mock<ILogger<ProductsController>>();
-
-            var controller = new ProductsController(mockRepository.Object, mockLogger.Object);
+            _mockRepository.Setup(repo => repo.GetQueryableProducts())
+                .Returns(products.AsQueryable().BuildMock());
 
             // Act
-            var result = await controller.GetProductsAsync(page: 2, pageSize: 5);
+            var result = await _controller.GetProductsAsync(page: 2, pageSize: 5);
 
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(result.Result);
@@ -78,7 +82,7 @@ namespace GamerCore.Api.Tests
             Assert.Equal(6, productDtos[0].ProductId);
             Assert.Equal(10, productDtos[^1].ProductId);
 
-            mockLogger.Verify(
+            _mockLogger.Verify(
                 x => x.Log(
                     LogLevel.Information,
                     It.IsAny<EventId>(),
@@ -92,17 +96,13 @@ namespace GamerCore.Api.Tests
         public async Task GetProductsAsync_ReturnsOk_WithOutOfRangePageNumber()
         {
             // Arrange
-            var products = GetLargeTestProductList(count: 20);
+            var products = ProductGenerator.Generate(productCount: 10, categoryCount: 2);
 
-            var mockRepository = new Mock<IProductRepository>();
-            mockRepository.Setup(repo => repo.GetQueryableProducts()).Returns(products.AsQueryable().BuildMock());
-
-            var mockLogger = new Mock<ILogger<ProductsController>>();
-
-            var controller = new ProductsController(mockRepository.Object, mockLogger.Object);
+            _mockRepository.Setup(repo => repo.GetQueryableProducts())
+                .Returns(products.AsQueryable().BuildMock());
 
             // Act
-            var resultLo = await controller.GetProductsAsync(page: -1, pageSize: 5);
+            var resultLo = await _controller.GetProductsAsync(page: -1, pageSize: 5);
             // var resultHi = await controller.GetProductsAsync(page: 999, pageSize: 5);
 
             // Assert
@@ -118,18 +118,14 @@ namespace GamerCore.Api.Tests
         public async Task GetProductsAsync_ReturnsOk_WithOutOfRangePageSize()
         {
             // Arrange
-            var products = GetLargeTestProductList(count: 20);
+            var products = ProductGenerator.Generate();
 
-            var mockRepository = new Mock<IProductRepository>();
-            mockRepository.Setup(repo => repo.GetQueryableProducts()).Returns(products.AsQueryable().BuildMock());
-
-            var mockLogger = new Mock<ILogger<ProductsController>>();
-
-            var controller = new ProductsController(mockRepository.Object, mockLogger.Object);
+            _mockRepository.Setup(repo => repo.GetQueryableProducts())
+                .Returns(products.AsQueryable().BuildMock());
 
             // Act
-            var resultLo = await controller.GetProductsAsync(page: 1, pageSize: 0);
-            var resultHi = await controller.GetProductsAsync(page: 1, pageSize: 999);
+            var resultLo = await _controller.GetProductsAsync(page: 1, pageSize: 0);
+            var resultHi = await _controller.GetProductsAsync(page: 1, pageSize: 999);
 
             // Assert
             var okResultLo = Assert.IsType<OkObjectResult>(resultLo.Result);
@@ -141,25 +137,60 @@ namespace GamerCore.Api.Tests
         }
 
         [Fact]
-        public async Task GetProductsAsync_ReturnsNoContent_WhenNoProductsExist()
+        public async Task GetProductsAsync_ReturnsOk_WithFilteringByCategory_WhenProductsExist()
+        {
+            // Arrange
+            var products = ProductGenerator.Generate(productCount: 5, categoryCount: 10);
+
+            _mockRepository.Setup(repo => repo.GetQueryableProducts())
+                .Returns(products.AsQueryable().BuildMock());
+
+            // Act
+            var result = await _controller.GetProductsAsync(categoryIds: "1,2,3");
+
+            // Assert
+            var okResult = Assert.IsType<OkObjectResult>(result.Result);
+            var pagedResult = Assert.IsAssignableFrom<PagedResult<ProductDto>>(okResult.Value);
+            Assert.Equal(15, pagedResult.TotalItems);
+            Assert.Equal(ProductGenerator.Categories[0].Name, pagedResult.Items[0].Categories.ElementAt(0).Name);
+            Assert.Equal(ProductGenerator.Categories[1].Name, pagedResult.Items[5].Categories.ElementAt(0).Name);
+            Assert.Equal(ProductGenerator.Categories[2].Name, pagedResult.Items[10].Categories.ElementAt(0).Name);
+        }
+
+        [Fact]
+        public async Task GetProductsAsync_ReturnsOk_WithPaginationAndFilteringByCategory_WhenProductsExist()
+        {
+            // Arrange
+            var products = ProductGenerator.Generate(productCount: 20, categoryCount: 10);
+
+            _mockRepository.Setup(repo => repo.GetQueryableProducts())
+                .Returns(products.AsQueryable().BuildMock());
+
+            // Act
+            var result = await _controller.GetProductsAsync(page: 2, pageSize: 20, categoryIds: "1,2,3");
+
+            // Assert
+            var okResult = Assert.IsType<OkObjectResult>(result.Result);
+            var pagedResult = Assert.IsAssignableFrom<PagedResult<ProductDto>>(okResult.Value);
+            Assert.Equal(ProductGenerator.Categories[1].Name, pagedResult.Items[0].Categories.ElementAt(0).Name);
+        }
+
+        [Fact]
+        public async Task GetProductsAsync_ReturnsNoContent_WhenNoProductExists()
         {
             // Arrange
             var products = Enumerable.Empty<Product>();
 
-            var mockRepository = new Mock<IProductRepository>();
-            mockRepository.Setup(repo => repo.GetQueryableProducts()).Returns(products.AsQueryable().BuildMock());
-
-            var mockLogger = new Mock<ILogger<ProductsController>>();
-
-            var controller = new ProductsController(mockRepository.Object, mockLogger.Object);
+            _mockRepository.Setup(repo => repo.GetQueryableProducts())
+                .Returns(products.AsQueryable().BuildMock());
 
             // Act
-            var result = await controller.GetProductsAsync();
+            var result = await _controller.GetProductsAsync();
 
             // Assert
             Assert.IsType<NoContentResult>(result.Result);
 
-            mockLogger.Verify(
+            _mockLogger.Verify(
                 x => x.Log(
                     LogLevel.Warning,
                     It.IsAny<EventId>(),
@@ -173,22 +204,18 @@ namespace GamerCore.Api.Tests
         public async Task GetProductsAsync_ReturnsInternalServerError_WhenExceptionIsThrown()
         {
             // Arrange
-            var mockRepository = new Mock<IProductRepository>();
-            mockRepository.Setup(repo => repo.GetQueryableProducts()).Throws(new Exception("Test Exception"));
-
-            var mockLogger = new Mock<ILogger<ProductsController>>();
-
-            var controller = new ProductsController(mockRepository.Object, mockLogger.Object);
+            _mockRepository.Setup(repo => repo.GetQueryableProducts())
+                .Throws(new Exception("Test Exception"));
 
             // Act
-            var result = await controller.GetProductsAsync();
+            var result = await _controller.GetProductsAsync();
 
             // Assert
             var objectResult = Assert.IsType<ObjectResult>(result.Result);
             Assert.Equal(500, objectResult.StatusCode);
             Assert.Equal("Internal Server Error", objectResult.Value);
 
-            mockLogger.Verify(
+            _mockLogger.Verify(
                 x => x.Log(
                     LogLevel.Error,
                     It.IsAny<EventId>(),
@@ -196,76 +223,6 @@ namespace GamerCore.Api.Tests
                     It.IsAny<Exception>(),
                     (Func<It.IsAnyType, Exception?, string>)It.IsAny<object>()),
                 Times.Once);
-        }
-
-        private static List<Product> GetTestProductList()
-        {
-            var category1 = new Category { CategoryId = 101, Name = "Category 1" };
-            var category2 = new Category { CategoryId = 102, Name = "Category 2" };
-
-            var product1 = new Product
-            {
-                ProductId = 1,
-                Name = "Product 1",
-                Price = 10.00m
-            };
-            var product2 = new Product
-            {
-                ProductId = 2,
-                Name = "Product 2",
-                Price = 20.00m
-            };
-
-            product1.ProductCategories = new List<ProductCategory>
-            {
-                new()
-                {
-                    ProductId = 1,
-                    Product = product1,
-                    CategoryId = 101,
-                    Category = category1
-                }
-            };
-            product2.ProductCategories = new List<ProductCategory>
-            {
-                new()
-                {
-                    ProductId = 2,
-                    Product = product2,
-                    CategoryId = 102,
-                    Category = category2
-                }
-            };
-
-            return new List<Product> { product1, product2 };
-        }
-
-        private static List<Product> GetLargeTestProductList(int count = 20)
-        {
-            var products = new List<Product>();
-            var category = new Category { CategoryId = 100, Name = "Category" };
-
-            for (int i = 1; i <= count; i++)
-            {
-                var product = new Product
-                {
-                    ProductId = i,
-                    Name = $"Product {i}",
-                    Price = i * 10.00m
-                };
-
-                product.ProductCategories.Add(new ProductCategory
-                {
-                    ProductId = i,
-                    Product = product,
-                    CategoryId = 100,
-                    Category = category
-                });
-
-                products.Add(product);
-            }
-
-            return products;
         }
     }
 }

@@ -10,7 +10,10 @@ namespace GamerCore.CustomerSite.Controllers
         private readonly ICategoryService _categoryService;
         private readonly ILogger<ProductsController> _logger;
 
-        public ProductsController(IProductService productService, ICategoryService categoryService, ILogger<ProductsController> logger)
+        public ProductsController(
+            IProductService productService,
+            ICategoryService categoryService,
+            ILogger<ProductsController> logger)
         {
             _productService = productService;
             _categoryService = categoryService;
@@ -47,11 +50,12 @@ namespace GamerCore.CustomerSite.Controllers
                     }
                 };
 
+                _logger.LogInformation("Successfully displayed the products page.");
                 return View(productListViewModel);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"An error occurred while displaying the products page {page}.");
+                _logger.LogError(ex, "An error occurred while displaying the products page.");
                 return RedirectToAction("Error");
             }
         }

@@ -14,7 +14,7 @@ namespace GamerCore.CustomerSite.TagHelpers
         public override void Process(TagHelperContext context, TagHelperOutput output)
         {
             output.TagName = "nav";
-            output.Attributes.SetAttribute("aria-label", "Page navigation");
+            output.Attributes.SetAttribute("aria-label", "Page links");
 
             var ul = new TagBuilder("ul");
             ul.AddCssClass("pagination");
