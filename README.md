@@ -1,4 +1,7 @@
 # GamerCore
+## Assignment Reports
+- (20/04/2025) [Report Video 1](https://drive.google.com/file/d/1kFiNnECvMhOUEvVK6nSfY49pEpBipj1l/view?usp=sharing)
+
 ## Project Organization
 - `GamerCore.AdminSite` (React + Vite + TypeScript)
 - `GamerCore.Api` (ASP.NET Core controller-based API)
