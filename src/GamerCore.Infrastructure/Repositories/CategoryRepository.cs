@@ -13,8 +13,7 @@ namespace GamerCore.Infrastructure.Repositories
 
         public IQueryable<Category> GetQueryableCategories()
         {
-            return _context.Categories
-                .OrderBy(c => c.Name);
+            return _context.Categories.AsQueryable();
         }
     }
 }

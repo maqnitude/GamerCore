@@ -1,9 +1,11 @@
 @model ProductViewModel
 
-<div class="card">
-  <img class="card-img-top" src="https://placehold.co/600x800" alt="placeholder">
-  <div class="card-body">
-    <h5 class="card-title">@Model.Price.ToString("C")</h5>
-    <p class="card-text">@Model.Name</p>
+<a asp-controller="Products" asp-action="Details" asp-route-id="@Model.ProductId">
+  <div class="card">
+    <img class="card-img-top" src="https://placehold.co/600x800" alt="placeholder">
+    <div class="card-body">
+      <h5 class="card-title">@Model.Price.ToString("C")</h5>
+      <p class="card-text">@Model.Name</p>
+    </div>
   </div>
-</div>
+</a>

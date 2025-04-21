@@ -6,6 +6,8 @@ namespace GamerCore.CustomerSite.Services
 {
     public class ProductService : IProductService
     {
+        private readonly string _apiBaseEndpoint = "/api/Products";
+
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly ILogger<ProductService> _logger;
 
@@ -22,16 +24,15 @@ namespace GamerCore.CustomerSite.Services
 
         public async Task<PagedResult<ProductViewModel>> GetProductsAsync(int page = 1, int[]? categoryIds = null)
         {
-            string apiUrl = "/api/products";
-
-            apiUrl += $"?page={page}";
+            string apiEndpoint = _apiBaseEndpoint;
+            apiEndpoint += $"?page={page}";
 
             if (categoryIds != null && categoryIds.Length > 0)
             {
                 foreach (int id in categoryIds)
                 {
                     // NOTE: Be careful double check to make sure the parameter name matches the API
-                    apiUrl += $"&categoryIds={id}";
+                    apiEndpoint += $"&categoryIds={id}";
                 }
             }
 
@@ -39,7 +40,7 @@ namespace GamerCore.CustomerSite.Services
 
             try
             {
-                var response = await client.GetAsync(apiUrl);
+                var response = await client.GetAsync(apiEndpoint);
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -49,7 +50,7 @@ namespace GamerCore.CustomerSite.Services
 
                     if (pagedResult == null)
                     {
-                        _logger.LogWarning($"API call to {apiUrl} succeeded but return null data.");
+                        _logger.LogWarning($"API call to {apiEndpoint} succeeded but return null data.");
                         return new PagedResult<ProductViewModel>();
                     }
 
@@ -58,24 +59,52 @@ namespace GamerCore.CustomerSite.Services
                 }
                 else
                 {
-                    _logger.LogError("API call to {ApiUrl} failed with status code {StatusCode}", apiUrl, response.StatusCode);
+                    _logger.LogError("API call to {ApiUrl} failed with status code {StatusCode}", apiEndpoint, response.StatusCode);
                     throw new HttpRequestException($"API request failed with status code {response.StatusCode}");
                 }
             }
             catch (HttpRequestException ex)
             {
-                _logger.LogError(ex, "HTTP request failed when calling {ApiUrl}.", apiUrl);
+                _logger.LogError(ex, "HTTP request failed when calling {ApiUrl}.", apiEndpoint);
                 throw;
             }
             catch (JsonException ex)
             {
-                _logger.LogError(ex, "Failed to deserialize response from {ApiUrl}.", apiUrl);
+                _logger.LogError(ex, "Failed to deserialize response from {ApiUrl}.", apiEndpoint);
                 throw;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An unexpected error occurred while fetching products from {ApiUrl}.", apiUrl);
+                _logger.LogError(ex, "An unexpected error occurred while fetching products from {ApiUrl}.", apiEndpoint);
                 throw;
+            }
+        }
+
+        public async Task<ProductDetailsViewModel> GetProductDetailsAsync(int id)
+        {
+            string apiEndpoint = _apiBaseEndpoint + $"/Details/{id}";
+
+            var client = _httpClientFactory.CreateClient("GamerCoreDev");
+
+            var response = await client.GetAsync(apiEndpoint);
+
+            if (response.IsSuccessStatusCode)
+            {
+                using var contentStream = await response.Content.ReadAsStreamAsync();
+                var productDetails = await JsonSerializer
+                    .DeserializeAsync<ProductDetailsViewModel>(contentStream, _jsonSerializerOptions);
+
+                if (productDetails == null)
+                {
+                    return new ProductDetailsViewModel();
+                }
+
+                return productDetails;
+            }
+            else
+            {
+                // Return an empty view model for now
+                return new ProductDetailsViewModel();
             }
         }
     }

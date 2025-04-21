@@ -10,6 +10,10 @@ namespace GamerCore.Core.Entities
         [Column(TypeName = "decimal(18,2)")]
         public decimal Price { get; set; }
 
+        // 1-1 navigation properties
+        public ProductDetail Detail { get; set; } = null!;
+
+        // 1-N navigation properties
         public ICollection<ProductCategory> ProductCategories { get; set; } = [];
     }
 }

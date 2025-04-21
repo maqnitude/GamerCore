@@ -41,6 +41,32 @@ namespace GamerCore.Api.Controllers
             return await GetFilteredProductsAsync(page, pageSize, categoryIdArray);
         }
 
+        [HttpGet("Details/{id}")]
+        public async Task<ActionResult<ProductDetailsDto>> GetProductDetailsAsync(int id)
+        {
+            var queryableProducts = _repository.GetQueryableProducts();
+
+            var productDetailsDto = await queryableProducts
+                .AsNoTracking()
+                .Where(p => p.ProductId == id)
+                .Select(p => new ProductDetailsDto
+                {
+                    ProductId = p.ProductId,
+                    Name = p.Name,
+                    Price = p.Price,
+                    DescriptionHtml = p.Detail.DescriptionHtml,
+                    WarrantyHtml = p.Detail.WarrantyHtml
+                })
+                .SingleOrDefaultAsync();
+
+            if (productDetailsDto == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(productDetailsDto);
+        }
+
         private async Task<ActionResult<List<ProductDto>>> GetFilteredProductsAsync(
             int page,
             int? pageSize = null,
@@ -76,6 +102,7 @@ namespace GamerCore.Api.Controllers
                 var totalProducts = await queryableProducts.CountAsync();
 
                 var productDtos = await queryableProducts
+                    .AsNoTracking()
                     .Skip((effectivePage - 1) * effectivePageSize)
                     .Take(effectivePageSize)
                     .Select(p => new ProductDto

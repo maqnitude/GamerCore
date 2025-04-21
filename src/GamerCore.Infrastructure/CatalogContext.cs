@@ -9,6 +9,7 @@ namespace GamerCore.Infrastructure
             : base(options) { }
 
         public DbSet<Product> Products { get; set; }
+        public DbSet<ProductDetail> ProductDetails { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<ProductCategory> ProductCategories { get; set; }
 

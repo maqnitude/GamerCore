@@ -1,5 +1,4 @@
 using GamerCore.Core.Entities;
-using Microsoft.EntityFrameworkCore;
 
 namespace GamerCore.Infrastructure.Repositories
 {
@@ -14,9 +13,7 @@ namespace GamerCore.Infrastructure.Repositories
 
         public IQueryable<Product> GetQueryableProducts()
         {
-            return _context.Products
-                .Include(p => p.ProductCategories)
-                .ThenInclude(pc => pc.Category);
+            return _context.Products.AsQueryable();
         }
     }
 }

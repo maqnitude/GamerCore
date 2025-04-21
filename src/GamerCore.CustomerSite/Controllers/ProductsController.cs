@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using GamerCore.CustomerSite.Models;
 using GamerCore.CustomerSite.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -20,6 +21,7 @@ namespace GamerCore.CustomerSite.Controllers
             _logger = logger;
         }
 
+        // GET: Products
         [HttpGet]
         public async Task<IActionResult> Index(
             [FromQuery] int page = 1,
@@ -27,10 +29,17 @@ namespace GamerCore.CustomerSite.Controllers
         {
             try
             {
-                var pagedResult = categoryId != null
-                    ? await _productService.GetProductsAsync(page, [categoryId.Value])
-                    : await _productService.GetProductsAsync(page);
-                var categories = await _categoryService.GetCategoriesAsync();
+                var pagedResultTask = categoryId != null
+                    ? _productService.GetProductsAsync(page, [categoryId.Value])
+                    : _productService.GetProductsAsync(page);
+                var categoriesTask = _categoryService.GetCategoriesAsync();
+
+                await Task.WhenAll(pagedResultTask, categoriesTask);
+
+                var pagedResult = await pagedResultTask;
+                var categories = await categoriesTask;
+
+                categories = categories.OrderBy(c => c.Name).ToList();
 
                 var productFilter = new ProductFilterViewModel()
                 {
@@ -38,7 +47,7 @@ namespace GamerCore.CustomerSite.Controllers
                     SelectedCategoryId = categoryId
                 };
 
-                var productListViewModel = new ProductListViewModel()
+                var productListViewModel = new ProductListViewModel
                 {
                     Products = pagedResult.Items,
                     Filter = productFilter,
@@ -58,6 +67,15 @@ namespace GamerCore.CustomerSite.Controllers
                 _logger.LogError(ex, "An error occurred while displaying the products page.");
                 return RedirectToAction("Error");
             }
+        }
+
+        // GET: /Products/Details/5
+        [HttpGet]
+        public async Task<IActionResult> Details(int id)
+        {
+            var productDetails = await _productService.GetProductDetailsAsync(id);
+
+            return View(productDetails);
         }
     }
 }

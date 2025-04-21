@@ -1,0 +1,51 @@
+@model ProductDetailsViewModel
+
+@{
+  ViewData["Title"] = "Product Details";
+}
+
+<div class="container">
+  <div class="row mb-2 gap-2">
+    <div class="col border border-dark">
+      <h5 class="fw-bold">Images</h5>
+      <div class="container">
+        <div class="row">
+          <p>This could be a view component</p>
+          <div class="col border border-dark p-0 mb-2">
+            <img class="img-fluid" src="https://placehold.co/600x400" alt="">
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col border border-dark">
+      <h4 class="fw-bold">@Model.Name</h4>
+      <h5>@Model.Price.ToString("C")</h5>
+
+      <button class="btn btn-primary">
+        Add To Cart (does nothing)
+      </button>
+    </div>
+  </div>
+  <div class="row mb-2">
+    <div class="col border border-dark">
+      <h2 class="fw-bold">Description</h2>
+      @Html.Raw(Model.DescriptionHtml)
+
+      <h2 class="fw-bold">Specification</h2>
+      <p>*Renders specification table*</p>
+
+      <h2 class="fw-bold">Warranty</h2>
+      @Html.Raw(Model.WarrantyHtml)
+    </div>
+  </div>
+  <div class="row mb-2">
+    <div class="col border border-dark">
+      <h5 class="fw-bold">Related Products</h5>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col border border-dark">
+      <h5 class="fw-bold">Reviews</h5>
+    </div>
+  </div>
+</div>

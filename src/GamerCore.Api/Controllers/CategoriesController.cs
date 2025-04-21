@@ -32,6 +32,7 @@ namespace GamerCore.Api.Controllers
                 }
 
                 var categoryDtos = await queryableCategories
+                    .AsNoTracking()
                     .Select(c => new CategoryDto
                     {
                         CategoryId = c.CategoryId,

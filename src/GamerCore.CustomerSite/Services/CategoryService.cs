@@ -5,6 +5,8 @@ namespace GamerCore.CustomerSite.Services
 {
     public class CategoryService : ICategoryService
     {
+        private readonly string _apiBaseEndpoint = "/api/Categories";
+
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly ILogger<CategoryService> _logger;
 
@@ -21,12 +23,13 @@ namespace GamerCore.CustomerSite.Services
 
         public async Task<List<CategoryViewModel>> GetCategoriesAsync()
         {
-            string apiUrl = "/api/categories";
+            string apiEndpoint = _apiBaseEndpoint;
+
             var client = _httpClientFactory.CreateClient("GamerCoreDev");
 
             try
             {
-                var response = await client.GetAsync(apiUrl);
+                var response = await client.GetAsync(apiEndpoint);
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -36,7 +39,7 @@ namespace GamerCore.CustomerSite.Services
 
                     if (categories == null)
                     {
-                        _logger.LogWarning("API call to {ApiUrl} succeeded but return null data.", apiUrl);
+                        _logger.LogWarning("API call to {ApiUrl} succeeded but return null data.", apiEndpoint);
                         return [];
                     }
 
@@ -45,23 +48,23 @@ namespace GamerCore.CustomerSite.Services
                 }
                 else
                 {
-                    _logger.LogError("API call to {ApiUrl} failed with status code {StatusCode}", apiUrl, response.StatusCode);
+                    _logger.LogError("API call to {ApiUrl} failed with status code {StatusCode}", apiEndpoint, response.StatusCode);
                     throw new HttpRequestException($"API request failed with status code {response.StatusCode}");
                 }
             }
             catch (HttpRequestException ex)
             {
-                _logger.LogError(ex, "HTTP request failed when calling {ApiUrl}.", apiUrl);
+                _logger.LogError(ex, "HTTP request failed when calling {ApiUrl}.", apiEndpoint);
                 throw;
             }
             catch (JsonException ex)
             {
-                _logger.LogError(ex, "Failed to deserialize response from {ApiUrl}.", apiUrl);
+                _logger.LogError(ex, "Failed to deserialize response from {ApiUrl}.", apiEndpoint);
                 throw;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An unexpected error occurred while fetching products from {ApiUrl}.", apiUrl);
+                _logger.LogError(ex, "An unexpected error occurred while fetching products from {ApiUrl}.", apiEndpoint);
                 throw;
             }
         }
