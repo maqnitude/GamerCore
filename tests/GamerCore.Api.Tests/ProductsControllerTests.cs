@@ -25,6 +25,8 @@ namespace GamerCore.Api.Tests
             _controller = new ProductsController(_mockRepository.Object, _mockLogger.Object);
         }
 
+        #region GetProductsAsync() tests
+
         [Fact]
         public async Task GetProductsAsync_ReturnsOk_WithDefaultPagination_WhenProductsExist()
         {
@@ -224,5 +226,98 @@ namespace GamerCore.Api.Tests
                     (Func<It.IsAnyType, Exception?, string>)It.IsAny<object>()),
                 Times.Once);
         }
+
+        #endregion
+
+        #region GetProductDetailsAsync() tests
+
+        [Fact]
+        public async Task GetProductDetailsAsync_ReturnsOk_WhenProductExists()
+        {
+            // Arrange
+            var products = ProductGenerator.Generate(productCount: 5, categoryCount: 2);
+            int productId = products.First().ProductId;
+
+            _mockRepository.Setup(repo => repo.GetQueryableProducts())
+                .Returns(products.AsQueryable().BuildMock());
+
+            // Act
+            var result = await _controller.GetProductDetailsAsync(productId);
+
+            // Assert
+            var okResult = Assert.IsType<OkObjectResult>(result.Result);
+            var productDetails = Assert.IsType<ProductDetailsDto>(okResult.Value);
+
+            var expectedProduct = products.First();
+            Assert.Equal(expectedProduct.ProductId, productDetails.ProductId);
+            Assert.Equal(expectedProduct.Name, productDetails.Name);
+            Assert.Equal(expectedProduct.Price, productDetails.Price);
+            Assert.Equal(expectedProduct.Detail.DescriptionHtml, productDetails.DescriptionHtml);
+            Assert.Equal(expectedProduct.Detail.WarrantyHtml, productDetails.WarrantyHtml);
+
+            _mockLogger.Verify(
+                x => x.Log(
+                    LogLevel.Information,
+                    It.IsAny<EventId>(),
+                    It.IsAny<It.IsAnyType>(),
+                    It.IsAny<Exception>(),
+                    (Func<It.IsAnyType, Exception?, string>)It.IsAny<object>()),
+                Times.Once);
+        }
+
+        [Fact]
+        public async Task GetProductDetailsAsync_ReturnsNotFound_WhenProductDoesNotExist()
+        {
+            // Arrange
+            int nonExistentProductId = 999;
+            var products = ProductGenerator.Generate(productCount: 5, categoryCount: 2);
+
+            _mockRepository.Setup(repo => repo.GetQueryableProducts())
+                .Returns(products.AsQueryable().BuildMock());
+
+            // Act
+            var result = await _controller.GetProductDetailsAsync(nonExistentProductId);
+
+            // Assert
+            Assert.IsType<NotFoundResult>(result.Result);
+
+            _mockLogger.Verify(
+                x => x.Log(
+                    LogLevel.Warning,
+                    It.IsAny<EventId>(),
+                    It.IsAny<It.IsAnyType>(),
+                    It.IsAny<Exception>(),
+                    (Func<It.IsAnyType, Exception?, string>)It.IsAny<object>()),
+                Times.Once);
+        }
+
+        [Fact]
+        public async Task GetProductDetailsAsync_ReturnsInternalServerError_WhenExceptionIsThrown()
+        {
+            // Arrange
+            int productId = 1;
+
+            _mockRepository.Setup(repo => repo.GetQueryableProducts())
+                .Throws(new Exception("Test Exception"));
+
+            // Act
+            var result = await _controller.GetProductDetailsAsync(productId);
+
+            // Assert
+            var objectResult = Assert.IsType<ObjectResult>(result.Result);
+            Assert.Equal(500, objectResult.StatusCode);
+            Assert.Equal("Internal Server Error", objectResult.Value);
+
+            _mockLogger.Verify(
+                x => x.Log(
+                    LogLevel.Error,
+                    It.IsAny<EventId>(),
+                    It.IsAny<It.IsAnyType>(),
+                    It.IsAny<Exception>(),
+                    (Func<It.IsAnyType, Exception?, string>)It.IsAny<object>()),
+                Times.Once);
+        }
+
+        #endregion
     }
 }

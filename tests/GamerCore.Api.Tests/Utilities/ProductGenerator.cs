@@ -15,22 +15,38 @@ namespace GamerCore.Api.Tests.Utilities
             // Reset every time this method is called
             _products = [];
             _categories = CategoryGenerator.Generate(categoryCount);
-
             var random = new Random();
+
+            // Need to track unique Ids across different categories
+            int nextProductId = 1;
+
             foreach (var category in _categories)
             {
                 for (int i = 1; i <= productCount; i++)
                 {
+                    var productId = nextProductId++;
+
                     var product = new Product
                     {
-                        ProductId = i,
-                        Name = $"Product {i}",
-                        Price = random.Next(1, 1000) * 10.00M
+                        ProductId = productId,
+                        Name = $"Product {productId}",
+                        Price = random.Next(1, 1000) * 10.00M,
                     };
+
+                    var productDetail = new ProductDetail
+                    {
+                        ProductDetailId = productId,
+                        DescriptionHtml = $"<p>Detailed description for Product {productId}</p><ul><li>Feature 1</li><li>Feature 2</li></ul>",
+                        WarrantyHtml = $"<p>Warranty information for Product {productId}</p><p>1 year limited warranty</p>",
+                        ProductId = productId,
+                        Product = product
+                    };
+
+                    product.Detail = productDetail;
 
                     var productCategory = new ProductCategory
                     {
-                        ProductId = i,
+                        ProductId = productId,
                         Product = product,
                         CategoryId = category.CategoryId,
                         Category = category

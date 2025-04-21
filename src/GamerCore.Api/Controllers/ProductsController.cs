@@ -44,27 +44,37 @@ namespace GamerCore.Api.Controllers
         [HttpGet("Details/{id}")]
         public async Task<ActionResult<ProductDetailsDto>> GetProductDetailsAsync(int id)
         {
-            var queryableProducts = _repository.GetQueryableProducts();
+            try
+            {
+                var queryableProducts = _repository.GetQueryableProducts();
 
-            var productDetailsDto = await queryableProducts
-                .AsNoTracking()
-                .Where(p => p.ProductId == id)
-                .Select(p => new ProductDetailsDto
-                {
-                    ProductId = p.ProductId,
-                    Name = p.Name,
-                    Price = p.Price,
-                    DescriptionHtml = p.Detail.DescriptionHtml,
-                    WarrantyHtml = p.Detail.WarrantyHtml
-                })
+                var productDetailsDto = await queryableProducts
+                    .AsNoTracking()
+                    .Where(p => p.ProductId == id)
+                    .Select(p => new ProductDetailsDto
+                    {
+                        ProductId = p.ProductId,
+                        Name = p.Name,
+                        Price = p.Price,
+                        DescriptionHtml = p.Detail.DescriptionHtml,
+                        WarrantyHtml = p.Detail.WarrantyHtml
+                    })
                 .SingleOrDefaultAsync();
 
-            if (productDetailsDto == null)
-            {
-                return NotFound();
-            }
+                if (productDetailsDto == null)
+                {
+                    _logger.LogWarning($"Product not found (id: {id}).");
+                    return NotFound();
+                }
 
-            return Ok(productDetailsDto);
+                _logger.LogInformation($"Successfully retrieved product details (id: {id}).");
+                return Ok(productDetailsDto);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while retrieving product details.");
+                return StatusCode(500, "Internal Server Error");
+            }
         }
 
         private async Task<ActionResult<List<ProductDto>>> GetFilteredProductsAsync(
