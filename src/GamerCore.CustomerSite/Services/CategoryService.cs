@@ -40,7 +40,7 @@ namespace GamerCore.CustomerSite.Services
                     if (categories == null)
                     {
                         _logger.LogWarning("API call to {ApiUrl} succeeded but return null data.", apiEndpoint);
-                        return [];
+                        return new List<CategoryViewModel>();
                     }
 
                     _logger.LogInformation("Successfully retrieved {Count} categories.", categories.Count);
@@ -48,7 +48,7 @@ namespace GamerCore.CustomerSite.Services
                 }
                 else
                 {
-                    _logger.LogError("API call to {ApiUrl} failed with status code {StatusCode}", apiEndpoint, response.StatusCode);
+                    // _logger.LogError("API call to {ApiUrl} failed with status code {StatusCode}", apiEndpoint, response.StatusCode);
                     throw new HttpRequestException($"API request failed with status code {response.StatusCode}");
                 }
             }
