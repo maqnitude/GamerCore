@@ -50,7 +50,7 @@ namespace GamerCore.CustomerSite.Services
 
                     if (pagedResult == null)
                     {
-                        _logger.LogWarning($"API call to {apiEndpoint} succeeded but return null data.");
+                        _logger.LogWarning("API call to {ApiEndpoint} succeeded but return null data.", apiEndpoint);
                         return new PagedResult<ProductViewModel>();
                     }
 
@@ -59,23 +59,23 @@ namespace GamerCore.CustomerSite.Services
                 }
                 else
                 {
-                    _logger.LogError("API call to {ApiUrl} failed with status code {StatusCode}", apiEndpoint, response.StatusCode);
+                    // _logger.LogError("API call to {ApiEndpoint} failed with status code {StatusCode}", apiEndpoint, response.StatusCode);
                     throw new HttpRequestException($"API request failed with status code {response.StatusCode}");
                 }
             }
             catch (HttpRequestException ex)
             {
-                _logger.LogError(ex, "HTTP request failed when calling {ApiUrl}.", apiEndpoint);
+                _logger.LogError(ex, "HTTP request failed when calling {ApiEndpoint}.", apiEndpoint);
                 throw;
             }
             catch (JsonException ex)
             {
-                _logger.LogError(ex, "Failed to deserialize response from {ApiUrl}.", apiEndpoint);
+                _logger.LogError(ex, "Failed to deserialize response from {ApiEndpoint}.", apiEndpoint);
                 throw;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An unexpected error occurred while fetching products from {ApiUrl}.", apiEndpoint);
+                _logger.LogError(ex, "An unexpected error occurred while fetching products from {ApiEndpoint}.", apiEndpoint);
                 throw;
             }
         }
@@ -86,25 +86,45 @@ namespace GamerCore.CustomerSite.Services
 
             var client = _httpClientFactory.CreateClient("GamerCoreDev");
 
-            var response = await client.GetAsync(apiEndpoint);
-
-            if (response.IsSuccessStatusCode)
+            try
             {
-                using var contentStream = await response.Content.ReadAsStreamAsync();
-                var productDetails = await JsonSerializer
-                    .DeserializeAsync<ProductDetailsViewModel>(contentStream, _jsonSerializerOptions);
+                var response = await client.GetAsync(apiEndpoint);
 
-                if (productDetails == null)
+                if (response.IsSuccessStatusCode)
                 {
-                    return new ProductDetailsViewModel();
-                }
+                    using var contentStream = await response.Content.ReadAsStreamAsync();
+                    var productDetails = await JsonSerializer
+                        .DeserializeAsync<ProductDetailsViewModel>(contentStream, _jsonSerializerOptions);
 
-                return productDetails;
+                    // It's either found or not found so this is just to be extra safe
+                    if (productDetails == null)
+                    {
+                        return new ProductDetailsViewModel();
+                    }
+
+                    _logger.LogInformation("Successfully retrieved product details (id: {Id})", productDetails.ProductId);
+                    return productDetails;
+                }
+                else
+                {
+                    throw new HttpRequestException($"API request failed with status code {response.StatusCode}");
+                }
             }
-            else
+            catch (HttpRequestException ex)
             {
-                // Return an empty view model for now
-                return new ProductDetailsViewModel();
+                _logger.LogError(ex, "HTTP request failed when calling {ApiEndpoint}.", apiEndpoint);
+                throw;
+            }
+            // JsonException won't be reached because the API will return NotFound first
+            // catch (JsonException ex)
+            // {
+            //     _logger.LogError(ex, "Failed to deserialize response from {ApiEndpoint}.", apiEndpoint);
+            //     throw;
+            // }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An unexpected error occurred while fetching products from {ApiEndpoint}.", apiEndpoint);
+                throw;
             }
         }
     }
