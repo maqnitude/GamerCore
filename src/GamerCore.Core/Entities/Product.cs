@@ -15,5 +15,6 @@ namespace GamerCore.Core.Entities
 
         // 1-N navigation properties
         public ICollection<ProductCategory> ProductCategories { get; set; } = [];
+        public ICollection<ProductImage> Images { get; set; } = [];
     }
 }

@@ -10,7 +10,7 @@ namespace GamerCore.Api.Tests.Utilities
         public static List<Product> Products => _products;
         public static List<Category> Categories => _categories;
 
-        public static List<Product> Generate(int productCount = 20, int categoryCount = 10)
+        public static List<Product> Generate(int productCount = 20, int categoryCount = 10, int imageCount = 5)
         {
             // Reset every time this method is called
             _products = [];
@@ -33,6 +33,16 @@ namespace GamerCore.Api.Tests.Utilities
                         Price = random.Next(1, 1000) * 10.00M,
                     };
 
+                    var productCategory = new ProductCategory
+                    {
+                        ProductId = productId,
+                        Product = product,
+                        CategoryId = category.CategoryId,
+                        Category = category
+                    };
+
+                    product.ProductCategories.Add(productCategory);
+
                     var productDetail = new ProductDetail
                     {
                         ProductDetailId = productId,
@@ -44,15 +54,19 @@ namespace GamerCore.Api.Tests.Utilities
 
                     product.Detail = productDetail;
 
-                    var productCategory = new ProductCategory
+                    for (int j = 0; j < imageCount; j++)
                     {
-                        ProductId = productId,
-                        Product = product,
-                        CategoryId = category.CategoryId,
-                        Category = category
-                    };
+                        var productImage = new ProductImage
+                        {
+                            ProductImageId = productId,
+                            Url = "https://placehold.co/600x800",
+                            IsPrimary = j == 0,
+                            ProductId = productId,
+                            Product = product
+                        };
 
-                    product.ProductCategories.Add(productCategory);
+                        product.Images.Add(productImage);
+                    }
 
                     _products.Add(product);
                 }

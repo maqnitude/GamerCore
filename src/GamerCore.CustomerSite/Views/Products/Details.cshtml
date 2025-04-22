@@ -10,10 +10,7 @@
       <h5 class="fw-bold">Images</h5>
       <div class="container">
         <div class="row">
-          <p>This could be a view component</p>
-          <div class="col border border-dark p-0 mb-2">
-            <img class="img-fluid" src="https://placehold.co/600x400?text=@(Model.Name.Replace(" ", "+"))" alt="">
-          </div>
+          <partial name="_ProductImageCarouselPartial" model="@Model.Images">
         </div>
       </div>
     </div>

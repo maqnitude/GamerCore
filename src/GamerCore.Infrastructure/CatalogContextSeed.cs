@@ -1,3 +1,4 @@
+using System.Net;
 using System.Text;
 using GamerCore.Core.Entities;
 using Microsoft.AspNetCore.Builder;
@@ -18,20 +19,46 @@ namespace GamerCore.Infrastructure
                 context.Database.Migrate();
             }
 
-            if (!context.Products.Any())
-            {
-                SeedProducts(context);
-            }
-
             if (!context.Categories.Any())
             {
                 SeedCategories(context);
             }
 
+            // Requires categories
+            if (!context.Products.Any())
+            {
+                SeedProducts(context);
+            }
+
+            // Requires products
             if (!context.ProductDetails.Any())
             {
                 SeedProductDetails(context);
             }
+
+            // Requires products
+            if (!context.ProductImages.Any())
+            {
+                SeedProductImages(context);
+            }
+        }
+
+        private static void SeedCategories(CatalogContext context)
+        {
+            var categories = new List<Category>
+            {
+                new() { Name = "Consoles" },
+                new() { Name = "PCs" },
+                new() { Name = "Laptops" },
+                new() { Name = "Controllers" },
+                new() { Name = "Headsets" },
+                new() { Name = "Monitors" },
+                new() { Name = "Keyboards" },
+                new() { Name = "Mice" }
+            };
+
+            context.Categories.AddRange(categories);
+            context.SaveChanges();
         }
 
         private static void SeedProducts(CatalogContext context)
@@ -95,24 +122,6 @@ namespace GamerCore.Infrastructure
 
             context.Products.AddRange(products);
             context.ProductCategories.AddRange(productCategories);
-            context.SaveChanges();
-        }
-
-        private static void SeedCategories(CatalogContext context)
-        {
-            var categories = new List<Category>
-            {
-                new() { Name = "Consoles" },
-                new() { Name = "PCs" },
-                new() { Name = "Laptops" },
-                new() { Name = "Controllers" },
-                new() { Name = "Headsets" },
-                new() { Name = "Monitors" },
-                new() { Name = "Keyboards" },
-                new() { Name = "Mice" }
-            };
-
-            context.Categories.AddRange(categories);
             context.SaveChanges();
         }
 
@@ -223,7 +232,7 @@ namespace GamerCore.Infrastructure
                 var warranty = string.Format(warrantyTemplate, product.Name);
 
                 // Add some randomized additional information based on price
-                var additionalFeatures = GenerateAdditionalFeatures(product.Price, category.Name);
+                var additionalFeatures = GenerateAdditionalDetail(product.Price, category.Name);
                 description += additionalFeatures;
 
                 productDetails.Add(new ProductDetail
@@ -238,7 +247,44 @@ namespace GamerCore.Infrastructure
             context.SaveChanges();
         }
 
-        private static string GenerateAdditionalFeatures(decimal price, string categoryName)
+        private static void SeedProductImages(CatalogContext context)
+        {
+            var products = context.Products.ToList();
+
+            var productImages = new List<ProductImage>();
+            const int imageCount = 5;
+            const string baseUrl = "https://placehold.co/600x400";
+
+            foreach (var product in products)
+            {
+                for (int i = 1; i <= imageCount; i++)
+                {
+                    bool isPrimary = i == 1; // First image is primary
+
+                    // Construct the text, adding "(primary)" if needed
+                    string baseText = $"{product.Name} #{i}";
+                    string imageText = isPrimary ? $"{baseText}\n(primary)" : baseText;
+
+                    // URL encode the text to handle spaces, '#', and other special characters
+                    string encodedText = WebUtility.UrlEncode(imageText);
+
+                    // Construct the full URL
+                    string imageUrl = $"{baseUrl}?text={encodedText}";
+
+                    productImages.Add(new ProductImage
+                    {
+                        Url = imageUrl,
+                        IsPrimary = isPrimary,
+                        ProductId = product.ProductId // Link the image to the product
+                    });
+                }
+            }
+
+            context.ProductImages.AddRange(productImages);
+            context.SaveChanges();
+        }
+
+        private static string GenerateAdditionalDetail(decimal price, string categoryName)
         {
             var features = new StringBuilder();
             features.Append("<h3>Additional Features</h3>");

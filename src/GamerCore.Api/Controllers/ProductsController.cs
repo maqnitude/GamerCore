@@ -56,10 +56,17 @@ namespace GamerCore.Api.Controllers
                         ProductId = p.ProductId,
                         Name = p.Name,
                         Price = p.Price,
+                        Images = p.Images
+                            .Select(i => new ProductImageDto
+                            {
+                                ProductImageId = i.ProductImageId,
+                                Url = i.Url,
+                                IsPrimary = i.IsPrimary
+                            }),
                         DescriptionHtml = p.Detail.DescriptionHtml,
                         WarrantyHtml = p.Detail.WarrantyHtml
                     })
-                .SingleOrDefaultAsync();
+                    .SingleOrDefaultAsync();
 
                 if (productDetailsDto == null)
                 {
@@ -120,11 +127,16 @@ namespace GamerCore.Api.Controllers
                         ProductId = p.ProductId,
                         Name = p.Name,
                         Price = p.Price,
-                        Categories = p.ProductCategories.Select(pc => new CategoryDto
-                        {
-                            CategoryId = pc.Category.CategoryId,
-                            Name = pc.Category.Name
-                        })
+                        Categories = p.ProductCategories
+                            .Select(pc => new CategoryDto
+                            {
+                                CategoryId = pc.Category.CategoryId,
+                                Name = pc.Category.Name
+                            }),
+                        ThumbnailUrl = p.Images
+                            .Where(i => i.IsPrimary == true)
+                            .Select(i => i.Url)
+                            .First()
                     })
                     .ToListAsync();
 
