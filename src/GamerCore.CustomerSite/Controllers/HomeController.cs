@@ -15,36 +15,6 @@ namespace GamerCore.CustomerSite.Controllers
             _logger = logger;
         }
 
-        // public async Task<IActionResult> Index()
-        // {
-        //     try
-        //     {
-        //         var client = _httpClientFactory.CreateClient("GamerCoreDev");
-        //         var response = await client.GetAsync("/api/weatherforecast");
-        //
-        //         if (response.IsSuccessStatusCode)
-        //         {
-        //             using var contentStream = await response.Content.ReadAsStreamAsync();
-        //             var weatherForecasts = await JsonSerializer
-        //                 .DeserializeAsync<IEnumerable<WeatherForecast>>(contentStream);
-        //
-        //             return View(weatherForecasts);
-        //         }
-        //         else
-        //         {
-        //             _logger.LogWarning($"Request failed with status code: {response.StatusCode}");
-        //
-        //             return RedirectToAction("Error");
-        //         }
-        //     }
-        //     catch (HttpRequestException exception)
-        //     {
-        //         _logger.LogError(exception, "An error occured while processing the request");
-        //
-        //         return RedirectToAction("Error");
-        //     }
-        // }
-
         public IActionResult Index()
         {
             return View();

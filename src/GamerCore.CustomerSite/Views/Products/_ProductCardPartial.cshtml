@@ -1,11 +1,14 @@
 @model ProductViewModel
 
-<a asp-controller="Products" asp-action="Details" asp-route-id="@Model.ProductId">
+<a class="text-decoration-none"
+   asp-controller="Products" asp-action="Details" asp-route-id="@Model.ProductId">
   <div class="card">
-    <img class="card-img-top" src="@Model.ThumbnailUrl" alt="Product Thumbnail">
+    <img class="card-img-top" src="@Model.ThumbnailUrl" alt="@Model.Name Thumbnail">
     <div class="card-body">
-      <h5 class="card-title">@Model.Price.ToString("C")</h5>
-      <p class="card-text">@Model.Name</p>
+      <h5 class="card-title text-dark">@Model.Price.ToString("C")</h5>
+      <h6 class="card-text text-dark">@Model.Name</h6>
+
+      <partial name="_ProductRatingPartial" model="(Model.AverageRating, (int?)Model.ReviewCount)" />
     </div>
   </div>
 </a>

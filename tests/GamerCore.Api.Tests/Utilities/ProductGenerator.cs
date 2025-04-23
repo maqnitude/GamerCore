@@ -10,7 +10,11 @@ namespace GamerCore.Api.Tests.Utilities
         public static List<Product> Products => _products;
         public static List<Category> Categories => _categories;
 
-        public static List<Product> Generate(int productCount = 20, int categoryCount = 10, int imageCount = 5)
+        public static List<Product> Generate(
+            int productCount = 20,
+            int categoryCount = 10,
+            int imageCount = 5,
+            int reviewCount = 10)
         {
             // Reset every time this method is called
             _products = [];
@@ -66,6 +70,20 @@ namespace GamerCore.Api.Tests.Utilities
                         };
 
                         product.Images.Add(productImage);
+                    }
+
+                    for (int j = 0; j < reviewCount; j++)
+                    {
+                        var productReview = new ProductReview
+                        {
+                            ProductReviewId = productId,
+                            Rating = 3,
+                            ReviewText = "Review text",
+                            ProductId = productId,
+                            Product = product
+                        };
+
+                        product.Reviews.Add(productReview);
                     }
 
                     _products.Add(product);

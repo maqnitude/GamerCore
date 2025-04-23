@@ -10,13 +10,15 @@
       <h5 class="fw-bold">Images</h5>
       <div class="container">
         <div class="row">
-          <partial name="_ProductImageCarouselPartial" model="@Model.Images">
+          <partial name="_ProductImageCarouselPartial" model="@Model.Images" />
         </div>
       </div>
     </div>
     <div class="col border border-dark">
       <h4 class="fw-bold">@Model.Name</h4>
       <h5>@Model.Price.ToString("C")</h5>
+
+      <partial name="_ProductRatingPartial" model="(Model.AverageRating, (int?)Model.ReviewCount)" />
 
       <button class="btn btn-primary">
         Add To Cart (does nothing)
@@ -43,6 +45,11 @@
   <div class="row">
     <div class="col border border-dark">
       <h5 class="fw-bold">Reviews</h5>
+
+      @foreach (var review in Model.Reviews)
+      {
+        <partial name="_ProductReviewCardPartial" model="review" />
+      }
     </div>
   </div>
 </div>

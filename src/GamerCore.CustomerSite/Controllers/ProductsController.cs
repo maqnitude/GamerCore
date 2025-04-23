@@ -1,4 +1,3 @@
-using System.Threading.Tasks;
 using GamerCore.CustomerSite.Models;
 using GamerCore.CustomerSite.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -21,7 +20,7 @@ namespace GamerCore.CustomerSite.Controllers
             _logger = logger;
         }
 
-        // GET: Products
+        // GET: /Products?page=1&categoryId=5
         [HttpGet]
         public async Task<IActionResult> Index(
             [FromQuery] int page = 1,

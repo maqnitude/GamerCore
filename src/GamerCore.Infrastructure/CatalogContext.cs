@@ -12,6 +12,7 @@ namespace GamerCore.Infrastructure
         public DbSet<ProductDetail> ProductDetails { get; set; }
 
         public DbSet<ProductImage> ProductImages { get; set; }
+        public DbSet<ProductReview> ProductReviews { get; set; }
 
         public DbSet<Category> Categories { get; set; }
         public DbSet<ProductCategory> ProductCategories { get; set; }

@@ -41,6 +41,12 @@ namespace GamerCore.Infrastructure
             {
                 SeedProductImages(context);
             }
+
+            // Requires products
+            if (!context.ProductReviews.Any())
+            {
+                SeedProductReviews(context);
+            }
         }
 
         private static void SeedCategories(CatalogContext context)
@@ -333,6 +339,37 @@ namespace GamerCore.Infrastructure
             }
 
             return features.ToString();
+        }
+
+        private static void SeedProductReviews(CatalogContext context)
+        {
+            var products = context.Products.ToList();
+            var reviews = new List<ProductReview>();
+            var random = new Random();
+            int reviewId = 1;
+
+            foreach (var product in products)
+            {
+                int reviewCount = random.Next(1, 11);
+
+                for (int i = 0; i < reviewCount; i++)
+                {
+                    int rating = random.Next(1, 6);
+                    string? comment = random.NextDouble() < 0.5
+                        ? $"Product review text {reviewId++}"
+                        : null;
+
+                    reviews.Add(new ProductReview
+                    {
+                        ProductId = product.ProductId,
+                        Rating = rating,
+                        ReviewText = comment
+                    });
+                }
+            }
+
+            context.ProductReviews.AddRange(reviews);
+            context.SaveChanges();
         }
     }
 }

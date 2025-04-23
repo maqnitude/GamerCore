@@ -56,6 +56,8 @@ namespace GamerCore.Api.Controllers
                         ProductId = p.ProductId,
                         Name = p.Name,
                         Price = p.Price,
+                        DescriptionHtml = p.Detail.DescriptionHtml,
+                        WarrantyHtml = p.Detail.WarrantyHtml,
                         Images = p.Images
                             .Select(i => new ProductImageDto
                             {
@@ -63,8 +65,16 @@ namespace GamerCore.Api.Controllers
                                 Url = i.Url,
                                 IsPrimary = i.IsPrimary
                             }),
-                        DescriptionHtml = p.Detail.DescriptionHtml,
-                        WarrantyHtml = p.Detail.WarrantyHtml
+                        AverageRating = p.Reviews.Any()
+                            ? p.Reviews.Average(r => r.Rating)
+                            : 0.0,
+                        ReviewCount = p.Reviews.Count(),
+                        Reviews = p.Reviews.Select(r => new ProductReviewDto
+                        {
+                            ProductReviewId = r.ProductReviewId,
+                            Rating = r.Rating,
+                            ReviewText = r.ReviewText
+                        })
                     })
                     .SingleOrDefaultAsync();
 
@@ -136,7 +146,11 @@ namespace GamerCore.Api.Controllers
                         ThumbnailUrl = p.Images
                             .Where(i => i.IsPrimary == true)
                             .Select(i => i.Url)
-                            .First()
+                            .First(),
+                        AverageRating = p.Reviews.Count != 0
+                            ? p.Reviews.Average(r => r.Rating)
+                            : 0.0,
+                        ReviewCount = p.Reviews.Count()
                     })
                     .ToListAsync();
 

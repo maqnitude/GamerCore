@@ -1,0 +1,19 @@
+@model ProductReviewViewModel
+
+<div class="card mb-3">
+  <div class="card-body">
+    <div class="mb-2">
+      <partial name="_ProductRatingPartial" model="((double)Model.Rating, (int?)null)" />
+    </div>
+
+    @* Review text or placeholder if missing *@
+    @if (!string.IsNullOrWhiteSpace(Model.ReviewText))
+    {
+      <p class="card-text">@Model.ReviewText</p>
+    }
+    else
+    {
+      <p class="card-text text-muted"><em>No comment provided.</em></p>
+    }
+  </div>
+</div>
