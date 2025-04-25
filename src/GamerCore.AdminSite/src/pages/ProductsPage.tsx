@@ -5,11 +5,14 @@ import ErrorMessage from "../components/ErrorMessage";
 import ProductsTable from "../features/products/components/ProductsTable";
 import Pagination from "../components/Pagination";
 import ProductsFilter from "../features/products/components/ProductsFilter";
+import { useNavigate } from "react-router";
 
 function ProductsPage() {
   const [page, setPage] = useState<number>(1);
   const [selectedCategoryId, setSelectedCategoryId] = useState<number | undefined>();
   const { pagedResult, loading, error } = useProducts(page, selectedCategoryId);
+
+  const navigate = useNavigate();
 
   const handlePageChange = (page: number) => {
     setPage(page);
@@ -26,7 +29,10 @@ function ProductsPage() {
       <div className="d-flex justify-content-between align-items-center">
         <ProductsFilter onFilterChange={handleFilterChange} />
 
-        <button className="btn btn-primary">
+        <button
+          className="btn btn-primary"
+          onClick={() => navigate("/products/create")}
+        >
           <i className="bi bi-plus-lg me-1"></i>
           Add Product
         </button>

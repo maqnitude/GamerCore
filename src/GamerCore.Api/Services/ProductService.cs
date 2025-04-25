@@ -1,5 +1,6 @@
 using GamerCore.Api.Models;
 using GamerCore.Core.Constants;
+using GamerCore.Core.Entities;
 using GamerCore.Core.Models;
 using GamerCore.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -8,12 +9,12 @@ namespace GamerCore.Api.Services
 {
     public class ProductService : IProductService
     {
-        private readonly IProductRepository _repository;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<ProductService> _logger;
 
-        public ProductService(IProductRepository repository, ILogger<ProductService> logger)
+        public ProductService(IUnitOfWork unitOfWork, ILogger<ProductService> logger)
         {
-            _repository = repository;
+            _unitOfWork = unitOfWork;
             _logger = logger;
         }
 
@@ -26,7 +27,7 @@ namespace GamerCore.Api.Services
             effectivePageSize = Math.Min(effectivePageSize, PaginationConstants.MaxPageSize);
             effectivePageSize = Math.Max(effectivePageSize, 1);
 
-            var queryableProducts = _repository.GetQueryableProducts();
+            var queryableProducts = _unitOfWork.Products.GetQueryableProducts();
 
             // Filter by categories
             if (categoryIds != null && categoryIds.Length > 0)
@@ -85,7 +86,7 @@ namespace GamerCore.Api.Services
 
         public async Task<ProductDetailsDto?> GetProductDetailsAsync(int id)
         {
-            var queryableProducts = _repository.GetQueryableProducts();
+            var queryableProducts = _unitOfWork.Products.GetQueryableProducts();
 
             var productDetailsDto = await queryableProducts
                 .AsNoTracking()
@@ -127,6 +128,64 @@ namespace GamerCore.Api.Services
             }
 
             return productDetailsDto;
+        }
+
+        public async Task<int> CreateProductAsync(CreateProductDto createProductDto)
+        {
+            var product = new Product
+            {
+                Name = createProductDto.Name,
+                Price = createProductDto.Price
+            };
+
+            _unitOfWork.Products.AddProduct(product);
+
+            // Add categories
+            if (createProductDto.CategoryIds != null && createProductDto.CategoryIds.Count != 0)
+            {
+                foreach (var categoryId in createProductDto.CategoryIds)
+                {
+                    product.ProductCategories.Add(new ProductCategory
+                    {
+                        CategoryId = categoryId
+                    });
+                }
+            }
+
+            // Add detail
+            product.Detail = new ProductDetail
+            {
+                DescriptionHtml = createProductDto.DescriptionHtml,
+                WarrantyHtml = createProductDto.WarrantyHtml,
+                Product = product
+            };
+
+            // Add primary image
+            product.Images.Add(new ProductImage
+            {
+                Url = createProductDto.PrimaryImageUrl,
+                IsPrimary = true,
+                Product = product
+            });
+
+            // Add the other images
+            if (createProductDto.ImageUrls != null && createProductDto.ImageUrls.Count != 0)
+            {
+                foreach (var imageUrl in createProductDto.ImageUrls)
+                {
+                    product.Images.Add(new ProductImage
+                    {
+                        Url = imageUrl,
+                        IsPrimary = false,
+                        Product = product
+                    });
+                }
+            }
+
+            // Commit changes
+            await _unitOfWork.SaveChangesAsync();
+
+            return product.ProductId;
         }
     }
 }

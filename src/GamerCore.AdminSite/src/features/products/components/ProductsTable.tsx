@@ -5,12 +5,14 @@ function ProductsTable({ products }: { products: Product[] }) {
     <div className="table-responsive">
       <table className="table table-striped table-hover">
         <thead>
-          <th>ID</th>
-          <th>Name</th>
-          <th>Price</th>
-          <th>Rating</th>
-          <th>Reviews</th>
-          <th></th>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Price</th>
+            <th>Rating</th>
+            <th>Reviews</th>
+            <th></th>
+          </tr>
         </thead>
         <tbody>
           {products.map((product) => (

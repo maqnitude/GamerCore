@@ -15,5 +15,10 @@ namespace GamerCore.Infrastructure.Repositories
         {
             return _context.Products.AsQueryable();
         }
+
+        public void AddProduct(Product product)
+        {
+            _context.Products.Add(product);
+        }
     }
 }

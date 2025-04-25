@@ -19,6 +19,9 @@ namespace GamerCore.Api.Controllers
         }
 
         [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<PagedResult<ProductDto>>> GetProductsAsync(
             [FromQuery] int page = 1,
             [FromQuery] int? pageSize = null,
@@ -54,7 +57,10 @@ namespace GamerCore.Api.Controllers
             }
         }
 
-        [HttpGet("Details/{id}")]
+        [HttpGet("Details/{id}", Name = "GetProductDetails")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<ProductDetailsDto>> GetProductDetailsAsync(int id)
         {
             try
@@ -71,6 +77,34 @@ namespace GamerCore.Api.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "An error occurred while retrieving product details.");
+                return StatusCode(500, "Internal Server Error");
+            }
+        }
+
+        [HttpPost]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> CreateProductAsync([FromBody] CreateProductDto createProductDto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                var createdProductId = await _service.CreateProductAsync(createProductDto);
+
+                return CreatedAtAction(
+                    "GetProductDetails",
+                    "Products",
+                    new { id = createdProductId },
+                    createdProductId);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while creating product.");
                 return StatusCode(500, "Internal Server Error");
             }
         }

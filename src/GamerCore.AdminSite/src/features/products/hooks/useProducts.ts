@@ -20,7 +20,7 @@ function useProducts(page: number = 1, categoryId?: number) {
       } finally {
         setLoading(false);
       }
-    }
+    };
 
     fetchProducts();
   }, [page, categoryId]);

@@ -19,3 +19,13 @@ export interface Category {
   categoryId: number;
   name: string;
 }
+
+export interface CreateProductPayload {
+  name: string;
+  price: number;
+  descriptionHtml: string;
+  warrantyHtml: string;
+  categoryIds: number[];
+  primaryImageUrl: string;
+  imageUrls: string[] | null;
+}

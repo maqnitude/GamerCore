@@ -11,15 +11,23 @@ namespace GamerCore.Api.Tests
 {
     public class ProductServiceTests
     {
-        private readonly Mock<IProductRepository> _mockRepository;
+        private readonly Mock<IProductRepository> _mockProductRepository;
+        private readonly Mock<ICategoryRepository> _mockCategoryRepository;
+        private readonly Mock<IUnitOfWork> _mockUnitOfWork;
         private readonly Mock<ILogger<ProductService>> _mockLogger;
         private readonly ProductService _service;
 
         public ProductServiceTests()
         {
-            _mockRepository = new Mock<IProductRepository>();
+            _mockProductRepository = new Mock<IProductRepository>();
+            _mockCategoryRepository = new Mock<ICategoryRepository>();
+            _mockUnitOfWork = new Mock<IUnitOfWork>();
             _mockLogger = new Mock<ILogger<ProductService>>();
-            _service = new ProductService(_mockRepository.Object, _mockLogger.Object);
+
+            _mockUnitOfWork.SetupGet(uow => uow.Products).Returns(_mockProductRepository.Object);
+            _mockUnitOfWork.SetupGet(uow => uow.Categories).Returns(_mockCategoryRepository.Object);
+
+            _service = new ProductService(_mockUnitOfWork.Object, _mockLogger.Object);
         }
 
         #region GetFilteredProductsAsync tests
@@ -30,7 +38,7 @@ namespace GamerCore.Api.Tests
             // Arrange
             var products = ProductGenerator.Generate(productCount: 5, categoryCount: 2);
 
-            _mockRepository.Setup(repo => repo.GetQueryableProducts())
+            _mockProductRepository.Setup(repo => repo.GetQueryableProducts())
                 .Returns(products.AsQueryable().BuildMock());
 
             // Act
@@ -67,7 +75,7 @@ namespace GamerCore.Api.Tests
             // Arrange
             var products = ProductGenerator.Generate(productCount: 10, categoryCount: 2);
 
-            _mockRepository.Setup(repo => repo.GetQueryableProducts())
+            _mockProductRepository.Setup(repo => repo.GetQueryableProducts())
                 .Returns(products.AsQueryable().BuildMock());
 
             // Act
@@ -88,7 +96,7 @@ namespace GamerCore.Api.Tests
             // Arrange
             var products = Enumerable.Empty<Product>();
 
-            _mockRepository.Setup(repo => repo.GetQueryableProducts())
+            _mockProductRepository.Setup(repo => repo.GetQueryableProducts())
                 .Returns(products.AsQueryable().BuildMock());
 
             // Act
@@ -119,7 +127,7 @@ namespace GamerCore.Api.Tests
             var products = ProductGenerator.Generate(productCount: 5, categoryCount: 2);
             int productId = products.First().ProductId;
 
-            _mockRepository.Setup(repo => repo.GetQueryableProducts())
+            _mockProductRepository.Setup(repo => repo.GetQueryableProducts())
                 .Returns(products.AsQueryable().BuildMock());
 
             // Act
@@ -142,7 +150,7 @@ namespace GamerCore.Api.Tests
             int nonExistentProductId = 999;
             var products = ProductGenerator.Generate(productCount: 5, categoryCount: 2);
 
-            _mockRepository.Setup(repo => repo.GetQueryableProducts())
+            _mockProductRepository.Setup(repo => repo.GetQueryableProducts())
                 .Returns(products.AsQueryable().BuildMock());
 
             // Act
