@@ -1,15 +1,16 @@
 import { useState } from "react";
-import useProducts from "../features/products/hooks/useProducts";
+import { useNavigate } from "react-router";
+import ErrorAlert from "../components/ErrorAlert";
 import LoadingSpinner from "../components/LoadingSpinner";
-import ErrorMessage from "../components/ErrorMessage";
-import ProductsTable from "../features/products/components/ProductsTable";
 import Pagination from "../components/Pagination";
 import ProductsFilter from "../features/products/components/ProductsFilter";
-import { useNavigate } from "react-router";
+import ProductsTable from "../features/products/components/ProductsTable";
+import useProducts from "../features/products/hooks/useProducts";
 
 function ProductsPage() {
   const [page, setPage] = useState<number>(1);
   const [selectedCategoryId, setSelectedCategoryId] = useState<number | undefined>();
+
   const { pagedResult, loading, error } = useProducts(page, selectedCategoryId);
 
   const navigate = useNavigate();
@@ -39,7 +40,9 @@ function ProductsPage() {
       </div>
 
       {loading && <LoadingSpinner />}
-      {error && <ErrorMessage message={error} />}
+      {error && <ErrorAlert
+        message={error.concat("\nFailed to fetch products.")}
+      />}
 
       {pagedResult && (
         <>

@@ -1,11 +1,13 @@
 import { useFieldArray, useForm } from "react-hook-form";
-import useCategories from "../../categories/hooks/useCategories";
-import { Category, CreateProductPayload } from "../../../types";
-import useCreateProduct from "../hooks/useCreateProduct";
 import { useNavigate } from "react-router";
+import ErrorAlert from "../../../components/ErrorAlert";
 import LoadingSpinner from "../../../components/LoadingSpinner";
+import { useToast } from "../../../contexts/ToastContext";
+import { Category, CreateProductPayload } from "../../../types";
+import useCategories from "../../categories/hooks/useCategories";
+import useCreateProduct from "../hooks/useCreateProduct";
 
-// API expects a list of category ids but UI can only choose 1 (bad but will be fixed in the future)
+// API expects a list of category ids but UI can only choose 1
 interface FormValues {
   name: string;
   price: number;
@@ -18,6 +20,12 @@ interface FormValues {
 
 function CreateProductForm() {
   const { categories, loading: categoriesLoading, error: categoriesError } = useCategories();
+  const { createProduct, loading: creating, error: createError } = useCreateProduct();
+
+  const { addToast } = useToast();
+
+  const navigate = useNavigate();
+
   const { register, control, handleSubmit } = useForm<FormValues>({
     defaultValues: {
       name: "",
@@ -34,9 +42,6 @@ function CreateProductForm() {
     name: "imageUrls"
   });
 
-  const { createProduct, loading: creating, error: createError } = useCreateProduct();
-  const navigate = useNavigate();
-
   const onSubmit = async (data: FormValues) => {
     // Build the API payload
     const payload: CreateProductPayload = {
@@ -50,24 +55,34 @@ function CreateProductForm() {
     };
 
     try {
-      const id = await createProduct(payload);
-      navigate("/products", {
-        state: {
-          toast: {
-            message: "Product created successfully.",
-            id
-          }
-        }
+      const createdProductId = await createProduct(payload);
+
+      addToast({
+        type: "success",
+        message: "Product created successfully.",
+        metadata: { createdProductId },
+        autoDismiss: true,
+        dismissDelay: 5000
       });
+
+      navigate("/products");
     } catch {
-      // error is handled by createError
+      // Error is thrown by createError
+      addToast({
+        type: "error",
+        message: createError || "Failed to create product.",
+        autoDismiss: true,
+        dismissDelay: 7500,
+      });
     }
   };
 
   return (
     <div className="container mt-4">
       <h2>Create Product</h2>
-      {(createError || categoriesError) && <div className="alert alert-danger">{createError || categoriesError}</div>}
+      {createError && <ErrorAlert
+        message={createError}
+      />}
       <form onSubmit={handleSubmit(onSubmit)}>
         {/* Name */}
         <div className="mb-3">
@@ -93,6 +108,9 @@ function CreateProductForm() {
 
         {/* Category Dropdown */}
         {categoriesLoading && <LoadingSpinner />}
+        {categoriesError && <ErrorAlert
+          message={categoriesError.concat("\nFailed to fetch categories.")}
+        />}
         {categories && (
           <>
             <div className="mb-3">

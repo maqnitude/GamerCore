@@ -30,13 +30,16 @@ function ProductsTable({ products }: { products: Product[] }) {
               <td>
                 <div className="btn-group btn-group-sm float-end">
                   <button className="btn btn-outline-info">
-                    <i className="bi bi-eye"></i>
+                    <i className="bi bi-eye me-2"></i>
+                    Details
                   </button>
                   <button className="btn btn-outline-primary">
-                    <i className="bi bi-pencil"></i>
+                    <i className="bi bi-pencil me-2"></i>
+                    Edit
                   </button>
                   <button className="btn btn-outline-danger">
-                    <i className="bi bi-trash"></i>
+                    <i className="bi bi-trash me-2"></i>
+                    Delete
                   </button>
                 </div>
               </td>

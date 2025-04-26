@@ -4,7 +4,7 @@ const CategoryService = {
   getCategories: async (): Promise<Category[]> => {
     const response = await fetch("/api/categories");
     if (!response.ok) {
-      throw new Error(`Network error - Status: ${response.status}`);
+      throw new Error(`${response.status} - ${response.statusText}`);
     }
     return response.json();
   }

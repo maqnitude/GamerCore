@@ -10,6 +10,11 @@ function MainLayout() {
             <Sidebar />
           </div>
           <div className="col-10 m-0 p-0">
+            {/* Alert container */}
+            <div id="alertContainer">
+            </div>
+
+            {/* Main page content */}
             <main>
               <Outlet />
             </main>

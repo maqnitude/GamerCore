@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import useCategories from "../../categories/hooks/useCategories";
+import ErrorAlert from "../../../components/ErrorAlert";
 import LoadingSpinner from "../../../components/LoadingSpinner";
-import ErrorMessage from "../../../components/ErrorMessage";
+import useCategories from "../../categories/hooks/useCategories";
 
 interface ProductsFilterProps {
   onFilterChange: (categoryId: number | undefined) => void;
@@ -9,7 +9,7 @@ interface ProductsFilterProps {
 
 function ProductsFilter({ onFilterChange }: ProductsFilterProps) {
   const [selectedCategoryId, setSelectedCategoryId] = useState<number | undefined>();
-  const { categories, loading, error } = useCategories();
+  const { categories, loading: categoriesLoading, error: categoriesError } = useCategories();
 
   const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const categoryId = e.target.value === "" ? undefined : Number(e.target.value);
@@ -34,7 +34,7 @@ function ProductsFilter({ onFilterChange }: ProductsFilterProps) {
                 className="form-select"
                 value={selectedCategoryId?.toString() || ""}
                 onChange={handleCategoryChange}
-                disabled={loading}
+                disabled={categoriesLoading}
               >
                 <option value="">All Categories</option>
                 {categories.map(category => (
@@ -44,8 +44,10 @@ function ProductsFilter({ onFilterChange }: ProductsFilterProps) {
                 ))}
               </select>
 
-              {loading && <LoadingSpinner />}
-              {error && <ErrorMessage message={error} />}
+              {categoriesLoading && <LoadingSpinner />}
+              {categoriesError && <ErrorAlert
+                message={categoriesError.concat("\nFailed to fetch categories.")}
+              />}
             </div>
           </div>
         </div>

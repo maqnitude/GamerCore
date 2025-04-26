@@ -1,8 +1,9 @@
 import { Route, Routes } from "react-router";
-import ProductsPage from "./pages/ProductsPage";
+import ToastContainer from "./components/ToastContainer";
 import MainLayout from "./layouts/MainLayout";
-import DashboardPage from "./pages/DashboardPage";
 import CreateProductPage from "./pages/CreateProductPage";
+import DashboardPage from "./pages/DashboardPage";
+import ProductsPage from "./pages/ProductsPage";
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
           <Route path="products/create" element={<CreateProductPage />} />
         </Route>
       </Routes>
+      <ToastContainer />
     </>
   );
 }

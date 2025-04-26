@@ -17,7 +17,7 @@ const ProductService = {
     const response = await fetch(apiEndpoint);
 
     if (!response.ok) {
-      throw new Error(`Network error - Status: ${response.status}`);
+      throw new Error(`${response.status} - ${response.statusText}`);
     }
 
     return response.json();
@@ -33,7 +33,7 @@ const ProductService = {
     });
 
     if (!response.ok) {
-      throw new Error(`Network error - Status: ${response.status}`);
+      throw new Error(`${response.status} - ${response.statusText}`);
     }
 
     return response.json();
