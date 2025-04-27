@@ -11,6 +11,7 @@ function ErrorAlert({
   message
 }: ErrorAlertProps) {
   const [container, setContainer] = useState<HTMLElement | null>(null);
+  const [visible, setVisible] = useState<boolean>(false);
 
   useEffect(() => {
     const el = document.getElementById(alertContainerId);
@@ -23,7 +24,16 @@ function ErrorAlert({
     setContainer(el);
   }, [alertContainerId]);
 
-  if (!container) {
+  // Reset visibility when message changes
+  useEffect(() => {
+    setVisible(true);
+  }, [message]);
+
+  const handleClose = () => {
+    setVisible(false);
+  };
+
+  if (!container || !visible) {
     return null;
   }
 
@@ -40,8 +50,8 @@ function ErrorAlert({
       <button
         type="button"
         className="btn-close"
-        data-bs-dismiss="alert"
         aria-label="Close"
+        onClick={handleClose}
       ></button>
     </div>,
     container

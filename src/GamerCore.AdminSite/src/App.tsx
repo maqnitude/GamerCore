@@ -1,10 +1,10 @@
 import { Route, Routes } from "react-router";
-import ToastContainer from "./components/ToastContainer";
 import MainLayout from "./layouts/MainLayout";
 import CreateProductPage from "./pages/CreateProductPage";
 import DashboardPage from "./pages/DashboardPage";
 import ProductsPage from "./pages/ProductsPage";
 import Modal from "./components/Modal";
+import ToastContainer from "./components/ToastContainer";
 
 function App() {
   return (
