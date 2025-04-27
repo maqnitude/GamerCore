@@ -1,5 +1,98 @@
 @model ProductViewModel
 
+<a class="card h-100 hover-card product-card text-decoration-none text-dark shadow-sm"
+   asp-controller="Products" asp-action="Details" asp-route-id="@Model.ProductId">
+  <div class="position-relative">
+    <!-- Product badges can go here -->
+    @*
+    <span class="position-absolute badge bg-success top-0 start-0 m-2">Badge 1</span>
+    <span class="position-absolute badge bg-warning top-0 end-0 m-2">Badge 2</span>
+    *@
+
+    <!-- Product image -->
+    <img class="card-img-top p-3" src="@Model.ThumbnailUrl" alt="@Model.Name Thumbnail">
+
+    <!-- Quick actions overlay -->
+    <div class="card-img-overlay d-flex align-items-end justify-content-center opacity-0 product-actions">
+      <div class="d-flex gap-2 mb-2">
+        <button class="btn btn-sm btn-primary rounded-pill" title="Add to cart">
+          <i class="bi bi-cart-plus"></i>
+          Add To Cart
+        </button>
+        @*
+        <button class="btn btn-sm btn-outline-light rounded-circle" title="Add to wishlist">
+          <i class="bi bi-heart"></i>
+        </button>
+        <button class="btn btn-sm btn-outline-light rounded-circle" title="Quick view">
+          <i class="bi bi-eye"></i>
+        </button>
+        *@
+      </div>
+    </div>
+  </div>
+
+  <div class="card-body">
+    <!-- Product category -->
+    <small class="text-muted d-block mb-1">@Model.Categories[0].Name</small>
+
+    <!-- Product name -->
+    <h6 class="card-title text-dark mb-1 product-name">@Model.Name</h6>
+
+    <!-- Product rating -->
+    <div class="mb-2">
+      <partial name="_ProductRatingPartial" model="(Model.AverageRating, (int?)Model.ReviewCount, true)" />
+    </div>
+
+    <!-- Product price -->
+    <div class="d-flex align-items-baseline">
+      <h5 class="card-text text-primary mb-0 me-2">@Model.Price.ToString("C")</h5>
+      @*
+      @if (Model.OriginalPrice > Model.Price)
+      {
+        <span class="text-muted text-decoration-line-through">@Model.OriginalPrice.ToString("C")</span>
+      }
+      *@
+    </div>
+  </div>
+</a>
+
+<style>
+  /* Product card hover effects */
+  .hover-card {
+    transition: all 0.3s ease;
+    border: 1px solid #dee2e6;
+  }
+
+  .hover-card:hover {
+    transform: translateY(-5px);
+    border-color: #adb5bd;
+  }
+
+  .product-name {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    height: 2.5rem;
+  }
+
+  .product-card img {
+    height: 180px;
+    object-fit: contain;
+    transition: all 0.3s ease;
+  }
+
+  .product-actions {
+    transition: opacity 0.3s ease;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0) 100%);
+  }
+
+  .product-card:hover .product-actions {
+    opacity: 1 !important;
+  }
+</style>
+
+@*
 <a class="text-decoration-none"
    asp-controller="Products" asp-action="Details" asp-route-id="@Model.ProductId">
   <div class="card">
@@ -12,3 +105,4 @@
     </div>
   </div>
 </a>
+*@

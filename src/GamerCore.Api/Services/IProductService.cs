@@ -1,5 +1,4 @@
 using GamerCore.Api.Models;
-using GamerCore.Core.Entities;
 using GamerCore.Core.Models;
 
 namespace GamerCore.Api.Services

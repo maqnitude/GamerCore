@@ -3,10 +3,88 @@
 @if (Model != null && Model.Any())
 {
   int activeIndex = Model.FindIndex(img => img.IsPrimary);
+  if (activeIndex < 0) activeIndex = 0;
+
+  <div class="product-gallery">
+    <!-- Main carousel -->
+    <div id="productImageCarousel" class="carousel slide mb-3" data-bs-ride="false">
+      <!-- Carousel inner content (images) -->
+      <div class="carousel-inner rounded shadow-sm">
+        @for (int i = 0; i < Model.Count; i++)
+        {
+          var image = Model[i];
+          <div class="carousel-item @(i == activeIndex ? "active" : "")">
+            <img class="d-block w-100" src="@image.Url" alt="Product Image @(i + 1)">
+          </div>
+        }
+      </div>
+
+      <!-- Carousel controls -->
+      <button class="carousel-control-prev" type="button" data-bs-target="#productImageCarousel" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Previous</span>
+      </button>
+      <button class="carousel-control-next" type="button" data-bs-target="#productImageCarousel" data-bs-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Next</span>
+      </button>
+    </div>
+
+    <!-- Thumbnail navigation -->
+    <div class="row g-2 thumbnail-gallery">
+      @for (int i = 0; i < Model.Count; i++)
+      {
+        var image = Model[i];
+        <div class="col-3">
+          <div class="thumbnail-item @(i == activeIndex ? "active" : "")"
+               data-bs-target="#productImageCarousel"
+               data-bs-slide-to="@i">
+            <img class="img-thumbnail" src="@image.Url" alt="Thumbnail @(i + 1)">
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+}
+else
+{
+  <div class="text-center py-5 bg-light rounded">
+    <i class="bi bi-camera fs-1 text-muted"></i>
+    <p class="mt-2">No images available</p>
+  </div>
+}
+
+<style>
+  .product-gallery .thumbnail-item {
+    cursor: pointer;
+    opacity: 0.6;
+    transition: all 0.2s ease;
+  }
+
+  .product-gallery .thumbnail-item.active,
+  .product-gallery .thumbnail-item:hover {
+    opacity: 1;
+    border: 2px solid #0d6efd;
+  }
+
+  .product-gallery .carousel-item {
+    height: 400px;
+  }
+
+  .product-gallery .carousel-item img {
+    object-fit: contain;
+    height: 100%;
+    width: 100%;
+  }
+</style>
+
+@* OLD
+@if (Model != null && Model.Any())
+{
+  int activeIndex = Model.FindIndex(img => img.IsPrimary);
 
   <div id="productImageCarousel" class="carousel slide"
        data-bs-ride="false">
-    @* Carousel indicators *@
     <div class="carousel-indicators">
       @for (int i = 0; i < Model.Count; i++)
       {
@@ -20,7 +98,6 @@
       }
     </div>
 
-    @* Carousel inner content (images) *@
     <div class="carousel-inner">
       @for (int i = 0; i < Model.Count; i++)
       {
@@ -33,7 +110,6 @@
       }
     </div>
 
-    @* Carousel controls *@
     <button class="carousel-control-prev" type="button" data-bs-target="#productImageCarousel" data-bs-slide="prev">
       <span class="carousel-control-prev-icon" aria-hidden="true"></span>
       <span class="visually-hidden">Previous</span>
@@ -48,3 +124,4 @@ else
 {
   <p>No images available.</p>
 }
+*@

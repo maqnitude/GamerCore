@@ -1,12 +1,44 @@
 @model ProductReviewViewModel
 
+<div class="card border-0 mb-3">
+  <div class="card-body">
+    <div class="d-flex justify-content-between mb-2">
+      <div>
+        <h6 class="fw-bold mb-1">CustomerName</h6>
+        <small class="text-muted">Reviewed on ReviewDate</small>
+      </div>
+      <partial name="_ProductRatingPartial" model="((double)Model.Rating, (int?)null, true)" />
+    </div>
+
+    <hr>
+
+    <h5 class="mb-2">ReviewTitle</h5>
+
+    @if (!string.IsNullOrWhiteSpace(Model.ReviewText))
+    {
+      <p class="card-text">@Model.ReviewText</p>
+    }
+    else
+    {
+      <p class="card-text text-muted"><em>No comment provided.</em></p>
+    }
+
+    <div class="mt-2">
+      <span class="badge bg-success">
+        <i class="bi bi-check-circle me-1"></i> Verified Purchase
+      </span>
+    </div>
+  </div>
+</div>
+
+@*
 <div class="card mb-3">
   <div class="card-body">
     <div class="mb-2">
       <partial name="_ProductRatingPartial" model="((double)Model.Rating, (int?)null)" />
     </div>
 
-    @* Review text or placeholder if missing *@
+    <!-- Review text or placeholder if missing -->
     @if (!string.IsNullOrWhiteSpace(Model.ReviewText))
     {
       <p class="card-text">@Model.ReviewText</p>
@@ -17,3 +49,4 @@
     }
   </div>
 </div>
+*@

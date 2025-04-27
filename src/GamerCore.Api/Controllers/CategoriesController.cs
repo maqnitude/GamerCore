@@ -36,7 +36,8 @@ namespace GamerCore.Api.Controllers
                     .Select(c => new CategoryDto
                     {
                         CategoryId = c.CategoryId,
-                        Name = c.Name
+                        Name = c.Name,
+                        ProductCount = c.ProductCategories.Count()
                     })
                     .ToListAsync();
 

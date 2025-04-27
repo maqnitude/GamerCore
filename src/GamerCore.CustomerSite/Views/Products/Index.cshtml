@@ -4,6 +4,92 @@
   ViewData["Title"] = "Products";
 }
 
+<div class="container-fluid py-4">
+  <div class="row g-4">
+    <!-- Filter sidebar -->
+    <div class="col-lg-3 col-md-4">
+      <div class="sticky-top" style="top: 1rem;">
+        <div class="card shadow-sm">
+          <div class="card-header bg-white">
+            <h4 class="mb-0">Filters</h4>
+          </div>
+          <div class="card-body p-0">
+            <partial name="_ProductFilterPartial" model="@Model.Filter" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Products content -->
+    <div class="col-lg-9 col-md-8">
+      <!-- Header with search and sort -->
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+          <h3 class="mb-0">
+            @(Model.Filter.SelectedCategoryId != null
+                        ? Model.Filter.Categories.FirstOrDefault(c => c.CategoryId == Model.Filter.SelectedCategoryId)?.Name
+                        : "All Products")
+          </h3>
+          <p class="text-muted mb-0">Showing @Model.Products.Count of @Model.Pagination.TotalItems products</p>
+        </div>
+        <div class="d-flex gap-2">
+          <!-- Search box -->
+          <div class="input-group">
+            <input type="text" class="form-control" placeholder="Search products...">
+            <button class="btn btn-outline-primary" type="button">
+              <i class="bi bi-search"></i>
+            </button>
+          </div>
+          <!-- Sort dropdown -->
+          <div class="dropdown">
+            <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="sortDropdown"
+                    data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="bi bi-sort-down"></i> Sort
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="sortDropdown">
+              <li><a class="dropdown-item" href="#">Price: Low to High</a></li>
+              <li><a class="dropdown-item" href="#">Price: High to Low</a></li>
+              <li><a class="dropdown-item" href="#">Top Rated</a></li>
+              <li><a class="dropdown-item" href="#">Newest First</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Products grid -->
+      @if (Model.Products.Any())
+      {
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 g-3">
+          @foreach (var product in Model.Products)
+          {
+            <div class="col">
+              <partial name="_ProductCardPartial" model="product" />
+            </div>
+          }
+        </div>
+      }
+      else
+      {
+        <div class="card shadow-sm">
+          <div class="card-body text-center py-5">
+            <i class="bi bi-search fs-1 text-muted mb-3"></i>
+            <h5>No products found</h5>
+            <p class="text-muted mb-0">Try adjusting your filters or search criteria</p>
+          </div>
+        </div>
+      }
+
+      <!-- Pagination -->
+      <div class="d-flex justify-content-center mt-4">
+        <pagination pagination="@Model.Pagination"
+                    page-url="@Url.Action("Index", "Products", new { page = Model.Pagination.Page, categoryId = Model.Filter.SelectedCategoryId })">
+        </pagination>
+      </div>
+    </div>
+  </div>
+</div>
+
+@* OLD
 <div class="d-flex gap-2">
   <!-- Filter panel -->
   <div class="col-3 border border-dark rounded">
@@ -39,3 +125,4 @@
     </div>
   </div>
 </div>
+*@

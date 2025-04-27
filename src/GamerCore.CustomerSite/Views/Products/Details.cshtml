@@ -1,9 +1,162 @@
 @model ProductDetailsViewModel
 
 @{
-  ViewData["Title"] = "Product Details";
+  ViewData["Title"] = "Product Details - " + Model.Name;
 }
 
+<div class="container my-4">
+  <!-- Product Header -->
+  <nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="/">Home</a></li>
+      <li class="breadcrumb-item"><a href="/products">Products</a></li>
+      <li class="breadcrumb-item active" aria-current="page">@Model.Name</li>
+    </ol>
+  </nav>
+
+  <!-- Product Main Section -->
+  <div class="row mb-4">
+    <!-- Product Images -->
+    <div class="col-md-6 mb-3">
+      <div class="card shadow-sm h-100">
+        <div class="card-body">
+          <partial name="_ProductImageCarouselPartial" model="@Model.Images" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Product Info -->
+    <div class="col-md-6 mb-3">
+      <div class="card shadow-sm h-100">
+        <div class="card-body">
+          <h2 class="fw-bold mb-2">@Model.Name</h2>
+          <div class="d-flex align-items-center mb-3">
+            <partial name="_ProductRatingPartial" model="(Model.AverageRating, (int?)Model.ReviewCount, false)" />
+            <a href="#reviews" class="ms-2 text-decoration-none">Read reviews</a>
+          </div>
+          <h3 class="text-primary fw-bold mb-4">@Model.Price.ToString("C")</h3>
+
+          <div class="d-grid gap-2">
+            <button class="btn btn-primary btn-lg" id="addToCartBtn">
+              <i class="bi bi-cart-plus"></i> Add To Cart
+            </button>
+            <button class="btn btn-outline-secondary">
+              <i class="bi bi-heart"></i> Add To Wishlist
+            </button>
+          </div>
+
+          <hr class="my-4">
+
+          <div class="d-flex justify-content-around text-center small">
+            <div>
+              <i class="bi bi-truck fs-4 d-block mb-1"></i>
+              Fast Shipping
+            </div>
+            <div>
+              <i class="bi bi-shield-check fs-4 d-block mb-1"></i>
+              Secure Payment
+            </div>
+            <div>
+              <i class="bi bi-arrow-counterclockwise fs-4 d-block mb-1"></i>
+              Easy Returns
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Product Details Tabs -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-body">
+      <ul class="nav nav-tabs" id="productDetailsTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+          <button class="nav-link active" id="description-tab" data-bs-toggle="tab"
+                  data-bs-target="#description-tab-pane" type="button" role="tab" aria-controls="description-tab-pane"
+                  aria-selected="true">Description</button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="specification-tab" data-bs-toggle="tab" data-bs-target="#specification-tab-pane"
+                  type="button" role="tab" aria-controls="specification-tab-pane"
+                  aria-selected="false">Specification</button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="warranty-tab" data-bs-toggle="tab" data-bs-target="#warranty-tab-pane"
+                  type="button" role="tab" aria-controls="warranty-tab-pane" aria-selected="false">Warranty</button>
+        </li>
+      </ul>
+      <div class="tab-content py-3" id="productDetailsTabsContent">
+        <div class="tab-pane fade show active" id="description-tab-pane" role="tabpanel"
+             aria-labelledby="description-tab" tabindex="0">
+          @Html.Raw(Model.DescriptionHtml)
+        </div>
+        <div class="tab-pane fade" id="specification-tab-pane" role="tabpanel" aria-labelledby="specification-tab"
+             tabindex="0">
+          <p>*Renders specification table*</p>
+        </div>
+        <div class="tab-pane fade" id="warranty-tab-pane" role="tabpanel" aria-labelledby="warranty-tab" tabindex="0">
+          @Html.Raw(Model.WarrantyHtml)
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reviews Section -->
+  <div class="card shadow-sm mb-4" id="reviews">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+      <h4 class="mb-0">Customer Reviews</h4>
+      <button class="btn btn-outline-primary">Write a Review</button>
+    </div>
+    <div class="card-body">
+      @if (Model.Reviews != null && Model.Reviews.Any())
+      {
+        foreach (var review in Model.Reviews)
+        {
+          <partial name="_ProductReviewCardPartial" model="review" />
+        }
+      }
+      else
+      {
+        <div class="text-center py-4">
+          <i class="bi bi-chat-square-text fs-1 text-muted"></i>
+          <p class="mt-2">No reviews yet. Be the first to review this product!</p>
+        </div>
+      }
+    </div>
+  </div>
+</div>
+
+@section Scripts {
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      // Initialize product image carousel
+      var carousel = document.querySelector("#productImageCarousel");
+      if (carousel) {
+        var carouselInstance = new bootstrap.Carousel(carousel, {
+          interval: false // Don't auto-cycle
+        });
+      }
+
+      // Add to cart button animation
+      const addToCartBtn = document.getElementById("addToCartBtn");
+      if (addToCartBtn) {
+        addToCartBtn.addEventListener("click", function () {
+          this.innerHTML = '<i class="bi bi-check-lg"></i> Added to Cart';
+          this.classList.remove("btn-primary");
+          this.classList.add("btn-success");
+
+          setTimeout(() => {
+            this.innerHTML = '<i class="bi bi-cart-plus"></i> Add To Cart';
+            this.classList.remove("btn-success");
+            this.classList.add("btn-primary");
+          }, 2000);
+        });
+      }
+    });
+  </script>
+}
+
+@* OLD
 <div class="container">
   <div class="row mb-2 gap-2">
     <div class="col border border-dark">
@@ -53,3 +206,4 @@
     </div>
   </div>
 </div>
+*@
