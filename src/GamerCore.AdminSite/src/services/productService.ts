@@ -37,6 +37,18 @@ const ProductService = {
     }
 
     return response.json();
+  },
+
+  deleteProduct: async (id: number): Promise<void> => {
+    const apiEndpoint = baseApiEndpoint + `/${id}`;
+
+    const response = await fetch(apiEndpoint, {
+      method: "DELETE"
+    });
+
+    if (!response.ok) {
+      throw new Error(`${response.status} - ${response.statusText}`);
+    }
   }
 };
 

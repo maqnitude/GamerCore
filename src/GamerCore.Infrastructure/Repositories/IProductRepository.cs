@@ -6,5 +6,6 @@ namespace GamerCore.Infrastructure.Repositories
     {
         IQueryable<Product> GetQueryableProducts();
         void AddProduct(Product product);
+        void RemoveProduct(Product product);
     }
 }

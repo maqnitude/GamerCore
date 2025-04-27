@@ -1,4 +1,5 @@
 using GamerCore.Api.Models;
+using GamerCore.Core.Entities;
 using GamerCore.Core.Models;
 
 namespace GamerCore.Api.Services
@@ -14,5 +15,6 @@ namespace GamerCore.Api.Services
         /// <param name="createProductDto"></param>
         /// <returns>Created product's ID.</returns>
         Task<int> CreateProductAsync(CreateProductDto createProductDto);
+        Task<bool> DeleteProductAsync(int id);
     }
 }

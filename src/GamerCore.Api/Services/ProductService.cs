@@ -185,7 +185,45 @@ namespace GamerCore.Api.Services
             // Commit changes
             await _unitOfWork.SaveChangesAsync();
 
+            _logger.LogInformation("Product created successfully (id: {Id})", product.ProductId);
             return product.ProductId;
+        }
+
+        public async Task<bool> DeleteProductAsync(int id)
+        {
+            var product = await FindProductByIdAsync(id);
+
+            if (product == null)
+            {
+                _logger.LogWarning("Failed to delete. Product not found. (id: {Id})", id);
+                return false;
+            }
+
+            _unitOfWork.Products.RemoveProduct(product);
+
+            await _unitOfWork.SaveChangesAsync();
+
+            _logger.LogInformation("Product deleted successfully (id: {Id})", id);
+            return true;
+        }
+
+        private async Task<Product?> FindProductByIdAsync(int id)
+        {
+            var queryableProducts = _unitOfWork.Products.GetQueryableProducts();
+
+            var product = await queryableProducts
+                .Include(p => p.ProductCategories)
+                .Include(p => p.Detail)
+                .Include(p => p.Images)
+                .Include(p => p.Reviews)
+                .FirstOrDefaultAsync(p => p.ProductId == id);
+
+            if (product == null)
+            {
+                return null;
+            }
+
+            return product;
         }
     }
 }

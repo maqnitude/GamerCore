@@ -16,7 +16,7 @@ function useCreateProduct() {
 
       return id;
     } catch (err) {
-      console.error("Error creating product: ", err);
+      console.error("Error creating product:", err);
       setError(err instanceof Error ? err.message : "Unknown error occured");
       throw err;
     } finally {

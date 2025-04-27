@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import ErrorAlert from "../components/ErrorAlert";
 import LoadingSpinner from "../components/LoadingSpinner";
@@ -6,14 +6,22 @@ import Pagination from "../components/Pagination";
 import ProductsFilter from "../features/products/components/ProductsFilter";
 import ProductsTable from "../features/products/components/ProductsTable";
 import useProducts from "../features/products/hooks/useProducts";
+import { Product } from "../types";
 
 function ProductsPage() {
   const [page, setPage] = useState<number>(1);
   const [selectedCategoryId, setSelectedCategoryId] = useState<number | undefined>();
+  const [localProducts, setLocalProducts] = useState<Product[]>([]);
 
   const { pagedResult, loading, error } = useProducts(page, selectedCategoryId);
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (pagedResult) {
+      setLocalProducts(pagedResult.items);
+    }
+  }, [pagedResult]);
 
   const handlePageChange = (page: number) => {
     setPage(page);
@@ -22,6 +30,17 @@ function ProductsPage() {
   const handleFilterChange = (categoryId: number | undefined) => {
     setSelectedCategoryId(categoryId);
     setPage(1);
+  }
+
+  // Update the products list and refetch if necessary
+  const handleProductDeleted = (productId: number) => {
+    setLocalProducts(prev => {
+      const next = prev.filter(p => p.productId !== productId);
+      if (next.length === 0 && page > 1) {
+        setPage(page - 1);
+      }
+      return next;
+    });
   }
 
   return (
@@ -46,7 +65,10 @@ function ProductsPage() {
 
       {pagedResult && (
         <>
-          <ProductsTable products={pagedResult.items} />
+          <ProductsTable
+            products={localProducts}
+            onProductDeleted={handleProductDeleted}
+          />
 
           <Pagination
             currentPage={pagedResult.page}

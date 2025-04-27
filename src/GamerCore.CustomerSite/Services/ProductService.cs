@@ -82,7 +82,7 @@ namespace GamerCore.CustomerSite.Services
 
         public async Task<ProductDetailsViewModel> GetProductDetailsAsync(int id)
         {
-            string apiEndpoint = _apiBaseEndpoint + $"/Details/{id}";
+            string apiEndpoint = _apiBaseEndpoint + $"/{id}";
 
             var client = _httpClientFactory.CreateClient("GamerCoreDev");
 

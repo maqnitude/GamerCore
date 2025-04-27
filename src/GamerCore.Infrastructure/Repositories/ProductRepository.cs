@@ -20,5 +20,10 @@ namespace GamerCore.Infrastructure.Repositories
         {
             _context.Products.Add(product);
         }
+
+        public void RemoveProduct(Product product)
+        {
+            _context.Products.Remove(product);
+        }
     }
 }

@@ -210,7 +210,7 @@ namespace GamerCore.CustomerSite.Tests
                 .Setup<Task<HttpResponseMessage>>(
                     "SendAsync",
                     ItExpr.Is<HttpRequestMessage>(req => req.Method == HttpMethod.Get
-                        && req.RequestUri!.ToString().Contains("/api/Products/Details/1")),
+                        && req.RequestUri!.ToString().Contains("/api/Products/1")),
                     ItExpr.IsAny<CancellationToken>()
                 )
                 .ReturnsAsync(httpResponse);

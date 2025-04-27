@@ -6,12 +6,15 @@ import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router";
 import App from "./App.tsx";
 import ToastProvider from "./contexts/ToastProvider.tsx";
+import ModalProvider from "./contexts/ModalProvider.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <BrowserRouter>
       <ToastProvider>
-        <App />
+        <ModalProvider>
+          <App />
+        </ModalProvider>
       </ToastProvider>
     </BrowserRouter>
   </StrictMode>
