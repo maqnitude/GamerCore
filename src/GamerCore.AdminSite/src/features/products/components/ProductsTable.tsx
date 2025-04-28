@@ -17,9 +17,13 @@ function ProductsTable({ products, onProductDeleted }: ProductsTableProps) {
 
   const navigate = useNavigate();
 
+  const handleViewDetails = (productId: number) => {
+    navigate(`/products/details/${productId}`);
+  };
+
   const handleUpdate = (productId: number) => {
     navigate(`/products/edit/${productId}`);
-  }
+  };
 
   const handleDelete = (product: Product) => {
     showModal({
@@ -53,7 +57,7 @@ function ProductsTable({ products, onProductDeleted }: ProductsTableProps) {
         }
       }
     })
-  }
+  };
 
   return (
     <div className="table-responsive">
@@ -83,7 +87,10 @@ function ProductsTable({ products, onProductDeleted }: ProductsTableProps) {
               <td>{product.reviewCount}</td>
               <td>
                 <div className="btn-group btn-group-sm float-end">
-                  <button className="btn btn-outline-info">
+                  <button
+                    className="btn btn-outline-info"
+                    onClick={() => handleViewDetails(product.productId)}
+                  >
                     <i className="bi bi-eye me-2"></i>
                     Details
                   </button>

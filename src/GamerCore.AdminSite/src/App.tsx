@@ -6,6 +6,7 @@ import ProductsPage from "./pages/ProductsPage";
 import Modal from "./components/Modal";
 import ToastContainer from "./components/ToastContainer";
 import UpdateProductPage from "./pages/UpdateProductPage";
+import ProductDetailsPage from "./pages/ProductDetailsPage";
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
           <Route path="products" element={<ProductsPage />} />
           <Route path="products/create" element={<CreateProductPage />} />
           <Route path="products/edit/:productId" element={<UpdateProductPage />} />
+          <Route path="products/details/:productId" element={<ProductDetailsPage />} />
         </Route>
       </Routes>
       <ToastContainer />

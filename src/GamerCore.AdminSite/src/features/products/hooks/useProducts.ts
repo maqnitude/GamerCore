@@ -7,7 +7,7 @@ function useProducts(page: number = 1, categoryId?: number) {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchProducts = useCallback((async () => {
+  const getProducts = useCallback((async () => {
     setLoading(true);
     setError(null);
 
@@ -23,8 +23,8 @@ function useProducts(page: number = 1, categoryId?: number) {
   }), [page, categoryId]);
 
   useEffect(() => {
-    fetchProducts();
-  }, [fetchProducts]);
+    getProducts();
+  }, [getProducts]);
 
   return { pagedResult, loading, error };
 }

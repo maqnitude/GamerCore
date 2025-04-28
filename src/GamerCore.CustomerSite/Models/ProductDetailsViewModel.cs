@@ -6,6 +6,8 @@ namespace GamerCore.CustomerSite.Models
         public string Name { get; set; } = string.Empty;
         public decimal Price { get; set; }
 
+        public List<CategoryViewModel> Categories { get; set; } = [];
+
         public string DescriptionHtml { get; set; } = string.Empty;
         public string WarrantyHtml { get; set; } = string.Empty;
 

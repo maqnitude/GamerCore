@@ -121,147 +121,245 @@ function UpdateProductForm({ productId }: { productId: number }) {
   }
 
   if (!initialData) {
-    return <LoadingSpinner />;
+    return (
+      <LoadingSpinner />
+    );
   }
 
   return (
-    <div className="container mt-4">
-      <h2>Update Product (ID: {productId})</h2>
-      {updateError && <ErrorAlert message={updateError} />}
-      <form onSubmit={handleSubmit(onSubmit)}>
-        {/* Name */}
-        <div className="mb-3">
-          <label htmlFor="name" className="form-label">Name</label>
-          <input
-            id="name"
-            className="form-control"
-            {...register('name', { required: true })}
-          />
+    <div className="container-fluid py-3">
+      <div className="card shadow-sm">
+        <div className="card-header bg-light d-flex justify-content-between align-items-center py-2">
+          <div>
+            <h5 className="mb-0">Update Product</h5>
+            <small className="text-muted">ID: {productId} - {initialData.name}</small>
+          </div>
+          {/*
+          <div>
+            <button type="button" className="btn btn-sm btn-outline-secondary me-2" onClick={() => navigate("/products")}>
+              <i className="bi bi-arrow-left me-1"></i>Back
+            </button>
+            <button type="button" className="btn btn-sm btn-primary" onClick={handleSubmit(onSubmit)} disabled={updating}>
+              <i className="bi bi-save me-1"></i>{updating ? "Saving..." : "Save"}
+            </button>
+          </div>
+           */}
         </div>
 
-        {/* Price */}
-        <div className="mb-3">
-          <label htmlFor="price" className="form-label">Price</label>
-          <input
-            id="price"
-            type="number"
-            step="0.01"
-            className="form-control"
-            {...register('price', { required: true, valueAsNumber: true })}
-          />
-        </div>
+        {updateError && <div className="card-body py-2 px-3 border-bottom bg-light bg-opacity-25">
+          <ErrorAlert message={updateError} />
+        </div>}
 
-        {/* Category Dropdown */}
-        {categoriesLoading && <LoadingSpinner />}
-        {categoriesError && <ErrorAlert
-          message={categoriesError.concat("\nFailed to fetch categories.")}
-        />}
-        {categories && (
-          <>
-            <div className="mb-3">
-              <label htmlFor="category" className="form-label">Category</label>
-              <select
-                id="category"
-                className="form-select"
-                {...register('categoryId', { required: true })}
-              >
-                <option value="">Select a category</option>
-                {categories.map((c: Category) => (
-                  <option key={c.categoryId} value={c.categoryId}>
-                    {c.name}
-                  </option>
-                ))}
-              </select>
+        <div className="card-body p-3">
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <div className="row g-3">
+              {/* Left Column */}
+              <div className="col-md-6">
+                {/* Basic Information */}
+                <div className="card mb-3">
+                  <div className="card-header py-2">
+                    <h6 className="mb-0">Basic Information</h6>
+                  </div>
+                  <div className="card-body">
+                    <div className="row g-2">
+                      {/* Name */}
+                      <div className="col-md-8">
+                        <label htmlFor="name" className="form-label small mb-1">Name</label>
+                        <input
+                          id="name"
+                          className="form-control form-control-sm"
+                          {...register('name', { required: true })}
+                        />
+                      </div>
+
+                      {/* Price */}
+                      <div className="col-md-4">
+                        <label htmlFor="price" className="form-label small mb-1">Price ($)</label>
+                        <input
+                          id="price"
+                          type="number"
+                          step="0.01"
+                          className="form-control form-control-sm"
+                          {...register('price', { required: true, valueAsNumber: true })}
+                        />
+                      </div>
+
+                      {/* Category Dropdown */}
+                      <div className="col-12">
+                        <label htmlFor="category" className="form-label small mb-1">Category</label>
+                        {categoriesLoading && <div className="py-1"><LoadingSpinner /></div>}
+                        {categoriesError &&
+                          <ErrorAlert message={categoriesError.concat("\nFailed to fetch categories.")} />
+                        }
+                        {categories && (
+                          <select
+                            id="category"
+                            className="form-select form-select-sm"
+                            {...register('categoryId', { required: true })}
+                          >
+                            <option value="">Select a category</option>
+                            {categories.map((c: Category) => (
+                              <option key={c.categoryId} value={c.categoryId}>
+                                {c.name}
+                              </option>
+                            ))}
+                          </select>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Images Section */}
+                <div className="card">
+                  <div className="card-header py-2 d-flex justify-content-between align-items-center">
+                    <h6 className="mb-0">Images</h6>
+                    <span className="badge bg-info">{fields.length + 1} total</span>
+                  </div>
+                  <div className="card-body">
+                    {/* Primary Image URL with preview */}
+                    <div className="mb-3">
+                      <div className="d-flex justify-content-between align-items-center mb-1">
+                        <label htmlFor="primaryImageUrl" className="form-label small mb-0">Primary Image URL</label>
+                        <a href="#" className="btn btn-sm btn-link py-0" onClick={(e) => { e.preventDefault(); window.open(initialData.images.find(i => i.isPrimary)?.url, '_blank') }}>Preview</a>
+                      </div>
+                      <input
+                        id="primaryImageUrl"
+                        className="form-control form-control-sm"
+                        {...register('primaryImageUrl', { required: true })}
+                      />
+                    </div>
+
+                    {/* Additional Image URLs */}
+                    <label className="form-label small mb-1">Additional Images</label>
+                    <div className="border rounded p-2 bg-light bg-opacity-50">
+                      {fields.map((field, index) => (
+                        <div key={field.id} className="input-group input-group-sm mb-1">
+                          <input
+                            className="form-control form-control-sm"
+                            {...register(`imageUrls.${index}.url` as const)}
+                          />
+                          <button
+                            type="button"
+                            className="btn btn-outline-secondary btn-sm"
+                            onClick={(e) => { e.preventDefault(); window.open(field.url, '_blank') }}
+                            title="Preview image"
+                          >
+                            <i className="bi bi-eye"></i>
+                          </button>
+                          <button
+                            type="button"
+                            className="btn btn-outline-danger btn-sm"
+                            onClick={() => handleRemove(index)}
+                            title="Remove image"
+                          >
+                            <i className="bi bi-trash"></i>
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                    <button
+                      type="button"
+                      className="btn btn-sm btn-outline-primary mt-2"
+                      onClick={() => append({ url: "" })}
+                    >
+                      <i className="bi bi-plus-circle me-1"></i>Add Image
+                    </button>
+
+                    {/* Removed images section */}
+                    {removedImageUrls.length > 0 && (
+                      <div className="mt-3">
+                        <div className="d-flex justify-content-between align-items-center mb-1">
+                          <label className="form-label small mb-0">Removed Images</label>
+                          <span className="badge bg-warning text-dark">{removedImageUrls.length}</span>
+                        </div>
+                        <div className="border border-warning rounded p-2 bg-warning bg-opacity-10" style={{ maxHeight: "100px", overflowY: "auto" }}>
+                          {removedImageUrls.map((url, index) => (
+                            <div key={index} className="d-flex align-items-center mb-1 small">
+                              <div className="text-truncate me-2" title={url}>{url}</div>
+                              <button
+                                type="button"
+                                className="btn btn-sm btn-outline-success py-0 px-1 ms-auto"
+                                onClick={() => handleUndo(url)}
+                              >
+                                <i className="bi bi-arrow-counterclockwise"></i> Restore
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Column - Content */}
+              <div className="col-md-6">
+                <div className="card h-100">
+                  <div className="card-header py-2">
+                    <h6 className="mb-0">Content</h6>
+                  </div>
+                  <div className="card-body">
+                    {/* Description HTML */}
+                    <div className="mb-3">
+                      <div className="d-flex justify-content-between align-items-center mb-1">
+                        <label htmlFor="descriptionHtml" className="form-label small mb-0">Description (HTML)</label>
+                        <span className="badge bg-secondary">HTML supported</span>
+                      </div>
+                      <textarea
+                        id="descriptionHtml"
+                        rows={6}
+                        className="form-control form-control-sm"
+                        {...register('descriptionHtml')}
+                      />
+                      <div className="mt-2 border rounded p-2 bg-light" style={{ maxHeight: "256px", overflowY: "auto" }}>
+                        <small className="text-muted">Preview:</small>
+                        <div dangerouslySetInnerHTML={{ __html: initialData.descriptionHtml }} />
+                      </div>
+                    </div>
+
+                    {/* Warranty HTML */}
+                    <div className="mb-0">
+                      <div className="d-flex justify-content-between align-items-center mb-1">
+                        <label htmlFor="warrantyHtml" className="form-label small mb-0">Warranty (HTML)</label>
+                        <span className="badge bg-secondary">HTML supported</span>
+                      </div>
+                      <textarea
+                        id="warrantyHtml"
+                        rows={4}
+                        className="form-control form-control-sm"
+                        {...register('warrantyHtml')}
+                      />
+                      <div className="mt-2 border rounded p-2 bg-light" style={{ maxHeight: "256px", overflowY: "auto" }}>
+                        <small className="text-muted">Preview:</small>
+                        <div dangerouslySetInnerHTML={{ __html: initialData.warrantyHtml }} />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
-          </>
-        )}
-
-        {/* Description HTML */}
-        <div className="mb-3">
-          <label htmlFor="descriptionHtml" className="form-label">Description (HTML)</label>
-          <textarea
-            id="descriptionHtml"
-            rows={3}
-            className="form-control"
-            {...register('descriptionHtml')}
-          />
+          </form>
         </div>
 
-        {/* Warranty HTML */}
-        <div className="mb-3">
-          <label htmlFor="warrantyHtml" className="form-label">Warranty (HTML)</label>
-          <textarea
-            id="warrantyHtml"
-            rows={2}
-            className="form-control"
-            {...register('warrantyHtml')}
-          />
-        </div>
-
-        {/* Primary Image URL */}
-        <div className="mb-3">
-          <label htmlFor="primaryImageUrl" className="form-label">Primary Image URL</label>
-          <input
-            id="primaryImageUrl"
-            className="form-control"
-            {...register('primaryImageUrl', { required: true })}
-          />
-        </div>
-
-        {/* Optional Additional Images */}
-        <div className="mb-3">
-          <label className="form-label">Image URLs</label>
-          {fields.map((field, index) => (
-            <div key={field.id} className="input-group mb-2">
-              <input
-                className="form-control"
-                {...register(`imageUrls.${index}.url` as const)}
-              />
-              <button
-                type="button"
-                className="btn btn-outline-danger"
-                onClick={() => handleRemove(index)}
-              >
-                Remove
+        <div className="card-footer bg-light py-2">
+          <div className="d-flex justify-content-between align-items-center">
+            <div>
+              <button type="button" className="btn btn-sm btn-outline-secondary me-2" onClick={() => navigate("/products")}>
+                Cancel
+              </button>
+              <button type="button" className="btn btn-sm btn-primary" onClick={handleSubmit(onSubmit)} disabled={updating}>
+                {updating
+                  ? <><span className="spinner-border spinner-border-sm me-2"></span>Saving...</>
+                  : <><i className="bi bi-save me-2"></i>Update</>}
               </button>
             </div>
-          ))}
-          <button
-            type="button"
-            className="btn btn-outline-primary"
-            onClick={() => append({ url: "" })}
-          >
-            Add Image
-          </button>
-        </div>
-
-        {/* Removed images which can be undone */}
-        {removedImageUrls.length > 0 && (
-          <div className="mb-3">
-            <label className="form-label">Removed Image URLs</label>
-            {removedImageUrls.map((url, index) => (
-              <div key={index} className="d-flex align-items-center mb-1">
-                <span className="me-auto">{url}</span>
-                <button
-                  type="button"
-                  className="btn btn-sm btn-outline-secondary"
-                  onClick={() => handleUndo(url)}
-                >
-                  Undo
-                </button>
-              </div>
-            ))}
+            <div>
+              <small className="text-muted">Last updated: {/*new Date(initialData.updatedAt).toLocaleString()*/}UpdatedDate</small>
+            </div>
           </div>
-        )}
-
-        {/* Action Buttons */}
-        <button type="submit" className="btn btn-primary me-2" disabled={updating}>
-          {updating ? "Saving..." : "Save"}
-        </button>
-        <button type="button" className="btn btn-secondary" onClick={() => navigate("/products")}>
-          Back
-        </button>
-      </form>
+        </div>
+      </div>
     </div>
   );
 }
