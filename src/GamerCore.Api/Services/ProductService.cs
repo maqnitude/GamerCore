@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using GamerCore.Api.Models;
 using GamerCore.Core.Constants;
 using GamerCore.Core.Entities;
@@ -96,6 +97,12 @@ namespace GamerCore.Api.Services
                     ProductId = p.ProductId,
                     Name = p.Name,
                     Price = p.Price,
+                    Categories = p.ProductCategories
+                        .Select(pc => new CategoryDto
+                        {
+                            CategoryId = pc.Category.CategoryId,
+                            Name = pc.Category.Name
+                        }),
                     DescriptionHtml = p.Detail.DescriptionHtml,
                     WarrantyHtml = p.Detail.WarrantyHtml,
                     Images = p.Images
@@ -138,6 +145,7 @@ namespace GamerCore.Api.Services
                 Price = createProductDto.Price
             };
 
+            // Add product and begin tracking
             _unitOfWork.Products.AddProduct(product);
 
             // Add categories
@@ -169,7 +177,7 @@ namespace GamerCore.Api.Services
             });
 
             // Add the other images
-            if (createProductDto.ImageUrls != null && createProductDto.ImageUrls.Count != 0)
+            if (createProductDto.ImageUrls != null && createProductDto.ImageUrls.Count > 0)
             {
                 foreach (var imageUrl in createProductDto.ImageUrls)
                 {
@@ -187,6 +195,73 @@ namespace GamerCore.Api.Services
 
             _logger.LogInformation("Product created successfully (id: {Id})", product.ProductId);
             return product.ProductId;
+        }
+
+        public async Task<int?> UpdateProductAsync(int id, UpdateProductDto updateProductDto)
+        {
+            Debug.Assert(id == updateProductDto.ProductId);
+
+            var product = await FindProductByIdAsync(id);
+
+            if (product == null)
+            {
+                _logger.LogWarning("Product not found. (id: {Id})", id);
+                return null;
+            }
+
+            // Update product and begin tracking (if not already tracked after being found)
+            _unitOfWork.Products.UpdateProduct(product);
+
+            product.Name = updateProductDto.Name;
+            product.Price = updateProductDto.Price;
+
+            // Replace categories
+            product.ProductCategories.Clear();
+
+            foreach (var categoryId in updateProductDto.CategoryIds)
+            {
+                product.ProductCategories.Add(new ProductCategory
+                {
+                    ProductId = id,
+                    CategoryId = categoryId
+                });
+            }
+
+            // Replace details
+            product.Detail = new ProductDetail
+            {
+                DescriptionHtml = updateProductDto.DescriptionHtml,
+                WarrantyHtml = updateProductDto.WarrantyHtml
+            };
+
+            // Replace image urls
+            product.Images.Clear();
+
+            product.Images.Add(new ProductImage
+            {
+                Url = updateProductDto.PrimaryImageUrl,
+                IsPrimary = true,
+                ProductId = id
+            });
+
+            if (updateProductDto.ImageUrls != null && updateProductDto.ImageUrls.Count > 0)
+            {
+                foreach (var imageUrl in updateProductDto.ImageUrls)
+                {
+                    product.Images.Add(new ProductImage
+                    {
+                        Url = imageUrl,
+                        IsPrimary = false,
+                        ProductId = id
+                    });
+                }
+            }
+
+            // Commit changes
+            await _unitOfWork.SaveChangesAsync();
+
+            _logger.LogInformation("Product updated successfully (id: {Id})", id);
+            return id;
         }
 
         public async Task<bool> DeleteProductAsync(int id)

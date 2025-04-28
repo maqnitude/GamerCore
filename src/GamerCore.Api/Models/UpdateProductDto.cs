@@ -2,12 +2,15 @@ using System.ComponentModel.DataAnnotations;
 
 namespace GamerCore.Api.Models
 {
-    public class CreateProductDto
+    public class UpdateProductDto
     {
+        // This seems redundant but it doesn't hurt to have an extra validation
+        public int ProductId { get; set; }
+
         [Required]
-        [StringLength(100)]
         public string Name { get; set; } = string.Empty;
 
+        [Required]
         [Range(0.01, 1000000)]
         public decimal Price { get; set; }
 

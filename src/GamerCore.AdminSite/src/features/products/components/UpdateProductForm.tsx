@@ -1,13 +1,14 @@
+import { useCallback, useEffect, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
 import ErrorAlert from "../../../components/ErrorAlert";
 import LoadingSpinner from "../../../components/LoadingSpinner";
 import { useToast } from "../../../contexts/ToastContext";
-import { Category, CreateProductPayload } from "../../../types";
+import ProductService from "../../../services/productService";
+import { Category, ProductDetails, UpdateProductPayload } from "../../../types";
 import useCategories from "../../categories/hooks/useCategories";
-import useCreateProduct from "../hooks/useCreateProduct";
+import useUpdateProduct from "../hooks/useUpdateProduct";
 
-// API expects a list of category ids but UI can only choose 1
 interface FormValues {
   name: string;
   price: number;
@@ -18,15 +19,18 @@ interface FormValues {
   imageUrls: { url: string }[];
 };
 
-function CreateProductForm() {
+function UpdateProductForm({ productId }: { productId: number }) {
+  const [initialData, setInitialData] = useState<ProductDetails | null>(null);
+  const [removedImageUrls, setRemovedImageUrls] = useState<string[]>([]);
+
   const { categories, loading: categoriesLoading, error: categoriesError } = useCategories();
-  const { createProduct, creating, error: createError } = useCreateProduct();
+  const { updateProduct, updating, error: updateError } = useUpdateProduct();
 
   const { addToast } = useToast();
 
   const navigate = useNavigate();
 
-  const { register, control, handleSubmit } = useForm<FormValues>({
+  const { register, control, handleSubmit, reset } = useForm<FormValues>({
     defaultValues: {
       name: "",
       price: 0,
@@ -42,47 +46,88 @@ function CreateProductForm() {
     name: "imageUrls"
   });
 
+  // Load exiting product data
+  const loadProductData = useCallback(async () => {
+    try {
+      const data = await ProductService.getProductDetails(productId);
+      setInitialData(data);
+      reset({
+        name: data.name,
+        price: data.price,
+        descriptionHtml: data.descriptionHtml,
+        warrantyHtml: data.warrantyHtml,
+        categoryId: String(data.categories[0].categoryId),
+        primaryImageUrl: data.images
+          .find(i => i.isPrimary)?.url,
+        imageUrls: data.images
+          .filter(i => !i.isPrimary)
+          .map(i => ({ url: i.url }))
+      })
+    } catch (err) {
+      console.error(err);
+    }
+  }, [productId, reset]);
+
+  useEffect(() => {
+    loadProductData();
+  }, [loadProductData]);
+
   const onSubmit = async (data: FormValues) => {
-    // Build the API payload
-    const payload: CreateProductPayload = {
+    const payload: UpdateProductPayload = {
+      productId: productId,
       name: data.name,
       price: data.price,
+      categoryIds: data.categoryId ? [Number(data.categoryId)] : [],
       descriptionHtml: data.descriptionHtml,
       warrantyHtml: data.warrantyHtml,
-      categoryIds: data.categoryId ? [Number(data.categoryId)] : [],
       primaryImageUrl: data.primaryImageUrl,
       imageUrls: data.imageUrls.map(entry => entry.url).filter(url => url.trim() !== "")
     };
 
     try {
-      const createdProductId = await createProduct(payload);
+      await updateProduct(productId, payload);
 
       addToast({
         type: "success",
-        message: "Product created successfully.",
-        metadata: { createdProductId },
+        message: "Product updated successfully.",
+        metadata: { productId },
         autoDismiss: true,
         dismissDelay: 5000
       });
 
       navigate("/products");
     } catch {
-      // Error is thrown by createError
       addToast({
         type: "error",
-        message: createError || "Failed to create product.",
+        message: updateError || "Failed to update product.",
         autoDismiss: true,
         dismissDelay: 7500,
-      });
+      })
     }
   };
 
+  const handleRemove = (index: number) => {
+    const url = fields[index].url;
+
+    if (url && url.trim() !== "") {
+      setRemovedImageUrls(prev => [...prev, url]);
+    }
+    remove(index);
+  }
+
+  const handleUndo = (url: string) => {
+    setRemovedImageUrls(prev => prev.filter(u => u !== url));
+    append({ url });
+  }
+
+  if (!initialData) {
+    return <LoadingSpinner />;
+  }
+
   return (
     <div className="container mt-4">
-      <h2>Create Product</h2>
-      {createError && <ErrorAlert
-        message={createError}
-      />}
+      <h2>Update Product (ID: {productId})</h2>
+      {updateError && <ErrorAlert message={updateError} />}
       <form onSubmit={handleSubmit(onSubmit)}>
         {/* Name */}
         <div className="mb-3">
@@ -175,7 +220,7 @@ function CreateProductForm() {
               <button
                 type="button"
                 className="btn btn-outline-danger"
-                onClick={() => remove(index)}
+                onClick={() => handleRemove(index)}
               >
                 Remove
               </button>
@@ -190,9 +235,28 @@ function CreateProductForm() {
           </button>
         </div>
 
+        {/* Removed images which can be undone */}
+        {removedImageUrls.length > 0 && (
+          <div className="mb-3">
+            <label className="form-label">Removed Image URLs</label>
+            {removedImageUrls.map((url, index) => (
+              <div key={index} className="d-flex align-items-center mb-1">
+                <span className="me-auto">{url}</span>
+                <button
+                  type="button"
+                  className="btn btn-sm btn-outline-secondary"
+                  onClick={() => handleUndo(url)}
+                >
+                  Undo
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+
         {/* Action Buttons */}
-        <button type="submit" className="btn btn-primary me-2" disabled={creating}>
-          {creating ? "Saving..." : "Save"}
+        <button type="submit" className="btn btn-primary me-2" disabled={updating}>
+          {updating ? "Saving..." : "Save"}
         </button>
         <button type="button" className="btn btn-secondary" onClick={() => navigate("/products")}>
           Back
@@ -202,4 +266,4 @@ function CreateProductForm() {
   );
 }
 
-export default CreateProductForm;
+export default UpdateProductForm;

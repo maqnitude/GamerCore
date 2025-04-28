@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router";
 import { useModal } from "../../../contexts/ModalContext";
 import { useToast } from "../../../contexts/ToastContext";
 import { Product } from "../../../types";
@@ -13,6 +14,12 @@ function ProductsTable({ products, onProductDeleted }: ProductsTableProps) {
   const { showModal } = useModal();
 
   const { deleteProduct, deleting, error: deleteError } = useDeleteProduct();
+
+  const navigate = useNavigate();
+
+  const handleUpdate = (productId: number) => {
+    navigate(`/products/edit/${productId}`);
+  }
 
   const handleDelete = (product: Product) => {
     showModal({
@@ -80,7 +87,10 @@ function ProductsTable({ products, onProductDeleted }: ProductsTableProps) {
                     <i className="bi bi-eye me-2"></i>
                     Details
                   </button>
-                  <button className="btn btn-outline-primary">
+                  <button
+                    className="btn btn-outline-primary"
+                    onClick={() => handleUpdate(product.productId)}
+                  >
                     <i className="bi bi-pencil me-2"></i>
                     Edit
                   </button>

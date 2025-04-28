@@ -4,12 +4,12 @@ import { CreateProductPayload } from "../../../types";
 
 function useCreateProduct() {
   const [createdProductId, setCreatedProductId] = useState<number | null>(null);
-  const [loading, setLoading] = useState<boolean>(false);
+  const [creating, setCreating] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
   const createProduct = useCallback(async (payload: CreateProductPayload) => {
     try {
-      setLoading(true);
+      setCreating(true);
       const id = await ProductService.createProduct(payload);
       setCreatedProductId(id);
       setError(null);
@@ -20,11 +20,11 @@ function useCreateProduct() {
       setError(err instanceof Error ? err.message : "Unknown error occured");
       throw err;
     } finally {
-      setLoading(false);
+      setCreating(false);
     }
   }, []);
 
-  return { createProduct, createdProductId, loading, error };
+  return { createProduct, createdProductId, creating, error };
 }
 
 export default useCreateProduct;

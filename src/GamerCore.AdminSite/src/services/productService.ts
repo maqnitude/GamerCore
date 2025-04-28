@@ -1,4 +1,4 @@
-import { CreateProductPayload, PagedResult, Product } from "../types";
+import { CreateProductPayload, PagedResult, Product, ProductDetails, UpdateProductPayload } from "../types";
 
 const baseApiEndpoint = "/api/products";
 
@@ -14,7 +14,23 @@ const ProductService = {
       });
     }
 
-    const response = await fetch(apiEndpoint);
+    const response = await fetch(apiEndpoint, {
+      method: "GET"
+    });
+
+    if (!response.ok) {
+      throw new Error(`${response.status} - ${response.statusText}`);
+    }
+
+    return response.json();
+  },
+
+  getProductDetails: async (id: number): Promise<ProductDetails> => {
+    const apiEndpoint = baseApiEndpoint + `/${id}`;
+
+    const response = await fetch(apiEndpoint, {
+      method: "GET"
+    });
 
     if (!response.ok) {
       throw new Error(`${response.status} - ${response.statusText}`);
@@ -36,7 +52,22 @@ const ProductService = {
       throw new Error(`${response.status} - ${response.statusText}`);
     }
 
-    return response.json();
+    const createdProductId = await response.json();
+    return createdProductId as number;
+  },
+
+  updateProduct: async (id: number, payload: UpdateProductPayload): Promise<void> => {
+    const apiEndpoint = baseApiEndpoint + `/${id}`;
+
+    const response = await fetch(apiEndpoint, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    if (!response.ok) {
+      throw new Error(`${response.status} - ${response.statusText}`);
+    }
   },
 
   deleteProduct: async (id: number): Promise<void> => {
