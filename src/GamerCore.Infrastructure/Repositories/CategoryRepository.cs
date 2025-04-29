@@ -20,5 +20,10 @@ namespace GamerCore.Infrastructure.Repositories
         {
             _context.Categories.Add(category);
         }
+
+        public void RemoveCategory(Category category)
+        {
+            _context.Categories.Remove(category);
+        }
     }
 }

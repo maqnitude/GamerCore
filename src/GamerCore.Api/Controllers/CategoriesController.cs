@@ -78,13 +78,37 @@ namespace GamerCore.Api.Controllers
 
             try
             {
-                var createdCategoryId = await _service.CreateCategoryAsync(createCategoryDto);
+                var createdCategoryDto = await _service.CreateCategoryAsync(createCategoryDto);
 
                 return CreatedAtAction(
                     "GetCategoryById",
                     "Categories",
-                    new { id = createdCategoryId },
-                    createdCategoryId);
+                    new { id = createdCategoryDto.CategoryId },
+                    createdCategoryDto);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while creating product.");
+                return StatusCode(500, "Internal Server Error");
+            }
+        }
+
+        [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> DeleteCategoryAsync(int id)
+        {
+            try
+            {
+                var result = await _service.DeleteCategoryAsync(id);
+
+                if (!result)
+                {
+                    return NotFound();
+                }
+
+                return NoContent();
             }
             catch (Exception ex)
             {

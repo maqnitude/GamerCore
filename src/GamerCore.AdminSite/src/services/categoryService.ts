@@ -17,7 +17,7 @@ const CategoryService = {
     return response.json();
   },
 
-  createCategory: async (payload: CreateCategoryPayload): Promise<number> => {
+  createCategory: async (payload: CreateCategoryPayload): Promise<Category> => {
     const apiEndpoint = baseApiEndpoint;
 
     const response = await fetch(apiEndpoint, {
@@ -30,8 +30,19 @@ const CategoryService = {
       throw new Error(`${response.status} - ${response.statusText}`);
     }
 
-    const createdCategoryId = await response.json();
-    return createdCategoryId as number;
+    return response.json();
+  },
+
+  deleteCategory: async (id: number): Promise<void> => {
+    const apiEndpoint = baseApiEndpoint + `/${id}`;
+
+    const response = await fetch(apiEndpoint, {
+      method: "DELETE"
+    });
+
+    if (!response.ok) {
+      throw new Error(`${response.status} - ${response.statusText}`);
+    }
   }
 }
 

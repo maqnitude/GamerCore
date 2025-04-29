@@ -1,10 +1,11 @@
 import { useForm } from "react-hook-form";
 import { useToast } from "../../../contexts/ToastContext";
 import useCreateCategory from "../hooks/useCreateCategory";
-import { CreateCategoryPayload } from "../../../types";
+import { Category, CreateCategoryPayload } from "../../../types";
 
 interface CreateCategoryFormProps {
   onClose: () => void;
+  onCategoryCreated?: (createdCategory: Category) => void;
 }
 
 interface FormValues {
@@ -12,7 +13,7 @@ interface FormValues {
   description: string;
 }
 
-function CreateCategoryForm({ onClose }: CreateCategoryFormProps) {
+function CreateCategoryForm({ onClose, onCategoryCreated }: CreateCategoryFormProps) {
   const { createCategory, creating, error: createError } = useCreateCategory();
 
   const { addToast } = useToast();
@@ -35,15 +36,20 @@ function CreateCategoryForm({ onClose }: CreateCategoryFormProps) {
     }
 
     try {
-      const createdCategoryId = await createCategory(payload);
+      const createdCategory = await createCategory(payload);
 
       addToast({
         type: "success",
         message: "Category created successfully.",
-        metadata: { createdCategoryId },
+        metadata: { createdCategory },
         autoDismiss: true,
         dismissDelay: 5000
       });
+
+      // Notify categories page to refetch
+      if (onCategoryCreated) {
+        onCategoryCreated(createdCategory);
+      }
 
       onClose();
     } catch {

@@ -67,7 +67,7 @@ namespace GamerCore.Api.Services
             return categoryDto;
         }
 
-        public async Task<int> CreateCategoryAsync(CreateCategoryDto createCategoryDto)
+        public async Task<CategoryDto> CreateCategoryAsync(CreateCategoryDto createCategoryDto)
         {
             var category = new Category
             {
@@ -81,7 +81,43 @@ namespace GamerCore.Api.Services
             // Commit change
             await _unitOfWork.SaveChangesAsync();
 
-            return category.CategoryId;
+            return new CategoryDto
+            {
+                CategoryId = category.CategoryId,
+                Name = category.Name,
+                Description = category.Description
+            };
+        }
+
+        public async Task<bool> DeleteCategoryAsync(int id)
+        {
+            var category = await FindCategoryByIdAsync(id);
+
+            if (category == null)
+            {
+                return false;
+            }
+
+            _unitOfWork.Categories.RemoveCategory(category);
+
+            await _unitOfWork.SaveChangesAsync();
+
+            return true;
+        }
+
+        private async Task<Category?> FindCategoryByIdAsync(int id)
+        {
+            var queryableCategories = _unitOfWork.Categories.GetQueryableCategories();
+
+            var category = await queryableCategories
+                .FirstOrDefaultAsync(c => c.CategoryId == id);
+
+            if (category == null)
+            {
+                return null;
+            }
+
+            return category;
         }
     }
 }

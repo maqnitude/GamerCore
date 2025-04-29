@@ -36,7 +36,7 @@ function ProductsTable({ products, onProductDeleted }: ProductsTableProps) {
         try {
           await deleteProduct(product.productId);
 
-          // Notify parent component
+          // Notify the products page to update
           if (onProductDeleted) {
             onProductDeleted(product.productId);
           }

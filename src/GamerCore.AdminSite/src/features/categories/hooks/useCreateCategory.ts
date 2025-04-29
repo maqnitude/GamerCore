@@ -1,20 +1,20 @@
 import { useCallback, useState } from "react";
-import { CreateCategoryPayload } from "../../../types";
+import { Category, CreateCategoryPayload } from "../../../types";
 import CategoryService from "../../../services/categoryService";
 
 function useCreateCategory() {
-  const [createdCategoryId, setCreatedCategoryId] = useState<number | null>(null);
+  const [createdCategory, setCreatedCategory] = useState<Category | null>(null);
   const [creating, setCreating] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
   const createCategory = useCallback(async (payload: CreateCategoryPayload) => {
     try {
       setCreating(true);
-      const id = await CategoryService.createCategory(payload);
-      setCreatedCategoryId(id);
+      const data = await CategoryService.createCategory(payload);
+      setCreatedCategory(data);
       setError(null);
 
-      return id;
+      return data;
     } catch (err) {
       console.error("Error creating category:", err);
       setError(err instanceof Error ? err.message : "Unknown error occured");
@@ -24,7 +24,7 @@ function useCreateCategory() {
     }
   }, []);
 
-  return { createCategory, createdCategoryId, creating, error };
+  return { createCategory, createdCategory, creating, error };
 }
 
 export default useCreateCategory;

@@ -45,7 +45,6 @@ function ProductsPage() {
 
   return (
     <div className="container-fluid my-4">
-      {loading && <LoadingSpinner />}
       {error && <ErrorAlert message={error.concat("\nFailed to fetch products.")} />}
 
       {/* Control panel */}
@@ -61,6 +60,7 @@ function ProductsPage() {
         </button>
       </div>
 
+      {loading && <LoadingSpinner />}
       {pagedResult && (
         <>
           <ProductsTable
