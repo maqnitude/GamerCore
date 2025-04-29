@@ -1,3 +1,5 @@
+/* DTOs */
+
 export interface PagedResult<T> {
   items: T[];
   page: number;
@@ -9,6 +11,7 @@ export interface Category {
   categoryId: number;
   name: string;
   description: string;
+  productCount: number;
 }
 
 export interface Product {
@@ -44,6 +47,13 @@ export interface ProductDetails {
   averageRating: number;
   reviewCount: number;
   reviews: ProductReview[];
+}
+
+/* Payload */
+
+export interface CreateCategoryPayload {
+  name: string;
+  description: string;
 }
 
 export interface CreateProductPayload {

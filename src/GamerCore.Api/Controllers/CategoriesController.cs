@@ -1,7 +1,6 @@
 using GamerCore.Api.Models;
-using GamerCore.Infrastructure.Repositories;
+using GamerCore.Api.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace GamerCore.Api.Controllers
 {
@@ -9,16 +8,16 @@ namespace GamerCore.Api.Controllers
     [Route("api/[controller]")]
     public class CategoriesController : ControllerBase
     {
-        private readonly ICategoryRepository _repository;
+        private readonly ICategoryService _service;
         private readonly ILogger<CategoriesController> _logger;
 
-        public CategoriesController(ICategoryRepository repository, ILogger<CategoriesController> logger)
+        public CategoriesController(ICategoryService service, ILogger<CategoriesController> logger)
         {
-            _repository = repository;
+            _service = service;
             _logger = logger;
         }
 
-        [HttpGet]
+        [HttpGet(Name = "GetCategories")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -26,31 +25,70 @@ namespace GamerCore.Api.Controllers
         {
             try
             {
-                var queryableCategories = _repository.GetQueryableCategories();
+                var categories = await _service.GetCategoriesAsync();
 
-                if (!await queryableCategories.AnyAsync())
+                if (categories == null || categories.Count == 0)
                 {
-                    _logger.LogWarning("No category found.");
                     return NoContent();
                 }
 
-                var categoryDtos = await queryableCategories
-                    .AsNoTracking()
-                    .Select(c => new CategoryDto
-                    {
-                        CategoryId = c.CategoryId,
-                        Name = c.Name,
-                        Description = c.Description,
-                        ProductCount = c.ProductCategories.Count()
-                    })
-                    .ToListAsync();
-
-                _logger.LogInformation($"Successfully retrieved {categoryDtos.Count} categories.");
-                return Ok(categoryDtos);
+                return Ok(categories);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "An error occurred while retrieving categories.");
+                return StatusCode(500, "Internal Server Error");
+            }
+        }
+
+        [HttpGet("{id}", Name = "GetCategoryById")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<CategoryDto>> GetCategoryByIdAsync(int id)
+        {
+            try
+            {
+                var categoryDto = await _service.GetCategoryAsync(id);
+
+                if (categoryDto == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(categoryDto);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while retrieving categories.");
+                return StatusCode(500, "Internal Server Error");
+            }
+        }
+
+        [HttpPost]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> CreateCategoryAsync([FromBody] CreateCategoryDto createCategoryDto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                var createdCategoryId = await _service.CreateCategoryAsync(createCategoryDto);
+
+                return CreatedAtAction(
+                    "GetCategoryById",
+                    "Categories",
+                    new { id = createdCategoryId },
+                    createdCategoryId);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while creating product.");
                 return StatusCode(500, "Internal Server Error");
             }
         }

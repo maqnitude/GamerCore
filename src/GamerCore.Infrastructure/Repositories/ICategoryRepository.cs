@@ -5,5 +5,6 @@ namespace GamerCore.Infrastructure.Repositories
     public interface ICategoryRepository
     {
         IQueryable<Category> GetQueryableCategories();
+        void AddCategory(Category category);
     }
 }

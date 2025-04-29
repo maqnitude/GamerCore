@@ -15,5 +15,10 @@ namespace GamerCore.Infrastructure.Repositories
         {
             return _context.Categories.AsQueryable();
         }
+
+        public void AddCategory(Category category)
+        {
+            _context.Categories.Add(category);
+        }
     }
 }

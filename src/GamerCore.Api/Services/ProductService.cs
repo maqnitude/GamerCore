@@ -112,7 +112,7 @@ namespace GamerCore.Api.Services
                             Url = i.Url,
                             IsPrimary = i.IsPrimary
                         }),
-                    AverageRating = p.Reviews.Any()
+                    AverageRating = p.Reviews.Count != 0
                         ? p.Reviews.Average(r => r.Rating)
                         : 0.0,
                     ReviewCount = p.Reviews.Count(),
