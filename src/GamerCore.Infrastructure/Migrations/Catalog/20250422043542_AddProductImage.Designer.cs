@@ -8,11 +8,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace GamerCore.Infrastructure.Migrations
+namespace GamerCore.Infrastructure.Migrations.Catalog
 {
     [DbContext(typeof(CatalogContext))]
-    [Migration("20250417040528_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20250422043542_AddProductImage")]
+    partial class AddProductImage
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -76,6 +76,58 @@ namespace GamerCore.Infrastructure.Migrations
                     b.ToTable("ProductCategories");
                 });
 
+            modelBuilder.Entity("GamerCore.Core.Entities.ProductDetail", b =>
+                {
+                    b.Property<int>("ProductDetailId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ProductDetailId"));
+
+                    b.Property<string>("DescriptionHtml")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("WarrantyHtml")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("ProductDetailId");
+
+                    b.HasIndex("ProductId")
+                        .IsUnique();
+
+                    b.ToTable("ProductDetails");
+                });
+
+            modelBuilder.Entity("GamerCore.Core.Entities.ProductImage", b =>
+                {
+                    b.Property<int>("ProductImageId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ProductImageId"));
+
+                    b.Property<bool>("IsPrimary")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Url")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("ProductImageId");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("ProductImages");
+                });
+
             modelBuilder.Entity("GamerCore.Core.Entities.ProductCategory", b =>
                 {
                     b.HasOne("GamerCore.Core.Entities.Category", "Category")
@@ -95,6 +147,28 @@ namespace GamerCore.Infrastructure.Migrations
                     b.Navigation("Product");
                 });
 
+            modelBuilder.Entity("GamerCore.Core.Entities.ProductDetail", b =>
+                {
+                    b.HasOne("GamerCore.Core.Entities.Product", "Product")
+                        .WithOne("Detail")
+                        .HasForeignKey("GamerCore.Core.Entities.ProductDetail", "ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("GamerCore.Core.Entities.ProductImage", b =>
+                {
+                    b.HasOne("GamerCore.Core.Entities.Product", "Product")
+                        .WithMany("Images")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+                });
+
             modelBuilder.Entity("GamerCore.Core.Entities.Category", b =>
                 {
                     b.Navigation("ProductCategories");
@@ -102,6 +176,11 @@ namespace GamerCore.Infrastructure.Migrations
 
             modelBuilder.Entity("GamerCore.Core.Entities.Product", b =>
                 {
+                    b.Navigation("Detail")
+                        .IsRequired();
+
+                    b.Navigation("Images");
+
                     b.Navigation("ProductCategories");
                 });
 #pragma warning restore 612, 618

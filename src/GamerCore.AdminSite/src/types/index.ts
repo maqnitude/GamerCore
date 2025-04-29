@@ -8,6 +8,7 @@ export interface PagedResult<T> {
 export interface Category {
   categoryId: number;
   name: string;
+  description: string;
 }
 
 export interface Product {

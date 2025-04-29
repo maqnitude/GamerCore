@@ -44,7 +44,7 @@ function ProductsPage() {
   }
 
   return (
-    <div className="container-fluid">
+    <div className="container-fluid my-4">
       {/* Control panel */}
       <div className="d-flex justify-content-between align-items-center">
         <ProductsFilter onFilterChange={handleFilterChange} />
@@ -59,9 +59,7 @@ function ProductsPage() {
       </div>
 
       {loading && <LoadingSpinner />}
-      {error && <ErrorAlert
-        message={error.concat("\nFailed to fetch products.")}
-      />}
+      {error && <ErrorAlert message={error.concat("\nFailed to fetch products.")} />}
 
       {pagedResult && (
         <>

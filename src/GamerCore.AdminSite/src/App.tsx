@@ -7,6 +7,7 @@ import Modal from "./components/Modal";
 import ToastContainer from "./components/ToastContainer";
 import UpdateProductPage from "./pages/UpdateProductPage";
 import ProductDetailsPage from "./pages/ProductDetailsPage";
+import CategoriesPage from "./pages/CategoriesPage";
 
 function App() {
   return (
@@ -14,10 +15,13 @@ function App() {
       <Routes>
         <Route path="/" element={<MainLayout />}>
           <Route index element={<DashboardPage />} />
+
           <Route path="products" element={<ProductsPage />} />
           <Route path="products/create" element={<CreateProductPage />} />
           <Route path="products/edit/:productId" element={<UpdateProductPage />} />
           <Route path="products/details/:productId" element={<ProductDetailsPage />} />
+
+          <Route path="categories" element={<CategoriesPage />} />
         </Route>
       </Routes>
       <ToastContainer />

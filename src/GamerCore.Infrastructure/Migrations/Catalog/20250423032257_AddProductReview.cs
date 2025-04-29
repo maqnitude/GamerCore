@@ -2,29 +2,29 @@
 
 #nullable disable
 
-namespace GamerCore.Infrastructure.Migrations
+namespace GamerCore.Infrastructure.Migrations.Catalog
 {
     /// <inheritdoc />
-    public partial class AddProductDetail : Migration
+    public partial class AddProductReview : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "ProductDetails",
+                name: "ProductReviews",
                 columns: table => new
                 {
-                    ProductDetailId = table.Column<int>(type: "int", nullable: false)
+                    ProductReviewId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    DescriptionHtml = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    WarrantyHtml = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Rating = table.Column<int>(type: "int", nullable: false),
+                    ReviewText = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ProductId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ProductDetails", x => x.ProductDetailId);
+                    table.PrimaryKey("PK_ProductReviews", x => x.ProductReviewId);
                     table.ForeignKey(
-                        name: "FK_ProductDetails_Products_ProductId",
+                        name: "FK_ProductReviews_Products_ProductId",
                         column: x => x.ProductId,
                         principalTable: "Products",
                         principalColumn: "ProductId",
@@ -32,17 +32,16 @@ namespace GamerCore.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_ProductDetails_ProductId",
-                table: "ProductDetails",
-                column: "ProductId",
-                unique: true);
+                name: "IX_ProductReviews_ProductId",
+                table: "ProductReviews",
+                column: "ProductId");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "ProductDetails");
+                name: "ProductReviews");
         }
     }
 }

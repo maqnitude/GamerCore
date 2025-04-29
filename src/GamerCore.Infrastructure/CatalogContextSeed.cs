@@ -53,14 +53,14 @@ namespace GamerCore.Infrastructure
         {
             var categories = new List<Category>
             {
-                new() { Name = "Consoles" },
-                new() { Name = "PCs" },
-                new() { Name = "Laptops" },
-                new() { Name = "Controllers" },
-                new() { Name = "Headsets" },
-                new() { Name = "Monitors" },
-                new() { Name = "Keyboards" },
-                new() { Name = "Mice" }
+                new() { Name = "Consoles", Description = "Video game consoles are specialized electronic devices designed to connect to a display and run video games via dedicated hardware and controllers, offering immersive entertainment experiences in a living room setting." },
+                new() { Name = "PCs", Description = "Gaming PCs are high-performance desktop computers equipped with powerful multicore CPUs, dedicated graphics cards, and ample memory to handle demanding games and applications, with the flexibility to upgrade components over time." },
+                new() { Name = "Laptops", Description = "Portable computers that integrate the display, keyboard, battery, and computing hardware into a single, compact chassis, delivering mobility and versatility for work, study, and entertainment." },
+                new() { Name = "Controllers", Description = "Input devices featuring buttons, triggers, joysticks, and motion sensors, designed to provide precise in-game control and interaction across gaming consoles and PCs." },
+                new() { Name = "Headsets", Description = "Integrated headphone-and-microphone peripherals optimized for gaming and communication, offering surround sound, noise cancellation, and clear voice chat to enhance immersion and teamwork." },
+                new() { Name = "Monitors", Description = "Output devices that display visual content from computers and consoles; modern monitors typically use LCD, LED, or OLED panels with high resolutions, fast refresh rates, and accurate color reproduction for gaming and multimedia." },
+                new() { Name = "Keyboards", Description = "Input devices composed of sets of keys for typing text and commands; gaming keyboards often feature mechanical switches, customizable RGB lighting, programmable macros, and ergonomic designs for performance and comfort." },
+                new() { Name = "Mice", Description = "Handheld pointing devices that translate surface movement into cursor motion; gaming mice include features like adjustable DPI, programmable buttons, ergonomic shapes, and high-precision optical or laser sensors for accurate control." }
             };
 
             context.Categories.AddRange(categories);

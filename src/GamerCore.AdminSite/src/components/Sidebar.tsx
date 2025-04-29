@@ -41,6 +41,16 @@ function Sidebar() {
               Products
             </NavLink>
           </li>
+          <li>
+            <NavLink
+              to="/categories"
+              className="nav-link d-flex align-items-center"
+              style={activeStyle}
+            >
+              <i className="bi bi-tags me-2"></i>
+              Categories
+            </NavLink>
+          </li>
         </ul>
       </div>
     </>

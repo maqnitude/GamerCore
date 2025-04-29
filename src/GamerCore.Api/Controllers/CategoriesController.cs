@@ -19,6 +19,9 @@ namespace GamerCore.Api.Controllers
         }
 
         [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<List<CategoryDto>>> GetCategoriesAsync()
         {
             try
@@ -37,6 +40,7 @@ namespace GamerCore.Api.Controllers
                     {
                         CategoryId = c.CategoryId,
                         Name = c.Name,
+                        Description = c.Description,
                         ProductCount = c.ProductCategories.Count()
                     })
                     .ToListAsync();

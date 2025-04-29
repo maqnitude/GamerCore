@@ -8,11 +8,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace GamerCore.Infrastructure.Migrations
+namespace GamerCore.Infrastructure.Migrations.Catalog
 {
     [DbContext(typeof(CatalogContext))]
-    [Migration("20250423032257_AddProductReview")]
-    partial class AddProductReview
+    [Migration("20250421055654_AddProductDetail")]
+    partial class AddProductDetail
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -103,55 +103,6 @@ namespace GamerCore.Infrastructure.Migrations
                     b.ToTable("ProductDetails");
                 });
 
-            modelBuilder.Entity("GamerCore.Core.Entities.ProductImage", b =>
-                {
-                    b.Property<int>("ProductImageId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ProductImageId"));
-
-                    b.Property<bool>("IsPrimary")
-                        .HasColumnType("bit");
-
-                    b.Property<int>("ProductId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Url")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("ProductImageId");
-
-                    b.HasIndex("ProductId");
-
-                    b.ToTable("ProductImages");
-                });
-
-            modelBuilder.Entity("GamerCore.Core.Entities.ProductReview", b =>
-                {
-                    b.Property<int>("ProductReviewId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ProductReviewId"));
-
-                    b.Property<int>("ProductId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Rating")
-                        .HasColumnType("int");
-
-                    b.Property<string>("ReviewText")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("ProductReviewId");
-
-                    b.HasIndex("ProductId");
-
-                    b.ToTable("ProductReviews");
-                });
-
             modelBuilder.Entity("GamerCore.Core.Entities.ProductCategory", b =>
                 {
                     b.HasOne("GamerCore.Core.Entities.Category", "Category")
@@ -182,28 +133,6 @@ namespace GamerCore.Infrastructure.Migrations
                     b.Navigation("Product");
                 });
 
-            modelBuilder.Entity("GamerCore.Core.Entities.ProductImage", b =>
-                {
-                    b.HasOne("GamerCore.Core.Entities.Product", "Product")
-                        .WithMany("Images")
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Product");
-                });
-
-            modelBuilder.Entity("GamerCore.Core.Entities.ProductReview", b =>
-                {
-                    b.HasOne("GamerCore.Core.Entities.Product", "Product")
-                        .WithMany("Reviews")
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Product");
-                });
-
             modelBuilder.Entity("GamerCore.Core.Entities.Category", b =>
                 {
                     b.Navigation("ProductCategories");
@@ -214,11 +143,7 @@ namespace GamerCore.Infrastructure.Migrations
                     b.Navigation("Detail")
                         .IsRequired();
 
-                    b.Navigation("Images");
-
                     b.Navigation("ProductCategories");
-
-                    b.Navigation("Reviews");
                 });
 #pragma warning restore 612, 618
         }

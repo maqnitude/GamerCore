@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace GamerCore.Infrastructure.Migrations
+namespace GamerCore.Infrastructure.Migrations.Catalog
 {
     /// <inheritdoc />
     public partial class InitialCreate : Migration
