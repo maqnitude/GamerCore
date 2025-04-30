@@ -43,7 +43,7 @@ namespace GamerCore.CustomerSite.Tests
         public async Task GetProductsAsync_ReturnsProducts_WhenApiCallSucceeds()
         {
             // Arrange
-            var pagedResult = new PagedResult<ProductViewModel>
+            var paginatedList = new PaginatedList<ProductViewModel>
             {
                 Items = new List<ProductViewModel>
                 {
@@ -55,7 +55,7 @@ namespace GamerCore.CustomerSite.Tests
                 TotalItems = 2
             };
 
-            var jsonResponse = JsonSerializer.Serialize(pagedResult);
+            var jsonResponse = JsonSerializer.Serialize(paginatedList);
             var httpResponse = new HttpResponseMessage
             {
                 StatusCode = HttpStatusCode.OK,

@@ -1,6 +1,6 @@
 /* DTOs */
 
-export interface PagedResult<T> {
+export interface PaginatedList<T> {
   items: T[];
   page: number;
   pageSize: number;

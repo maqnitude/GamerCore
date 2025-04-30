@@ -28,14 +28,14 @@ namespace GamerCore.CustomerSite.Controllers
         {
             try
             {
-                var pagedResultTask = categoryId != null
+                var paginatedListTask = categoryId != null
                     ? _productService.GetProductsAsync(page, [categoryId.Value])
                     : _productService.GetProductsAsync(page);
                 var categoriesTask = _categoryService.GetCategoriesAsync();
 
-                await Task.WhenAll(pagedResultTask, categoriesTask);
+                await Task.WhenAll(paginatedListTask, categoriesTask);
 
-                var pagedResult = await pagedResultTask;
+                var paginatedList = await paginatedListTask;
                 var categories = await categoriesTask;
 
                 categories = categories.OrderBy(c => c.Name).ToList();
@@ -48,13 +48,13 @@ namespace GamerCore.CustomerSite.Controllers
 
                 var productListViewModel = new ProductListViewModel
                 {
-                    Products = pagedResult.Items,
+                    Products = paginatedList.Items,
                     Filter = productFilter,
                     Pagination = new PaginationMetadata()
                     {
-                        Page = pagedResult.Page,
-                        PageSize = pagedResult.PageSize,
-                        TotalItems = pagedResult.TotalItems
+                        Page = paginatedList.Page,
+                        PageSize = paginatedList.PageSize,
+                        TotalItems = paginatedList.TotalItems
                     }
                 };
 

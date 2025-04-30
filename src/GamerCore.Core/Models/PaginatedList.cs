@@ -1,6 +1,6 @@
 namespace GamerCore.Core.Models
 {
-    public class PagedResult<T>
+    public class PaginatedList<T>
     {
         public List<T> Items { get; set; } = [];
         public int Page { get; set; }

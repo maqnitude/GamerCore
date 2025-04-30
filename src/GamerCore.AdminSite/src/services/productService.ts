@@ -1,9 +1,9 @@
-import { CreateProductPayload, PagedResult, Product, ProductDetails, UpdateProductPayload } from "../types";
+import { CreateProductPayload, PaginatedList, Product, ProductDetails, UpdateProductPayload } from "../types";
 
 const baseApiEndpoint = "/api/products";
 
 const ProductService = {
-  getProducts: async (page: number = 1, categoryIds?: number[]): Promise<PagedResult<Product>> => {
+  getProducts: async (page: number = 1, categoryIds?: number[]): Promise<PaginatedList<Product>> => {
     let apiEndpoint = baseApiEndpoint;
 
     apiEndpoint += `?page=${page}`

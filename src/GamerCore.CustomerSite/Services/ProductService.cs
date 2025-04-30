@@ -22,7 +22,7 @@ namespace GamerCore.CustomerSite.Services
             _logger = logger;
         }
 
-        public async Task<PagedResult<ProductViewModel>> GetProductsAsync(int page = 1, int[]? categoryIds = null)
+        public async Task<PaginatedList<ProductViewModel>> GetProductsAsync(int page = 1, int[]? categoryIds = null)
         {
             string apiEndpoint = _apiBaseEndpoint;
             apiEndpoint += $"?page={page}";
@@ -45,17 +45,17 @@ namespace GamerCore.CustomerSite.Services
                 if (response.IsSuccessStatusCode)
                 {
                     using var contentStream = await response.Content.ReadAsStreamAsync();
-                    var pagedResult = await JsonSerializer
-                        .DeserializeAsync<PagedResult<ProductViewModel>>(contentStream, _jsonSerializerOptions);
+                    var paginatedList = await JsonSerializer
+                        .DeserializeAsync<PaginatedList<ProductViewModel>>(contentStream, _jsonSerializerOptions);
 
-                    if (pagedResult == null)
+                    if (paginatedList == null)
                     {
                         _logger.LogWarning("API call to {ApiEndpoint} succeeded but return null data.", apiEndpoint);
-                        return new PagedResult<ProductViewModel>();
+                        return new PaginatedList<ProductViewModel>();
                     }
 
-                    _logger.LogInformation("Successfully retrieved {Count}.", pagedResult.Items.Count);
-                    return pagedResult;
+                    _logger.LogInformation("Successfully retrieved {Count}.", paginatedList.Items.Count);
+                    return paginatedList;
                 }
                 else
                 {

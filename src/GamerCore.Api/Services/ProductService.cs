@@ -19,7 +19,7 @@ namespace GamerCore.Api.Services
             _logger = logger;
         }
 
-        public async Task<PagedResult<ProductDto>> GetFilteredProductsAsync(int page, int? pageSize, int[]? categoryIds)
+        public async Task<PaginatedList<ProductDto>> GetFilteredProductsAsync(int page, int? pageSize, int[]? categoryIds)
         {
             int effectivePage = page;
             effectivePage = Math.Max(effectivePage, 1);
@@ -45,7 +45,7 @@ namespace GamerCore.Api.Services
             if (totalProducts == 0)
             {
                 _logger.LogWarning("No products found.");
-                return new PagedResult<ProductDto>();
+                return new PaginatedList<ProductDto>();
             }
 
             var productDtos = await queryableProducts
@@ -76,7 +76,7 @@ namespace GamerCore.Api.Services
 
             _logger.LogInformation("Retrieved {Count} products.", productDtos.Count);
 
-            return new PagedResult<ProductDto>
+            return new PaginatedList<ProductDto>
             {
                 Items = productDtos,
                 Page = effectivePage,

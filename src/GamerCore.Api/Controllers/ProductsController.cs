@@ -22,7 +22,7 @@ namespace GamerCore.Api.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<PagedResult<ProductDto>>> GetProductsAsync(
+        public async Task<ActionResult<PaginatedList<ProductDto>>> GetProductsAsync(
             [FromQuery] int page = 1,
             [FromQuery] int? pageSize = null,
             [FromQuery] string? categoryIds = null)

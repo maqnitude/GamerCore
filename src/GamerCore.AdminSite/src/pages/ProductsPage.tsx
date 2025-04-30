@@ -13,15 +13,15 @@ function ProductsPage() {
   const [selectedCategoryId, setSelectedCategoryId] = useState<number | undefined>();
   const [localProducts, setLocalProducts] = useState<Product[]>([]);
 
-  const { pagedResult, loading, error } = useProducts(page, selectedCategoryId);
+  const { paginatedList, loading, error } = useProducts(page, selectedCategoryId);
 
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (pagedResult) {
-      setLocalProducts(pagedResult.items);
+    if (paginatedList) {
+      setLocalProducts(paginatedList.items);
     }
-  }, [pagedResult]);
+  }, [paginatedList]);
 
   const handlePageChange = (page: number) => {
     setPage(page);
@@ -61,7 +61,7 @@ function ProductsPage() {
       </div>
 
       {loading && <LoadingSpinner />}
-      {pagedResult && (
+      {paginatedList && (
         <>
           <ProductsTable
             products={localProducts}
@@ -69,9 +69,9 @@ function ProductsPage() {
           />
 
           <Pagination
-            currentPage={pagedResult.page}
-            pageSize={pagedResult.pageSize}
-            totalItems={pagedResult.totalItems}
+            currentPage={paginatedList.page}
+            pageSize={paginatedList.pageSize}
+            totalItems={paginatedList.totalItems}
             onPageChange={handlePageChange}
           />
         </>

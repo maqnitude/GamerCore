@@ -5,7 +5,7 @@ namespace GamerCore.CustomerSite.Services
 {
     public interface IProductService
     {
-        Task<PagedResult<ProductViewModel>> GetProductsAsync(int page = 1, int[]? categoryIds = null);
+        Task<PaginatedList<ProductViewModel>> GetProductsAsync(int page = 1, int[]? categoryIds = null);
         Task<ProductDetailsViewModel> GetProductDetailsAsync(int id);
     }
 }

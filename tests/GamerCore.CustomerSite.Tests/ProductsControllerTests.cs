@@ -31,7 +31,7 @@ namespace GamerCore.CustomerSite.Tests
         public async Task Index_ReturnsViewWithProducts_WhenNoCategorySelected()
         {
             // Arrange
-            var expectedProducts = new PagedResult<ProductViewModel>
+            var expectedProducts = new PaginatedList<ProductViewModel>
             {
                 Items = [new() { ProductId = 1, Name = "Test Product", Price = 10.00M }],
                 Page = 1,
@@ -78,7 +78,7 @@ namespace GamerCore.CustomerSite.Tests
                 Name = "Test Category"
             };
 
-            var expectedProducts = new PagedResult<ProductViewModel>
+            var expectedProducts = new PaginatedList<ProductViewModel>
             {
                 Items =
                 [

@@ -33,7 +33,7 @@ namespace GamerCore.Api.Tests
                 new() { ProductId = 2, Name = "Product 2" }
             };
 
-            var pagedResult = new PagedResult<ProductDto>
+            var pagedResult = new PaginatedList<ProductDto>
             {
                 Items = productDtos,
                 Page = 1,
@@ -52,7 +52,7 @@ namespace GamerCore.Api.Tests
 
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(result.Result);
-            var returnedPagedResult = Assert.IsAssignableFrom<PagedResult<ProductDto>>(okResult.Value);
+            var returnedPagedResult = Assert.IsAssignableFrom<PaginatedList<ProductDto>>(okResult.Value);
             Assert.Equal(pagedResult, returnedPagedResult);
 
             _mockService.Verify(s => s.GetFilteredProductsAsync(
@@ -70,7 +70,7 @@ namespace GamerCore.Api.Tests
                     It.IsAny<int>(),
                     It.IsAny<int?>(),
                     It.IsAny<int[]?>()))
-                .ReturnsAsync(new PagedResult<ProductDto>());
+                .ReturnsAsync(new PaginatedList<ProductDto>());
 
             // Act
             await _controller.GetProductsAsync(categoryIds: "1,2,3");
@@ -87,7 +87,7 @@ namespace GamerCore.Api.Tests
         public async Task GetProductsAsync_ReturnsNoContent_WhenNoProductsExist()
         {
             // Arrange
-            var emptyPagedResult = new PagedResult<ProductDto>
+            var emptyPagedResult = new PaginatedList<ProductDto>
             {
                 Items = new List<ProductDto>(),
                 Page = 1,
