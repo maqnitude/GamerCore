@@ -11,8 +11,15 @@ namespace GamerCore.Api.Services
         /// Create a category.
         /// </summary>
         /// <param name="createCategoryDto"></param>
-        /// <returns>The created category.</returns>
+        /// <returns>The created category DTO.</returns>
         Task<CategoryDto> CreateCategoryAsync(CreateCategoryDto createCategoryDto);
+
+        /// <summary>
+        /// Update a category.
+        /// </summary>
+        /// <param name="updateCategoryDto"></param>
+        /// <returns>Updated category DTO. Null if not found.</returns>
+        Task<CategoryDto?> UpdateCategoryAsync(int id, UpdateCategoryDto updateCategoryDto);
 
         /// <summary>
         /// Find and delete a category.

@@ -1,10 +1,24 @@
-import { Category, CreateCategoryPayload } from "../types";
+import { Category, CreateCategoryPayload, UpdateCategoryPayload } from "../types";
 
 const baseApiEndpoint = "/api/categories";
 
 const CategoryService = {
   getCategories: async (): Promise<Category[]> => {
     const apiEndpoint = baseApiEndpoint;
+
+    const response = await fetch(apiEndpoint, {
+      method: "GET"
+    });
+
+    if (!response.ok) {
+      throw new Error(`${response.status} - ${response.statusText}`);
+    }
+
+    return response.json();
+  },
+
+  getCategory: async (id: number): Promise<Category> => {
+    const apiEndpoint = baseApiEndpoint + `/${id}`;
 
     const response = await fetch(apiEndpoint, {
       method: "GET"
@@ -25,6 +39,22 @@ const CategoryService = {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
     })
+
+    if (!response.ok) {
+      throw new Error(`${response.status} - ${response.statusText}`);
+    }
+
+    return response.json();
+  },
+
+  updateCategory: async (id: number, payload: UpdateCategoryPayload): Promise<Category> => {
+    const apiEndpoint = baseApiEndpoint + `/${id}`;
+
+    const response = await fetch(apiEndpoint, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
 
     if (!response.ok) {
       throw new Error(`${response.status} - ${response.statusText}`);

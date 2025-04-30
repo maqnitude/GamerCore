@@ -49,6 +49,7 @@ function UpdateProductForm({ productId }: { productId: number }) {
   // Load exiting product data
   const loadProductData = useCallback(async () => {
     try {
+      // TODO: make a custom hook for this to disable the save button on loading and error
       const data = await ProductService.getProductDetails(productId);
       setInitialData(data);
       reset({
@@ -56,7 +57,9 @@ function UpdateProductForm({ productId }: { productId: number }) {
         price: data.price,
         descriptionHtml: data.descriptionHtml,
         warrantyHtml: data.warrantyHtml,
-        categoryId: String(data.categories[0].categoryId),
+        categoryId: data.categories.length != 0
+          ? String(data.categories[0].categoryId)
+          : "",
         primaryImageUrl: data.images
           .find(i => i.isPrimary)?.url,
         imageUrls: data.images
@@ -65,6 +68,7 @@ function UpdateProductForm({ productId }: { productId: number }) {
       })
     } catch (err) {
       console.error(err);
+      // TODO: add error toast
     }
   }, [productId, reset]);
 
@@ -90,7 +94,7 @@ function UpdateProductForm({ productId }: { productId: number }) {
       addToast({
         type: "success",
         message: "Product updated successfully.",
-        metadata: { productId },
+        metadata: { updatedProductId: productId },
         autoDismiss: true,
         dismissDelay: 5000
       });
@@ -168,7 +172,7 @@ function UpdateProductForm({ productId }: { productId: number }) {
                         <input
                           id="name"
                           className="form-control form-control-sm"
-                          {...register('name', { required: true })}
+                          {...register("name", { required: true })}
                         />
                       </div>
 
@@ -180,7 +184,7 @@ function UpdateProductForm({ productId }: { productId: number }) {
                           type="number"
                           step="0.01"
                           className="form-control form-control-sm"
-                          {...register('price', { required: true, valueAsNumber: true })}
+                          {...register("price", { required: true, valueAsNumber: true })}
                         />
                       </div>
 
@@ -195,7 +199,7 @@ function UpdateProductForm({ productId }: { productId: number }) {
                           <select
                             id="category"
                             className="form-select form-select-sm"
-                            {...register('categoryId', { required: true })}
+                            {...register("categoryId", { required: true })}
                           >
                             <option value="">Select a category</option>
                             {categories.map((c: Category) => (
@@ -221,12 +225,21 @@ function UpdateProductForm({ productId }: { productId: number }) {
                     <div className="mb-3">
                       <div className="d-flex justify-content-between align-items-center mb-1">
                         <label htmlFor="primaryImageUrl" className="form-label small mb-0">Primary Image URL</label>
-                        <a href="#" className="btn btn-sm btn-link py-0" onClick={(e) => { e.preventDefault(); window.open(initialData.images.find(i => i.isPrimary)?.url, '_blank') }}>Preview</a>
+                        <a
+                          href="#"
+                          className="btn btn-sm btn-link py-0"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            window.open(initialData.images.find(i => i.isPrimary)?.url, "_blank")
+                          }}
+                        >
+                          Preview
+                        </a>
                       </div>
                       <input
                         id="primaryImageUrl"
                         className="form-control form-control-sm"
-                        {...register('primaryImageUrl', { required: true })}
+                        {...register("primaryImageUrl", { required: true })}
                       />
                     </div>
 
@@ -242,7 +255,10 @@ function UpdateProductForm({ productId }: { productId: number }) {
                           <button
                             type="button"
                             className="btn btn-outline-secondary btn-sm"
-                            onClick={(e) => { e.preventDefault(); window.open(field.url, '_blank') }}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              window.open(field.url, "_blank")
+                            }}
                             title="Preview image"
                           >
                             <i className="bi bi-eye"></i>
@@ -273,7 +289,10 @@ function UpdateProductForm({ productId }: { productId: number }) {
                           <label className="form-label small mb-0">Removed Images</label>
                           <span className="badge bg-warning text-dark">{removedImageUrls.length}</span>
                         </div>
-                        <div className="border border-warning rounded p-2 bg-warning bg-opacity-10" style={{ maxHeight: "100px", overflowY: "auto" }}>
+                        <div
+                          className="border border-warning rounded p-2 bg-warning bg-opacity-10"
+                          style={{ maxHeight: "100px", overflowY: "auto" }}
+                        >
                           {removedImageUrls.map((url, index) => (
                             <div key={index} className="d-flex align-items-center mb-1 small">
                               <div className="text-truncate me-2" title={url}>{url}</div>
@@ -310,7 +329,7 @@ function UpdateProductForm({ productId }: { productId: number }) {
                         id="descriptionHtml"
                         rows={6}
                         className="form-control form-control-sm"
-                        {...register('descriptionHtml')}
+                        {...register("descriptionHtml")}
                       />
                       <div className="mt-2 border rounded p-2 bg-light" style={{ maxHeight: "256px", overflowY: "auto" }}>
                         <small className="text-muted">Preview:</small>
@@ -328,7 +347,7 @@ function UpdateProductForm({ productId }: { productId: number }) {
                         id="warrantyHtml"
                         rows={4}
                         className="form-control form-control-sm"
-                        {...register('warrantyHtml')}
+                        {...register("warrantyHtml")}
                       />
                       <div className="mt-2 border rounded p-2 bg-light" style={{ maxHeight: "256px", overflowY: "auto" }}>
                         <small className="text-muted">Preview:</small>

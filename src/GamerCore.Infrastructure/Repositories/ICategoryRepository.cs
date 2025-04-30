@@ -6,6 +6,7 @@ namespace GamerCore.Infrastructure.Repositories
     {
         IQueryable<Category> GetQueryableCategories();
         void AddCategory(Category category);
+        void UpdateCategory(Category category);
         void RemoveCategory(Category category);
     }
 }

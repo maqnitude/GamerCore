@@ -1,6 +1,5 @@
 import { useEffect } from "react";
 import { ToastData } from "../contexts/ToastContext";
-import { Category } from "../types";
 
 interface ToastProps {
   toast: ToastData;
@@ -63,13 +62,14 @@ function Toast({ toast, onClose }: ToastProps) {
         <i className={`${styles.icon} me-2`}></i>
         <strong className="me-auto">{styles.title}</strong>
         {toast.type === "success"
-          && toast.metadata?.createdProductId as number
-          && <small className="text-white">ID: {toast.metadata?.createdProductId as number}</small>}
+          && toast.metadata
+          && toast.metadata.createdProductId as number
+          && <small className="text-white">ID: {toast.metadata.createdProductId as number}</small>}
 
         {toast.type === "success"
           && toast.metadata
-          && (toast.metadata.createdCategory as Category).categoryId as number
-          && <small className="text-white">ID: {(toast.metadata.createdCategory as Category).categoryId as number}</small>}
+          && toast.metadata.createdCategoryId as number
+          && <small className="text-white">ID: {toast.metadata.createdCategoryId as number}</small>}
         <button
           type="button"
           className="btn-close"

@@ -49,9 +49,15 @@ export interface ProductDetails {
   reviews: ProductReview[];
 }
 
-/* Payload */
+/* Payloads */
 
 export interface CreateCategoryPayload {
+  name: string;
+  description: string;
+}
+
+export interface UpdateCategoryPayload {
+  categoryId: number;
   name: string;
   description: string;
 }

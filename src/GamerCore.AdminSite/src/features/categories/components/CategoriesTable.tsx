@@ -5,14 +5,20 @@ import useDeleteCategory from "../hooks/useDeleteCategory";
 
 interface CategoriesTableProps {
   categories: Category[];
+  onEditButtonClick: (categoryId: number) => void;
   onCategoryDeleted?: (categoryId: number) => void;
 }
 
-function CategoriesTable({ categories, onCategoryDeleted }: CategoriesTableProps) {
+function CategoriesTable({ categories, onEditButtonClick, onCategoryDeleted }: CategoriesTableProps) {
   const { showModal } = useModal();
   const { addToast } = useToast();
 
   const { deleteCategory, deleting, error: deleteError } = useDeleteCategory();
+
+  const handleEdit = (categoryId: number) => {
+    // Tell categories page to open the update form
+    onEditButtonClick(categoryId);
+  }
 
   const handleDelete = (category: Category) => {
     showModal({
@@ -69,7 +75,10 @@ function CategoriesTable({ categories, onCategoryDeleted }: CategoriesTableProps
               <td>{category.productCount}</td>
               <td>
                 <div className="btn-group btn-group-sm float-end">
-                  <button className="btn btn-outline-primary d-flex flex-row align-items-center">
+                  <button
+                    className="btn btn-outline-primary d-flex flex-row align-items-center"
+                    onClick={() => handleEdit(category.categoryId)}
+                  >
                     <i className="bi bi-pencil me-2"></i>
                     Edit
                   </button>

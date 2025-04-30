@@ -88,7 +88,37 @@ namespace GamerCore.Api.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occurred while creating product.");
+                _logger.LogError(ex, "An error occurred while creating category.");
+                return StatusCode(500, "Internal Server Error");
+            }
+        }
+
+        [HttpPut("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<CategoryDto>> UpdateCategoryAsync(int id, [FromBody] UpdateCategoryDto updateCategoryDto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                var updatedCategoryDto = await _service.UpdateCategoryAsync(id, updateCategoryDto);
+
+                if (updatedCategoryDto == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(updatedCategoryDto);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while updating category.");
                 return StatusCode(500, "Internal Server Error");
             }
         }
@@ -112,7 +142,7 @@ namespace GamerCore.Api.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occurred while creating product.");
+                _logger.LogError(ex, "An error occurred while deleting category.");
                 return StatusCode(500, "Internal Server Error");
             }
         }

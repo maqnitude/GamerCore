@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using GamerCore.Api.Models;
 using GamerCore.Core.Entities;
 using GamerCore.Infrastructure.Repositories;
@@ -79,6 +80,34 @@ namespace GamerCore.Api.Services
             _unitOfWork.Categories.AddCategory(category);
 
             // Commit change
+            await _unitOfWork.SaveChangesAsync();
+
+            return new CategoryDto
+            {
+                CategoryId = category.CategoryId,
+                Name = category.Name,
+                Description = category.Description
+            };
+        }
+
+        public async Task<CategoryDto?> UpdateCategoryAsync(int id, UpdateCategoryDto updateCategoryDto)
+        {
+            Debug.Assert(id == updateCategoryDto.CategoryId);
+
+            var category = await FindCategoryByIdAsync(id);
+
+            if (category == null)
+            {
+                return null;
+            }
+
+            // Update and track if not already tracked
+            _unitOfWork.Categories.UpdateCategory(category);
+
+            category.Name = updateCategoryDto.Name;
+            category.Description = updateCategoryDto.Description;
+
+            // Commit
             await _unitOfWork.SaveChangesAsync();
 
             return new CategoryDto

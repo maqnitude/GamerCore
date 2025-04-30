@@ -1,11 +1,15 @@
 import { useForm } from "react-hook-form";
 import { useToast } from "../../../contexts/ToastContext";
-import useCreateCategory from "../hooks/useCreateCategory";
-import { Category, CreateCategoryPayload } from "../../../types";
+import useUpdateCategory from "../hooks/useUpdateCategory";
+import { useCallback, useEffect, useState } from "react";
+import CategoryService from "../../../services/categoryService";
+import { Category, UpdateCategoryPayload } from "../../../types";
+import LoadingSpinner from "../../../components/LoadingSpinner";
 
-interface CreateCategoryFormProps {
+interface UpdateCategoryFormProps {
+  categoryId: number;
   onClose: () => void;
-  onCategoryCreated?: (createdCategory: Category) => void;
+  onCategoryUpdated?: (updatedCategory: Category) => void;
 }
 
 interface FormValues {
@@ -13,14 +17,17 @@ interface FormValues {
   description: string;
 }
 
-function CreateCategoryForm({ onClose, onCategoryCreated }: CreateCategoryFormProps) {
-  const { createCategory, creating, error: createError } = useCreateCategory();
+function UpdateCategoryForm({ categoryId, onClose, onCategoryUpdated }: UpdateCategoryFormProps) {
+  const [initialData, setInitialData] = useState<Category | null>(null);
+
+  const { updateCategory, updating, error: updateError } = useUpdateCategory();
 
   const { addToast } = useToast();
 
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors, isSubmitting }
   } = useForm<FormValues>({
     defaultValues: {
@@ -29,33 +36,61 @@ function CreateCategoryForm({ onClose, onCategoryCreated }: CreateCategoryFormPr
     }
   });
 
+  const loadCategoryData = useCallback(async () => {
+    try {
+      const data = await CategoryService.getCategory(categoryId);
+      setInitialData(data);
+      reset({
+        name: data.name,
+        description: data.description
+      })
+    } catch (err) {
+      console.error(err);
+
+      // Create error toast then close
+      addToast({
+        type: "error",
+        message: "Failed to fetch category data.",
+        autoDismiss: true,
+        dismissDelay: 7500
+      });
+
+      onClose();
+    }
+  }, [addToast, categoryId, onClose, reset]);
+
+  useEffect(() => {
+    loadCategoryData();
+  }, [loadCategoryData]);
+
   const onSubmit = async (data: FormValues) => {
-    const payload: CreateCategoryPayload = {
+    const payload: UpdateCategoryPayload = {
+      categoryId: categoryId,
       name: data.name,
       description: data.description
     }
 
     try {
-      const createdCategory = await createCategory(payload);
+      const updatedCategory = await updateCategory(categoryId, payload);
 
       addToast({
         type: "success",
         message: "Category created successfully.",
-        metadata: { createdCategoryId: createdCategory.categoryId },
+        metadata: { updatedCategory },
         autoDismiss: true,
         dismissDelay: 5000
       });
 
       // Notify categories page to update the local list
-      if (onCategoryCreated) {
-        onCategoryCreated(createdCategory);
+      if (onCategoryUpdated) {
+        onCategoryUpdated(updatedCategory);
       }
 
       onClose();
     } catch {
       addToast({
         type: "error",
-        message: createError || "Failed to create category.",
+        message: updateError || "Failed to update category.",
         autoDismiss: true,
         dismissDelay: 7500
       });
@@ -71,7 +106,7 @@ function CreateCategoryForm({ onClose, onCategoryCreated }: CreateCategoryFormPr
             onSubmit={handleSubmit(onSubmit)}
           >
             <div className="modal-header">
-              <h5 className="modal-title">Create New Category</h5>
+              <h5 className="modal-title">Update Category</h5>
               <button
                 type="button"
                 className="btn-close"
@@ -80,6 +115,8 @@ function CreateCategoryForm({ onClose, onCategoryCreated }: CreateCategoryFormPr
               ></button>
             </div>
             <div className="modal-body">
+              {!initialData && <LoadingSpinner />}
+
               {/* Name field */}
               <div className="mb-3">
                 <label htmlFor="category-name" className="form-label">
@@ -124,16 +161,16 @@ function CreateCategoryForm({ onClose, onCategoryCreated }: CreateCategoryFormPr
                 type="button"
                 className="btn btn-secondary"
                 onClick={onClose}
-                disabled={isSubmitting && creating}
+                disabled={isSubmitting && updating}
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 className="btn btn-primary"
-                disabled={isSubmitting && creating}
+                disabled={isSubmitting && updating}
               >
-                {isSubmitting && creating ? "Saving..." : "Save"}
+                {isSubmitting && updating ? "Saving..." : "Save"}
               </button>
             </div>
           </form >
@@ -145,4 +182,4 @@ function CreateCategoryForm({ onClose, onCategoryCreated }: CreateCategoryFormPr
   );
 }
 
-export default CreateCategoryForm;
+export default UpdateCategoryForm;
