@@ -7,12 +7,12 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace GamerCore.Infrastructure
 {
-    public static class CatalogContextSeed
+    public static class CatalogDbContextSeed
     {
         public static void EnsurePopulated(IApplicationBuilder app)
         {
             using var scope = app.ApplicationServices.CreateScope();
-            var context = scope.ServiceProvider.GetRequiredService<CatalogContext>();
+            var context = scope.ServiceProvider.GetRequiredService<CatalogDbContext>();
 
             if (context.Database.GetPendingMigrations().Any())
             {
@@ -49,7 +49,7 @@ namespace GamerCore.Infrastructure
             }
         }
 
-        private static void SeedCategories(CatalogContext context)
+        private static void SeedCategories(CatalogDbContext context)
         {
             var categories = new List<Category>
             {
@@ -67,7 +67,7 @@ namespace GamerCore.Infrastructure
             context.SaveChanges();
         }
 
-        private static void SeedProducts(CatalogContext context)
+        private static void SeedProducts(CatalogDbContext context)
         {
             var categories = context.Categories.ToList();
             var products = new List<Product>();
@@ -131,7 +131,7 @@ namespace GamerCore.Infrastructure
             context.SaveChanges();
         }
 
-        private static void SeedProductDetails(CatalogContext context)
+        private static void SeedProductDetails(CatalogDbContext context)
         {
             var products = context.Products
                 .Include(p => p.ProductCategories)
@@ -253,7 +253,7 @@ namespace GamerCore.Infrastructure
             context.SaveChanges();
         }
 
-        private static void SeedProductImages(CatalogContext context)
+        private static void SeedProductImages(CatalogDbContext context)
         {
             var products = context.Products.ToList();
 
@@ -341,7 +341,7 @@ namespace GamerCore.Infrastructure
             return features.ToString();
         }
 
-        private static void SeedProductReviews(CatalogContext context)
+        private static void SeedProductReviews(CatalogDbContext context)
         {
             var products = context.Products.ToList();
             var reviews = new List<ProductReview>();

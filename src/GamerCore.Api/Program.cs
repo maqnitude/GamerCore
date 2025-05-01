@@ -12,7 +12,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddDbContext<CatalogContext>(options =>
+builder.Services.AddDbContext<CatalogDbContext>(options =>
 {
     options.UseSqlServer(builder.Configuration["ConnectionStrings:GamerCoreConnection"]);
 });
@@ -42,6 +42,6 @@ app.UseAuthorization();
 app.MapControllers();
 
 // Development only
-CatalogContextSeed.EnsurePopulated(app);
+CatalogDbContextSeed.EnsurePopulated(app);
 
 app.Run();

@@ -1,12 +1,11 @@
-using System.Diagnostics;
 using GamerCore.Core.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace GamerCore.Infrastructure
 {
-    public class CatalogContext : DbContext
+    public class CatalogDbContext : DbContext
     {
-        public CatalogContext(DbContextOptions<CatalogContext> options)
+        public CatalogDbContext(DbContextOptions<CatalogDbContext> options)
             : base(options) { }
 
         public DbSet<Product> Products { get; set; }
@@ -22,26 +21,8 @@ namespace GamerCore.Infrastructure
         {
             base.OnModelCreating(modelBuilder);
 
-            // Configure composite key
             modelBuilder.Entity<ProductCategory>()
                 .HasKey(pc => new { pc.ProductId, pc.CategoryId });
-
-            // Configure default values for timestamps
-            foreach (var entityType in modelBuilder.Model.GetEntityTypes()
-                .Where(t => typeof(BaseEntity).IsAssignableFrom(t.ClrType)))
-            {
-                var entity = modelBuilder.Entity(entityType.ClrType);
-
-                // CreatedAt is handled explicitly but can still use ValueGenerateOnAdd()
-                // for extra clarity
-                entity.Property(nameof(BaseEntity.CreatedAt))
-                    .HasDefaultValueSql("GETUTCDATE()")
-                    .ValueGeneratedOnAdd();
-
-                // Do not use ValueGeneratedOnAddOrUpdate(), already handle this explicitly
-                entity.Property(nameof(BaseEntity.UpdatedAt))
-                    .HasDefaultValueSql("GETUTCDATE()");
-            }
         }
 
         public override int SaveChanges(bool acceptAllChangesOnSuccess)
@@ -106,20 +87,21 @@ namespace GamerCore.Infrastructure
             {
                 foreach (var kvp in productsToUpdateDict)
                 {
-                    // Track as unchanged
                     var product = kvp.Value;
-                    Attach(product);
-
                     var entry = Entry(product);
 
-                    Debug.Assert(entry.State == EntityState.Unchanged);
+                    if (entry.State == EntityState.Detached)
+                    {
+                        Attach(product);
+                        entry = Entry(product);
+                    }
 
-                    product.UpdatedAt = now;
-                    entry.State = EntityState.Modified;
-
-                    Debug.Assert(entry.State == EntityState.Modified);
-
-                    entry.Property(p => p.CreatedAt).IsModified = false;
+                    if (entry.State == EntityState.Unchanged || entry.State == EntityState.Modified)
+                    {
+                        product.UpdatedAt = now;
+                        entry.State = EntityState.Modified;
+                        entry.Property(p => p.CreatedAt).IsModified = false;
+                    }
                 }
             }
         }

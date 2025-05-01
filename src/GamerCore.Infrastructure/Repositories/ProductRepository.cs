@@ -4,9 +4,9 @@ namespace GamerCore.Infrastructure.Repositories
 {
     public class ProductRepository : IProductRepository
     {
-        private readonly CatalogContext _context;
+        private readonly CatalogDbContext _context;
 
-        public ProductRepository(CatalogContext context)
+        public ProductRepository(CatalogDbContext context)
         {
             _context = context;
         }

@@ -16,84 +16,84 @@ namespace GamerCore.Infrastructure.Migrations.Catalog
                 table: "Products",
                 type: "datetime2",
                 nullable: false,
-                defaultValueSql: "GETUTCDATE()");
+                defaultValue: new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified));
 
             migrationBuilder.AddColumn<DateTime>(
                 name: "UpdatedAt",
                 table: "Products",
                 type: "datetime2",
                 nullable: false,
-                defaultValueSql: "GETUTCDATE()");
+                defaultValue: new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified));
 
             migrationBuilder.AddColumn<DateTime>(
                 name: "CreatedAt",
                 table: "ProductReviews",
                 type: "datetime2",
                 nullable: false,
-                defaultValueSql: "GETUTCDATE()");
+                defaultValue: new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified));
 
             migrationBuilder.AddColumn<DateTime>(
                 name: "UpdatedAt",
                 table: "ProductReviews",
                 type: "datetime2",
                 nullable: false,
-                defaultValueSql: "GETUTCDATE()");
+                defaultValue: new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified));
 
             migrationBuilder.AddColumn<DateTime>(
                 name: "CreatedAt",
                 table: "ProductImages",
                 type: "datetime2",
                 nullable: false,
-                defaultValueSql: "GETUTCDATE()");
+                defaultValue: new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified));
 
             migrationBuilder.AddColumn<DateTime>(
                 name: "UpdatedAt",
                 table: "ProductImages",
                 type: "datetime2",
                 nullable: false,
-                defaultValueSql: "GETUTCDATE()");
+                defaultValue: new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified));
 
             migrationBuilder.AddColumn<DateTime>(
                 name: "CreatedAt",
                 table: "ProductDetails",
                 type: "datetime2",
                 nullable: false,
-                defaultValueSql: "GETUTCDATE()");
+                defaultValue: new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified));
 
             migrationBuilder.AddColumn<DateTime>(
                 name: "UpdatedAt",
                 table: "ProductDetails",
                 type: "datetime2",
                 nullable: false,
-                defaultValueSql: "GETUTCDATE()");
+                defaultValue: new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified));
 
             migrationBuilder.AddColumn<DateTime>(
                 name: "CreatedAt",
                 table: "ProductCategories",
                 type: "datetime2",
                 nullable: false,
-                defaultValueSql: "GETUTCDATE()");
+                defaultValue: new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified));
 
             migrationBuilder.AddColumn<DateTime>(
                 name: "UpdatedAt",
                 table: "ProductCategories",
                 type: "datetime2",
                 nullable: false,
-                defaultValueSql: "GETUTCDATE()");
+                defaultValue: new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified));
 
             migrationBuilder.AddColumn<DateTime>(
                 name: "CreatedAt",
                 table: "Categories",
                 type: "datetime2",
                 nullable: false,
-                defaultValueSql: "GETUTCDATE()");
+                defaultValue: new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified));
 
             migrationBuilder.AddColumn<DateTime>(
                 name: "UpdatedAt",
                 table: "Categories",
                 type: "datetime2",
                 nullable: false,
-                defaultValueSql: "GETUTCDATE()");
+                defaultValue: new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified));
         }
 
         /// <inheritdoc />

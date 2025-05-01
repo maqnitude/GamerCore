@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace GamerCore.Infrastructure.Migrations.Catalog
 {
-    [DbContext(typeof(CatalogContext))]
+    [DbContext(typeof(CatalogDbContext))]
     [Migration("20250423032257_AddProductReview")]
     partial class AddProductReview
     {

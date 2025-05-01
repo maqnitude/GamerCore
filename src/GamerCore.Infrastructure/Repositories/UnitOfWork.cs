@@ -2,10 +2,10 @@ namespace GamerCore.Infrastructure.Repositories
 {
     public class UnitOfWork : IUnitOfWork
     {
-        private readonly CatalogContext _context;
+        private readonly CatalogDbContext _context;
 
         public UnitOfWork(
-            CatalogContext context,
+            CatalogDbContext context,
             IProductRepository productRepository,
             ICategoryRepository categoryRepository)
         {
