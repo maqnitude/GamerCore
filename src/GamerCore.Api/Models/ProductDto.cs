@@ -12,5 +12,8 @@ namespace GamerCore.Api.Models
 
         public double AverageRating { get; set; }
         public int ReviewCount { get; set; }
+
+        public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
     }
 }

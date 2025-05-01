@@ -1,6 +1,6 @@
 namespace GamerCore.Core.Entities
 {
-    public class ProductCategory
+    public class ProductCategory : BaseEntity
     {
         public int ProductId { get; set; }
         public Product Product { get; set; } = null!;

@@ -70,7 +70,9 @@ namespace GamerCore.Api.Services
                     AverageRating = p.Reviews.Count != 0
                         ? p.Reviews.Average(r => r.Rating)
                         : 0.0,
-                    ReviewCount = p.Reviews.Count()
+                    ReviewCount = p.Reviews.Count(),
+                    CreatedAt = p.CreatedAt,
+                    UpdatedAt = p.UpdatedAt
                 })
                 .ToListAsync();
 
@@ -121,7 +123,9 @@ namespace GamerCore.Api.Services
                         ProductReviewId = r.ProductReviewId,
                         Rating = r.Rating,
                         ReviewText = r.ReviewText
-                    })
+                    }),
+                    CreatedAt = p.CreatedAt,
+                    UpdatedAt = p.UpdatedAt
                 })
                 .SingleOrDefaultAsync();
 

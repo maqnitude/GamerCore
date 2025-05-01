@@ -3,6 +3,7 @@ import { useModal } from "../../../contexts/ModalContext";
 import { useToast } from "../../../contexts/ToastContext";
 import { Product } from "../../../types";
 import useDeleteProduct from "../hooks/useDeleteProduct";
+import { formatDate } from "../../../utils";
 
 interface ProductsTableProps {
   products: Product[];
@@ -69,6 +70,8 @@ function ProductsTable({ products, onProductDeleted }: ProductsTableProps) {
             <th>Price</th>
             <th>Rating</th>
             <th>Reviews</th>
+            <th>Created (UTC)</th>
+            <th>Updated (UTC)</th>
             <th></th>
           </tr>
         </thead>
@@ -85,6 +88,8 @@ function ProductsTable({ products, onProductDeleted }: ProductsTableProps) {
                 </div>
               </td>
               <td>{product.reviewCount}</td>
+              <td>{formatDate(product.createdAt)}</td>
+              <td>{formatDate(product.updatedAt)}</td>
               <td>
                 <div className="btn-group btn-group-sm float-end">
                   <button

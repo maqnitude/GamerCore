@@ -36,7 +36,9 @@ namespace GamerCore.Api.Services
                     CategoryId = c.CategoryId,
                     Name = c.Name,
                     Description = c.Description,
-                    ProductCount = c.ProductCategories.Count()
+                    ProductCount = c.ProductCategories.Count(),
+                    CreatedAt = c.CreatedAt,
+                    UpdatedAt = c.UpdatedAt
                 })
                 .ToListAsync();
 
@@ -56,7 +58,9 @@ namespace GamerCore.Api.Services
                     CategoryId = c.CategoryId,
                     Name = c.Name,
                     Description = c.Description,
-                    ProductCount = c.ProductCategories.Count
+                    ProductCount = c.ProductCategories.Count,
+                    CreatedAt = c.CreatedAt,
+                    UpdatedAt = c.UpdatedAt
                 })
                 .SingleOrDefaultAsync();
 
@@ -86,7 +90,9 @@ namespace GamerCore.Api.Services
             {
                 CategoryId = category.CategoryId,
                 Name = category.Name,
-                Description = category.Description
+                Description = category.Description,
+                CreatedAt = category.CreatedAt,
+                UpdatedAt = category.UpdatedAt
             };
         }
 
@@ -114,7 +120,9 @@ namespace GamerCore.Api.Services
             {
                 CategoryId = category.CategoryId,
                 Name = category.Name,
-                Description = category.Description
+                Description = category.Description,
+                CreatedAt = category.CreatedAt,
+                UpdatedAt = category.UpdatedAt
             };
         }
 

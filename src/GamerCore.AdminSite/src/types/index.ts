@@ -12,6 +12,8 @@ export interface Category {
   name: string;
   description: string;
   productCount: number;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface Product {
@@ -22,6 +24,8 @@ export interface Product {
   thumbnailUrl: string;
   averageRating: number;
   reviewCount: number;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface ProductImage {
@@ -47,6 +51,8 @@ export interface ProductDetails {
   averageRating: number;
   reviewCount: number;
   reviews: ProductReview[];
+  createdAt: string;
+  updatedAt: string;
 }
 
 /* Payloads */

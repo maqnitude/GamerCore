@@ -1,6 +1,6 @@
 namespace GamerCore.Core.Entities
 {
-    public class ProductDetail
+    public class ProductDetail : BaseEntity
     {
         public int ProductDetailId { get; set; }
         public string DescriptionHtml { get; set; } = string.Empty;

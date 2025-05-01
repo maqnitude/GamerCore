@@ -1,6 +1,7 @@
 import { useModal } from "../../../contexts/ModalContext";
 import { useToast } from "../../../contexts/ToastContext";
 import { Category } from "../../../types";
+import { formatDate } from "../../../utils";
 import useDeleteCategory from "../hooks/useDeleteCategory";
 
 interface CategoriesTableProps {
@@ -9,7 +10,11 @@ interface CategoriesTableProps {
   onCategoryDeleted?: (categoryId: number) => void;
 }
 
-function CategoriesTable({ categories, onEditButtonClick, onCategoryDeleted }: CategoriesTableProps) {
+function CategoriesTable({
+  categories,
+  onEditButtonClick,
+  onCategoryDeleted
+}: CategoriesTableProps) {
   const { showModal } = useModal();
   const { addToast } = useToast();
 
@@ -63,6 +68,8 @@ function CategoriesTable({ categories, onEditButtonClick, onCategoryDeleted }: C
             <th>Name</th>
             <th>Description</th>
             <th>Products</th>
+            <th>Created (UTC)</th>
+            <th>Updated (UTC)</th>
             <th></th>
           </tr>
         </thead>
@@ -73,6 +80,12 @@ function CategoriesTable({ categories, onEditButtonClick, onCategoryDeleted }: C
               <td>{category.name}</td>
               <td>{category.description}</td>
               <td>{category.productCount}</td>
+              <td>{formatDate(category.createdAt)}</td>
+              {/**
+               * BUG: when the local category list re-render this displays as local time
+               * instead of UTC until the page is refreshed
+               * */}
+              <td>{formatDate(category.updatedAt)}</td>
               <td>
                 <div className="btn-group btn-group-sm float-end">
                   <button

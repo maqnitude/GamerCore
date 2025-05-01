@@ -1,6 +1,6 @@
 namespace GamerCore.Core.Entities
 {
-    public class ProductImage
+    public class ProductImage : BaseEntity
     {
         public int ProductImageId { get; set; }
         public string Url { get; set; } = string.Empty;

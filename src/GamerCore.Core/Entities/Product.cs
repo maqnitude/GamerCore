@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace GamerCore.Core.Entities
 {
-    public class Product
+    public class Product : BaseEntity
     {
         public int ProductId { get; set; }
         public string Name { get; set; } = string.Empty;
