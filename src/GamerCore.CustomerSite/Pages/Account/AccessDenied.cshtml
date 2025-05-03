@@ -1,0 +1,27 @@
+@page
+@{
+  ViewData["Title"] = "Access Denied";
+}
+
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card border-danger">
+        <div class="card-header bg-danger text-white">
+          <h2>@ViewData["Title"]</h2>
+        </div>
+        <div class="card-body">
+          <p class="text-danger">You do not have access to this resource.</p>
+          <p>Please <a asp-page="/Account/Login">login with an account</a> that has access to this feature.</p>
+
+          <div class="text-center mt-4">
+            <a class="btn btn-outline-primary"
+               asp-controller="Home" asp-action="Index">
+              Return to Home
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

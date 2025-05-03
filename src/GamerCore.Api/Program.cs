@@ -1,6 +1,8 @@
 using GamerCore.Api.Services;
+using GamerCore.Core.Entities;
 using GamerCore.Infrastructure;
 using GamerCore.Infrastructure.Repositories;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,9 +15,12 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddDbContext<CatalogDbContext>(options =>
-{
-    options.UseSqlServer(builder.Configuration["ConnectionStrings:GamerCoreConnection"]);
-});
+    options.UseSqlServer(builder.Configuration["ConnectionStrings:GamerCoreConnection"]));
+builder.Services.AddDbContext<AppIdentityDbContext>(options =>
+    options.UseSqlServer(builder.Configuration["ConnectionStrings:GamerCoreIdentityConnection"]));
+
+builder.Services.AddIdentity<AppUser, IdentityRole>()
+    .AddEntityFrameworkStores<AppIdentityDbContext>();
 
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
@@ -37,11 +42,13 @@ else
     app.UseHttpsRedirection();
 }
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
 
 // Development only
 CatalogDbContextSeed.EnsurePopulated(app);
+AppIdentityDbContextSeed.EnsurePopulated(app);
 
 app.Run();
