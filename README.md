@@ -2,6 +2,7 @@
 ## Assignment Reports
 - (20/04/2025) [Report Video 1](https://drive.google.com/file/d/1kFiNnECvMhOUEvVK6nSfY49pEpBipj1l/view?usp=sharing)
 - (27/04/2025) [Report Video 2](https://drive.google.com/file/d/1JScXxE_fg45JcKd6JTB4PrHOQF2zQaFE/view?usp=sharing)
+- (04/05/2025) [Report Video 3](https://drive.google.com/file/d/1EyExWqa3Vh4S_9E5JGeb5UFt_oT6R3lJ/view?usp=sharing)
 
 ## Project Organization
 - `GamerCore.AdminSite` (React + Vite + TypeScript)
