@@ -24,8 +24,8 @@ namespace GamerCore.Api.Services
             int effectivePage = page;
             effectivePage = Math.Max(effectivePage, 1);
 
-            int effectivePageSize = pageSize ?? PaginationConstants.DefaultPageSize;
-            effectivePageSize = Math.Min(effectivePageSize, PaginationConstants.MaxPageSize);
+            int effectivePageSize = pageSize ?? PaginationDefaults.PageSize;
+            effectivePageSize = Math.Min(effectivePageSize, PaginationDefaults.MaxPageSize);
             effectivePageSize = Math.Max(effectivePageSize, 1);
 
             var queryableProducts = _unitOfWork.Products.GetQueryableProducts();

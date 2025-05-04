@@ -5,7 +5,7 @@ namespace GamerCore.CustomerSite.Services
 {
     public class CategoryService : ICategoryService
     {
-        private readonly string _apiBaseEndpoint = "/api/Categories";
+        private readonly string _baseApiEndpoint = "/api/Categories";
 
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly ILogger<CategoryService> _logger;
@@ -23,7 +23,7 @@ namespace GamerCore.CustomerSite.Services
 
         public async Task<List<CategoryViewModel>> GetCategoriesAsync()
         {
-            string apiEndpoint = _apiBaseEndpoint;
+            string apiEndpoint = _baseApiEndpoint;
 
             var client = _httpClientFactory.CreateClient("GamerCoreDev");
 

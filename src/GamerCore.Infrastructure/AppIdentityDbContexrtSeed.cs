@@ -1,3 +1,4 @@
+using GamerCore.Core.Constants;
 using GamerCore.Core.Entities;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
@@ -8,9 +9,9 @@ namespace GamerCore.Infrastructure
 {
     public static class AppIdentityDbContextSeed
     {
-        private const string _adminEmail = "admin@example.com";
-        private const string _adminUserName = _adminEmail;
-        private const string _adminPassword = "Secret123$";
+        private const string AdminEmail = "admin@example.com";
+        private const string AdminPassword = "Secret123$";
+        private const string AdminUserName = AdminEmail;
 
         public static async void EnsurePopulated(IApplicationBuilder app)
         {
@@ -25,19 +26,36 @@ namespace GamerCore.Infrastructure
             var userManager = app.ApplicationServices
                 .CreateScope().ServiceProvider
                 .GetRequiredService<UserManager<AppUser>>();
+            var roleManager = app.ApplicationServices
+                .CreateScope().ServiceProvider
+                .GetRequiredService<RoleManager<IdentityRole>>();
 
-            var user = await userManager.FindByNameAsync(_adminUserName);
+            var adminRole = await roleManager.FindByNameAsync(RoleNames.Administrator);
+            if (adminRole == null)
+            {
+                await roleManager.CreateAsync(new IdentityRole(RoleNames.Administrator));
+            }
 
+            var userRole = await roleManager.FindByNameAsync(RoleNames.User);
+            if (userRole == null)
+            {
+                await roleManager.CreateAsync(new IdentityRole(RoleNames.User));
+            }
+
+            var user = await userManager.FindByNameAsync(AdminUserName);
             if (user == null)
             {
-                user = new AppUser(_adminUserName)
+                user = new AppUser
                 {
                     FirstName = "John",
                     LastName = "Admin",
-                    Email = _adminEmail,
+                    UserName = AdminUserName,
+                    Email = AdminEmail,
                     PhoneNumber = "555-1234"
                 };
-                await userManager.CreateAsync(user, _adminPassword);
+
+                await userManager.CreateAsync(user, AdminPassword);
+                await userManager.AddToRoleAsync(user, "Administrator");
             }
         }
     }

@@ -8,15 +8,18 @@ import { BrowserRouter } from "react-router";
 import App from "./App.tsx";
 import ToastProvider from "./contexts/ToastProvider.tsx";
 import ModalProvider from "./contexts/ModalProvider.tsx";
+import AuthProvider from "./contexts/AuthProvider.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <BrowserRouter>
-      <ToastProvider>
-        <ModalProvider>
-          <App />
-        </ModalProvider>
-      </ToastProvider>
+      <AuthProvider>
+        <ToastProvider>
+          <ModalProvider>
+            <App />
+          </ModalProvider>
+        </ToastProvider>
+      </AuthProvider>
     </BrowserRouter>
   </StrictMode>
 );

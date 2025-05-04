@@ -8,6 +8,7 @@ import ProductService from "../../../services/productService";
 import { Category, ProductDetails, UpdateProductPayload } from "../../../types";
 import useCategories from "../../categories/hooks/useCategories";
 import useUpdateProduct from "../hooks/useUpdateProduct";
+import { formatDate } from "../../../utils";
 
 interface FormValues {
   name: string;
@@ -22,6 +23,7 @@ interface FormValues {
 function UpdateProductForm({ productId }: { productId: number }) {
   const [initialData, setInitialData] = useState<ProductDetails | null>(null);
   const [removedImageUrls, setRemovedImageUrls] = useState<string[]>([]);
+  const [lastUpdated, setLastUpdated] = useState<string>("");
 
   const { categories, loading: categoriesLoading, error: categoriesError } = useCategories();
   const { updateProduct, updating, error: updateError } = useUpdateProduct();
@@ -66,6 +68,7 @@ function UpdateProductForm({ productId }: { productId: number }) {
           .filter(i => !i.isPrimary)
           .map(i => ({ url: i.url }))
       })
+      setLastUpdated(formatDate(data.updatedAt));
     } catch (err) {
       console.error(err);
       // TODO: add error toast
@@ -374,7 +377,7 @@ function UpdateProductForm({ productId }: { productId: number }) {
               </button>
             </div>
             <div>
-              <small className="text-muted">Last updated: {/*new Date(initialData.updatedAt).toLocaleString()*/}UpdatedDate</small>
+              <small className="text-muted">Last updated: {lastUpdated}</small>
             </div>
           </div>
         </div>

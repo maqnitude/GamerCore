@@ -1,10 +1,26 @@
-/* DTOs */
+/* Wrappers */
+
+export interface ApiResponse {
+  succeeded: boolean;
+  message: string;
+  data: unknown | null;
+  errors: string[];
+}
 
 export interface PaginatedList<T> {
   items: T[];
   page: number;
   pageSize: number;
   totalItems: number;
+}
+
+/* DTOs */
+
+export interface User {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
 }
 
 export interface Category {
@@ -56,6 +72,12 @@ export interface ProductDetails {
 }
 
 /* Payloads */
+
+export interface LoginPayload {
+  email: string;
+  password: string;
+  rememberMe: boolean;
+}
 
 export interface CreateCategoryPayload {
   name: string;

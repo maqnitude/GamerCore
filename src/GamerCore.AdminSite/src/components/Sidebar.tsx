@@ -1,11 +1,22 @@
-import { NavLink } from "react-router";
+import { NavLink, useNavigate } from "react-router";
+import { useAuth } from "../contexts/AuthContext";
 
 function Sidebar() {
+  const { logout } = useAuth();
+
+  const navigate = useNavigate();
+
   const activeStyle = ({ isActive }: { isActive: boolean }) => ({
     backgroundColor: isActive ? "#0d6efd" : "",
     color: "white",
     fontWeight: isActive ? "bold" : ""
   });
+
+  const handleLogout = () => {
+    logout();
+    // Set replace true to prevent navigating back to the protected pages
+    navigate("/login", { replace: true });
+  }
 
   return (
     <>
@@ -52,6 +63,16 @@ function Sidebar() {
             </NavLink>
           </li>
         </ul>
+
+        <hr className="border-white my-0" />
+
+        <button
+          onClick={handleLogout}
+          className="btn btn-outline-light m-3 mt-auto"
+        >
+          <i className="bi bi-box-arrow-right me-2"></i>
+          Log out
+        </button>
       </div>
     </>
   );

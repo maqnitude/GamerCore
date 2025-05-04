@@ -47,7 +47,7 @@ namespace GamerCore.Api.Tests
             // Assert
             Assert.Equal(products.Count, result.Items.Count);
             Assert.Equal(1, result.Page);
-            Assert.Equal(PaginationConstants.DefaultPageSize, result.PageSize);
+            Assert.Equal(PaginationDefaults.PageSize, result.PageSize);
             Assert.Equal(products.Count, result.TotalItems);
 
             for (int i = 0; i < products.Count; i++)

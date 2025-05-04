@@ -111,8 +111,6 @@ namespace GamerCore.CustomerSite.Pages.Account
                             new(ClaimTypes.Email, user.Email)
                         };
 
-                        // TODO: Add role claim
-
                         var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
                         var principal = new ClaimsPrincipal(identity);
 

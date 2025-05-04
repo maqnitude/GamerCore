@@ -6,7 +6,7 @@ namespace GamerCore.CustomerSite.Services
 {
     public class ProductService : IProductService
     {
-        private readonly string _apiBaseEndpoint = "/api/Products";
+        private readonly string _baseApiEndpoint = "/api/Products";
 
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly ILogger<ProductService> _logger;
@@ -24,7 +24,7 @@ namespace GamerCore.CustomerSite.Services
 
         public async Task<PaginatedList<ProductViewModel>> GetProductsAsync(int page = 1, int[]? categoryIds = null)
         {
-            string apiEndpoint = _apiBaseEndpoint;
+            string apiEndpoint = _baseApiEndpoint;
             apiEndpoint += $"?page={page}";
 
             if (categoryIds != null && categoryIds.Length > 0)
@@ -82,7 +82,7 @@ namespace GamerCore.CustomerSite.Services
 
         public async Task<ProductDetailsViewModel> GetProductDetailsAsync(int id)
         {
-            string apiEndpoint = _apiBaseEndpoint + $"/{id}";
+            string apiEndpoint = _baseApiEndpoint + $"/{id}";
 
             var client = _httpClientFactory.CreateClient("GamerCoreDev");
 
