@@ -62,6 +62,16 @@ function Sidebar() {
               Categories
             </NavLink>
           </li>
+          <li>
+            <NavLink
+              to="/customers"
+              className="nav-link d-flex align-items-center"
+              style={activeStyle}
+            >
+              <i className="bi bi-people me-2"></i>
+              Customers
+            </NavLink>
+          </li>
         </ul>
 
         <hr className="border-white my-0" />

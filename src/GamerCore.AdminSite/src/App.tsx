@@ -11,6 +11,7 @@ import LoginPage from "./pages/LoginPage";
 import ProductDetailsPage from "./pages/ProductDetailsPage";
 import ProductsPage from "./pages/ProductsPage";
 import UpdateProductPage from "./pages/UpdateProductPage";
+import CustomersPage from "./pages/CustomersPage";
 
 function ProtectedRoute() {
   const { isAuthenticated } = useAuth();
@@ -52,6 +53,7 @@ function App() {
             <Route path="products/edit/:productId" element={<UpdateProductPage />} />
             <Route path="products/details/:productId" element={<ProductDetailsPage />} />
             <Route path="categories" element={<CategoriesPage />} />
+            <Route path="customers" element={<CustomersPage />} />
           </Route>
         </Route>
 

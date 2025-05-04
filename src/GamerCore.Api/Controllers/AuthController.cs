@@ -136,8 +136,6 @@ namespace GamerCore.Api.Controllers
                 });
             }
 
-            // TODO: Check email confirmation
-
             var result = await _signInManager.PasswordSignInAsync(
                 user.UserName ?? loginDto.Email,
                 loginDto.Password,

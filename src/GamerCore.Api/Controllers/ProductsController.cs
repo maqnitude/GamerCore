@@ -1,6 +1,9 @@
 using GamerCore.Api.Models;
 using GamerCore.Api.Services;
+using GamerCore.Core.Constants;
 using GamerCore.Core.Models;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GamerCore.Api.Controllers
@@ -81,6 +84,9 @@ namespace GamerCore.Api.Controllers
             }
         }
 
+        [Authorize(
+            AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme,
+            Roles = RoleNames.Administrator)]
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -109,6 +115,9 @@ namespace GamerCore.Api.Controllers
             }
         }
 
+        [Authorize(
+            AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme,
+            Roles = RoleNames.Administrator)]
         [HttpPut("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -139,6 +148,9 @@ namespace GamerCore.Api.Controllers
             }
         }
 
+        [Authorize(
+            AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme,
+            Roles = RoleNames.Administrator)]
         [HttpDelete("{id}", Name = "DeleteProduct")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]

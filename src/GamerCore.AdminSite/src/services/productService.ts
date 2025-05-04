@@ -1,4 +1,5 @@
 import { CreateProductPayload, PaginatedList, Product, ProductDetails, UpdateProductPayload } from "../types";
+import authService from "./authService";
 
 const baseApiEndpoint = "/api/products";
 
@@ -42,9 +43,17 @@ const ProductService = {
   createProduct: async (payload: CreateProductPayload): Promise<number> => {
     const apiEndpoint = baseApiEndpoint;
 
+    const token = authService.getToken();
+    if (!token) {
+      throw new Error("Not authenticated");
+    }
+
     const response = await fetch(apiEndpoint, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+      },
       body: JSON.stringify(payload)
     });
 
@@ -59,9 +68,17 @@ const ProductService = {
   updateProduct: async (id: number, payload: UpdateProductPayload): Promise<void> => {
     const apiEndpoint = baseApiEndpoint + `/${id}`;
 
+    const token = authService.getToken();
+    if (!token) {
+      throw new Error("Not authenticated");
+    }
+
     const response = await fetch(apiEndpoint, {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+      },
       body: JSON.stringify(payload)
     });
 
@@ -73,8 +90,16 @@ const ProductService = {
   deleteProduct: async (id: number): Promise<void> => {
     const apiEndpoint = baseApiEndpoint + `/${id}`;
 
+    const token = authService.getToken();
+    if (!token) {
+      throw new Error("Not authenticated");
+    }
+
     const response = await fetch(apiEndpoint, {
-      method: "DELETE"
+      method: "DELETE",
+      headers: {
+        "Authorization": `Bearer ${token}`
+      }
     });
 
     if (!response.ok) {

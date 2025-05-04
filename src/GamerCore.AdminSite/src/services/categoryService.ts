@@ -1,4 +1,5 @@
 import { Category, CreateCategoryPayload, UpdateCategoryPayload } from "../types";
+import authService from "./authService";
 
 const baseApiEndpoint = "/api/categories";
 
@@ -34,9 +35,17 @@ const CategoryService = {
   createCategory: async (payload: CreateCategoryPayload): Promise<Category> => {
     const apiEndpoint = baseApiEndpoint;
 
+    const token = authService.getToken();
+    if (!token) {
+      throw new Error("Not authenticated");
+    }
+
     const response = await fetch(apiEndpoint, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+      },
       body: JSON.stringify(payload)
     })
 
@@ -50,9 +59,17 @@ const CategoryService = {
   updateCategory: async (id: number, payload: UpdateCategoryPayload): Promise<Category> => {
     const apiEndpoint = baseApiEndpoint + `/${id}`;
 
+    const token = authService.getToken();
+    if (!token) {
+      throw new Error("Not authenticated");
+    }
+
     const response = await fetch(apiEndpoint, {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+      },
       body: JSON.stringify(payload)
     });
 
@@ -66,8 +83,16 @@ const CategoryService = {
   deleteCategory: async (id: number): Promise<void> => {
     const apiEndpoint = baseApiEndpoint + `/${id}`;
 
+    const token = authService.getToken();
+    if (!token) {
+      throw new Error("Not authenticated");
+    }
+
     const response = await fetch(apiEndpoint, {
-      method: "DELETE"
+      method: "DELETE",
+      headers: {
+        "Authorization": `Bearer ${token}`
+      }
     });
 
     if (!response.ok) {
