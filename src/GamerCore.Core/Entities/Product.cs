@@ -10,6 +10,8 @@ namespace GamerCore.Core.Entities
         [Column(TypeName = "decimal(18,2)")]
         public decimal Price { get; set; }
 
+        public bool IsFeatured { get; set; }
+
         // 1-1 navigation properties
         public ProductDetail Detail { get; set; } = null!;
 

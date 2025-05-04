@@ -1,0 +1,75 @@
+@model List<ProductViewModel>
+
+<section class="featured-products">
+  <div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h2 class="h3 mb-0">Featured Products</h2>
+    </div>
+
+    <div class="position-relative">
+      <!-- Navigation arrows for mobile -->
+      <button class="btn btn-sm btn-light rounded-circle position-absolute start-0 top-50 translate-middle-y z-1 d-md-none shadow-sm"
+              onclick="scrollFeaturedProducts('left')" style="margin-left: -10px;">
+        <i class="bi bi-chevron-left"></i>
+      </button>
+
+      <div class="featured-products-container d-flex overflow-auto pb-2" id="featuredProductsContainer">
+        @foreach (var product in Model)
+        {
+          <div class="featured-product-item flex-shrink-0 mx-2" style="width: 280px;">
+            <partial name="_ProductCardPartial" model="product" />
+          </div>
+        }
+
+        @if (Model.Count == 0)
+        {
+          <div class="w-100 text-center py-5">
+            <p class="text-muted">No featured products available at the moment.</p>
+          </div>
+        }
+      </div>
+
+      <button class="btn btn-sm btn-light rounded-circle position-absolute end-0 top-50 translate-middle-y z-1 d-md-none shadow-sm"
+              onclick="scrollFeaturedProducts('right')" style="margin-right: -10px;">
+        <i class="bi bi-chevron-right"></i>
+      </button>
+    </div>
+  </div>
+</section>
+
+<style>
+  .featured-products-container {
+    -ms-overflow-style: -ms-autohiding-scrollbar;
+    /* IE and Edge */
+    scrollbar-width: auto;
+    /* Firefox */
+  }
+
+  .featured-products-container::-webkit-scrollbar {
+    display: none;
+    /* Chrome, Safari, Opera */
+  }
+
+  @@media (min-width: 768px) {
+    .featured-products-container {
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      scroll-behavior: smooth;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: 1rem;
+    }
+  }
+</style>
+
+<script>
+  function scrollFeaturedProducts(direction) {
+    const container = document.getElementById('featuredProductsContainer');
+    const scrollAmount = 300;
+
+    if (direction === "left") {
+      container.scrollLeft -= scrollAmount;
+    } else {
+      container.scrollLeft += scrollAmount;
+    }
+  }
+</script>

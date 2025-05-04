@@ -1,8 +1,25 @@
 ﻿@{
   ViewData["Title"] = "Home Page";
+
+  var isAuthenticated = User.Identity?.IsAuthenticated ?? false;
+  var userFullName = isAuthenticated ? User.FindFirst(ClaimTypes.Name)?.Value : string.Empty;
 }
 
-<div class="text-center">
-  <h1 class="display-4">Welcome</h1>
-  <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="container py-4">
+  <div class="text-center mb-5">
+    @if (isAuthenticated)
+    {
+      <h1 class="display-4 fw-bold">Welcome, @userFullName</h1>
+    }
+    else
+    {
+      <h1 class="display-4 fw-bold">Welcome</h1>
+    }
+  </div>
+
+  @await Component.InvokeAsync("FeaturedProducts")
+
+  <div class="mt-5">
+    @await Component.InvokeAsync("CategoryMenu")
+  </div>
 </div>

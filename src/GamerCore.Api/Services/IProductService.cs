@@ -6,6 +6,7 @@ namespace GamerCore.Api.Services
     public interface IProductService
     {
         Task<PaginatedList<ProductDto>> GetFilteredProductsAsync(int page, int? pageSize, int[]? categoryIds);
+        Task<List<ProductDto>> GetFeaturedProductsAsync();
         Task<ProductDetailsDto?> GetProductDetailsAsync(int id);
 
         /// <summary>

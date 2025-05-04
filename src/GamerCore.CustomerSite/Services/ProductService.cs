@@ -80,6 +80,55 @@ namespace GamerCore.CustomerSite.Services
             }
         }
 
+        public async Task<List<ProductViewModel>> GetFeaturedProductsAsync()
+        {
+            string apiEndpoint = _baseApiEndpoint;
+            apiEndpoint += "/Featured";
+
+            var client = _httpClientFactory.CreateClient("GamerCoreDev");
+
+            try
+            {
+                var response = await client.GetAsync(apiEndpoint);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    using var contentStream = await response.Content.ReadAsStreamAsync();
+                    var featuredProducts = await JsonSerializer
+                        .DeserializeAsync<List<ProductViewModel>>(contentStream, _jsonSerializerOptions);
+
+                    if (featuredProducts == null)
+                    {
+                        _logger.LogWarning("API call to {ApiEndpoint} succeeded but return null data.", apiEndpoint);
+                        return new List<ProductViewModel>();
+                    }
+
+                    _logger.LogInformation("Successfully retrieved {Count} featured products.", featuredProducts.Count);
+                    return featuredProducts;
+                }
+                else
+                {
+                    // _logger.LogError("API call to {ApiEndpoint} failed with status code {StatusCode}", apiEndpoint, response.StatusCode);
+                    throw new HttpRequestException($"API request failed with status code {response.StatusCode}");
+                }
+            }
+            catch (HttpRequestException ex)
+            {
+                _logger.LogError(ex, "HTTP request failed when calling {ApiEndpoint}.", apiEndpoint);
+                throw;
+            }
+            catch (JsonException ex)
+            {
+                _logger.LogError(ex, "Failed to deserialize response from {ApiEndpoint}.", apiEndpoint);
+                throw;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An unexpected error occurred while fetching featured products from {ApiEndpoint}.", apiEndpoint);
+                throw;
+            }
+        }
+
         public async Task<ProductDetailsViewModel> GetProductDetailsAsync(int id)
         {
             string apiEndpoint = _baseApiEndpoint + $"/{id}";

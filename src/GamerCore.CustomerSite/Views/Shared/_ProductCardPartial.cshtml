@@ -5,9 +5,12 @@
   <div class="position-relative">
     <!-- Product badges can go here -->
     @*
-    <span class="position-absolute badge bg-success top-0 start-0 m-2">Badge 1</span>
     <span class="position-absolute badge bg-warning top-0 end-0 m-2">Badge 2</span>
     *@
+    @if (Model.IsFeatured)
+    {
+      <span class="position-absolute badge bg-primary top-0 start-0 m-2">Featured</span>
+    }
 
     <!-- Product image -->
     <img class="card-img-top p-3" src="@Model.ThumbnailUrl" alt="@Model.Name Thumbnail">

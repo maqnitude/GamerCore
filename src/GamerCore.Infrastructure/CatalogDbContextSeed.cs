@@ -113,7 +113,8 @@ namespace GamerCore.Infrastructure
                     var product = new Product
                     {
                         Name = $"{singular} {i}", // e.g., "Mouse 1", "Console 1"
-                        Price = price
+                        Price = price,
+                        IsFeatured = i == 1 // Feature the first product of each category
                     };
                     products.Add(product);
 

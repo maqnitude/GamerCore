@@ -60,6 +60,30 @@ namespace GamerCore.Api.Controllers
             }
         }
 
+        [HttpGet("Featured")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<List<ProductDto>>> GetFeaturedProductsAsync()
+        {
+            try
+            {
+                var result = await _service.GetFeaturedProductsAsync();
+
+                if (result.Count == 0)
+                {
+                    return NoContent();
+                }
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while retrieving featured products.");
+                return StatusCode(500, "Internal Server Error");
+            }
+        }
+
         [HttpGet("{id}", Name = "GetProductDetails")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]

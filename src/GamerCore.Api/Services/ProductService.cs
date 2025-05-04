@@ -57,6 +57,7 @@ namespace GamerCore.Api.Services
                     ProductId = p.ProductId,
                     Name = p.Name,
                     Price = p.Price,
+                    IsFeatured = p.IsFeatured,
                     Categories = p.ProductCategories
                         .Select(pc => new CategoryDto
                         {
@@ -85,6 +86,51 @@ namespace GamerCore.Api.Services
                 PageSize = effectivePageSize,
                 TotalItems = totalProducts
             };
+        }
+
+        public async Task<List<ProductDto>> GetFeaturedProductsAsync()
+        {
+            var queryableProducts = _unitOfWork.Products.GetQueryableProducts();
+
+            // May need pagination later
+            var totalProducts = await queryableProducts.CountAsync();
+
+            if (totalProducts == 0)
+            {
+                _logger.LogWarning("No products found.");
+                return new List<ProductDto>();
+            }
+
+            var productDtos = await queryableProducts
+                .AsNoTracking()
+                .Where(p => p.IsFeatured)
+                .Select(p => new ProductDto
+                {
+                    ProductId = p.ProductId,
+                    Name = p.Name,
+                    Price = p.Price,
+                    IsFeatured = p.IsFeatured,
+                    Categories = p.ProductCategories
+                        .Select(pc => new CategoryDto
+                        {
+                            CategoryId = pc.Category.CategoryId,
+                            Name = pc.Category.Name
+                        }),
+                    ThumbnailUrl = p.Images
+                        .Where(i => i.IsPrimary == true)
+                        .Select(i => i.Url)
+                        .First(),
+                    AverageRating = p.Reviews.Count != 0
+                        ? p.Reviews.Average(r => r.Rating)
+                        : 0.0,
+                    ReviewCount = p.Reviews.Count(),
+                    CreatedAt = p.CreatedAt,
+                    UpdatedAt = p.UpdatedAt
+                })
+                .ToListAsync();
+
+            _logger.LogInformation("Retrieved {Count} products.", productDtos.Count);
+            return productDtos;
         }
 
         public async Task<ProductDetailsDto?> GetProductDetailsAsync(int id)
