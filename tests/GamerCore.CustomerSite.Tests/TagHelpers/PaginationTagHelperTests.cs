@@ -2,7 +2,7 @@ using GamerCore.CustomerSite.Models;
 using GamerCore.CustomerSite.TagHelpers;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 
-namespace GamerCore.CustomerSite.Tests
+namespace GamerCore.CustomerSite.Tests.TagHelpers
 {
     public class PaginationTagHelperTests
     {

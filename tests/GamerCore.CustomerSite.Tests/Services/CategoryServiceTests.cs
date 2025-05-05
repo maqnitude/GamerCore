@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using Moq.Protected;
 
-namespace GamerCore.CustomerSite.Tests
+namespace GamerCore.CustomerSite.Tests.Services
 {
     public class CategoryServiceTests
     {

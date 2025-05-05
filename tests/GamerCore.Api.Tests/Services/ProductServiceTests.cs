@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 using MockQueryable;
 using Moq;
 
-namespace GamerCore.Api.Tests
+namespace GamerCore.Api.Tests.Services
 {
     public class ProductServiceTests
     {

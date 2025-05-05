@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
 
-namespace GamerCore.Api.Tests
+namespace GamerCore.Api.Tests.Controllers
 {
     public class CategoriesControllerTests
     {

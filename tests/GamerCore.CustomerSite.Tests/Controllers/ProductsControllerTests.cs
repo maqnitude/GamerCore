@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
 
-namespace GamerCore.CustomerSite.Tests
+namespace GamerCore.CustomerSite.Tests.Controllers
 {
     public class ProductsControllerTests
     {

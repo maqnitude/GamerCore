@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
 
-namespace GamerCore.Api.Tests
+namespace GamerCore.Api.Tests.Controllers
 {
     public class ProductsControllerTests
     {
@@ -33,7 +33,7 @@ namespace GamerCore.Api.Tests
                 new() { ProductId = 2, Name = "Product 2" }
             };
 
-            var pagedResult = new PaginatedList<ProductDto>
+            var paginatedList = new PaginatedList<ProductDto>
             {
                 Items = productDtos,
                 Page = 1,
@@ -45,15 +45,15 @@ namespace GamerCore.Api.Tests
                     It.IsAny<int>(),
                     It.IsAny<int?>(),
                     It.IsAny<int[]?>()))
-                .ReturnsAsync(pagedResult);
+                .ReturnsAsync(paginatedList);
 
             // Act
             var result = await _controller.GetProductsAsync();
 
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(result.Result);
-            var returnedPagedResult = Assert.IsAssignableFrom<PaginatedList<ProductDto>>(okResult.Value);
-            Assert.Equal(pagedResult, returnedPagedResult);
+            var returnedPaginatedList = Assert.IsAssignableFrom<PaginatedList<ProductDto>>(okResult.Value);
+            Assert.Equal(paginatedList, returnedPaginatedList);
 
             _mockService.Verify(s => s.GetFilteredProductsAsync(
                 It.IsAny<int>(),
@@ -87,7 +87,7 @@ namespace GamerCore.Api.Tests
         public async Task GetProductsAsync_ReturnsNoContent_WhenNoProductsExist()
         {
             // Arrange
-            var emptyPagedResult = new PaginatedList<ProductDto>
+            var emptyPaginatedList = new PaginatedList<ProductDto>
             {
                 Items = new List<ProductDto>(),
                 Page = 1,
@@ -99,7 +99,7 @@ namespace GamerCore.Api.Tests
                     It.IsAny<int>(),
                     It.IsAny<int?>(),
                     It.IsAny<int[]?>()))
-                .ReturnsAsync(emptyPagedResult);
+                .ReturnsAsync(emptyPaginatedList);
 
             // Act
             var result = await _controller.GetProductsAsync();
