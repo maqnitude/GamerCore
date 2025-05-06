@@ -2,6 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using GamerCore.Core.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -19,7 +20,9 @@ namespace GamerCore.CustomerSite.Pages.Account
 
         private readonly JsonSerializerOptions _jsonSerializerOptions = new()
         {
-            PropertyNameCaseInsensitive = true
+            PropertyNameCaseInsensitive = true,
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
         };
 
         public LoginModel(IHttpClientFactory httpClientFactory, ILogger<RegisterModel> logger)
@@ -95,13 +98,11 @@ namespace GamerCore.CustomerSite.Pages.Account
                 {
                     using var streamContent = await response.Content.ReadAsStreamAsync();
                     var apiResponse = await JsonSerializer
-                        .DeserializeAsync<ApiResponse>(streamContent, _jsonSerializerOptions);
+                        .DeserializeAsync<ApiResponse<AppUserDto>>(streamContent, _jsonSerializerOptions);
 
-                    if (apiResponse?.Succeeded == true && apiResponse.Data != null)
+                    if (apiResponse?.Data != null)
                     {
-                        // Extract user data from api response
-                        var user = JsonSerializer
-                            .Deserialize<AppUserDto>(apiResponse.Data.ToString()!, _jsonSerializerOptions);
+                        var user = apiResponse.Data;
 
                         // New claims for user
                         var claims = new List<Claim>

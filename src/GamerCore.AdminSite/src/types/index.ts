@@ -1,10 +1,13 @@
 /* Wrappers */
 
-export interface ApiResponse {
-  succeeded: boolean;
+export interface ApiResponse<T> {
+  data: T | null;
+  error: ErrorDetail | null;
+}
+
+export interface ErrorDetail {
+  code: number;
   message: string;
-  data: unknown | null;
-  errors: string[];
 }
 
 export interface PaginatedList<T> {

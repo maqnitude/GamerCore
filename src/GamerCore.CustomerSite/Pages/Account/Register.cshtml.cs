@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using GamerCore.Core.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -16,7 +17,9 @@ namespace GamerCore.CustomerSite.Pages.Account
 
         private readonly JsonSerializerOptions _jsonSerializerOptions = new()
         {
-            PropertyNameCaseInsensitive = true
+            PropertyNameCaseInsensitive = true,
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
         };
 
         public RegisterModel(IHttpClientFactory httpClientFactory, ILogger<RegisterModel> logger)
@@ -92,18 +95,11 @@ namespace GamerCore.CustomerSite.Pages.Account
                 {
                     using var contentStream = await response.Content.ReadAsStreamAsync();
                     var apiResponse = await JsonSerializer
-                        .DeserializeAsync<ApiResponse>(contentStream, _jsonSerializerOptions);
+                        .DeserializeAsync<ApiResponse<object>>(contentStream, _jsonSerializerOptions);
 
-                    if (apiResponse?.Errors != null && apiResponse.Errors.Count > 0)
+                    if (apiResponse?.Error != null)
                     {
-                        foreach (var error in apiResponse.Errors)
-                        {
-                            ModelState.AddModelError(string.Empty, error);
-                        }
-                    }
-                    else
-                    {
-                        ModelState.AddModelError(string.Empty, apiResponse?.Message ?? "Registration failed. Please try again.");
+                        ModelState.AddModelError(string.Empty, apiResponse.Error.Message);
                     }
 
                     return Page();

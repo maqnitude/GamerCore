@@ -1,18 +1,12 @@
-import { ApiResponse, LoginPayload, User } from "../types";
+import { ApiResponse, LoginPayload } from "../types";
 
 const baseApiEndpoint = "/api/auth";
 
-interface LoginResponse {
-  token: string;
-  user: User;
-}
-
-const AUTH_TOKEN = "auth_token";
-const AUTH_USER = "auth_user";
+const JWT_ACCESS_TOKEN = "auth_token";
 
 const authService = {
-  login: async (payload: LoginPayload): Promise<LoginResponse> => {
-    const apiEndpoint = `${baseApiEndpoint}/loginJwt`;
+  login: async (payload: LoginPayload): Promise<string> => {
+    const apiEndpoint = `${baseApiEndpoint}/admin/login`;
 
     const response = await fetch(apiEndpoint, {
       method: "POST",
@@ -21,25 +15,21 @@ const authService = {
     });
 
     if (!response.ok) {
-      throw new Error(`${response.status} - ${response.statusText}`);
+      const errorResponse = await response.json() as ApiResponse<object>;
+      throw new Error(`${response.status} - ${response.statusText}: ${errorResponse.error?.message}`);
     }
 
-    const apiResponse = await response.json() as ApiResponse;
+    const successResponse = await response.json() as ApiResponse<string>;
 
-    if (!apiResponse.succeeded || !apiResponse.data) {
-      throw new Error(apiResponse.message || "Login failed");
-    }
+    const token = successResponse.data as string;
+    localStorage.setItem(JWT_ACCESS_TOKEN, token);
 
-    const { token, user } = apiResponse.data as LoginResponse;
-    localStorage.setItem(AUTH_TOKEN, token);
-    localStorage.setItem(AUTH_USER, JSON.stringify(user));
-
-    return apiResponse.data as LoginResponse;
+    return token;
   },
 
   logout: (): void => {
-    const apiEndpoint = `${baseApiEndpoint}/logoutJwt`
-    const token = localStorage.getItem(AUTH_TOKEN);
+    const apiEndpoint = `${baseApiEndpoint}/admin/logout`
+    const token = localStorage.getItem(JWT_ACCESS_TOKEN);
 
     // Call server to log the event
     if (token) {
@@ -52,12 +42,11 @@ const authService = {
       }).catch(() => { /* Silent fail */ })
     }
 
-    localStorage.removeItem(AUTH_TOKEN);
-    localStorage.removeItem(AUTH_USER);
+    localStorage.removeItem(JWT_ACCESS_TOKEN);
   },
 
   isAuthenticated: (): boolean => {
-    const token = localStorage.getItem(AUTH_TOKEN);
+    const token = localStorage.getItem(JWT_ACCESS_TOKEN);
     if (!token) {
       return false;
     }
@@ -74,12 +63,7 @@ const authService = {
   },
 
   getToken: (): string | null => {
-    return localStorage.getItem(AUTH_TOKEN);
-  },
-
-  getUser: (): User | null => {
-    const json = localStorage.getItem(AUTH_USER);
-    return json ? JSON.parse(json) as User : null;
+    return localStorage.getItem(JWT_ACCESS_TOKEN);
   }
 };
 

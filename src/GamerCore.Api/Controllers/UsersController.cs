@@ -8,9 +8,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace GamerCore.Api.Controllers
 {
-    [Authorize(
-        AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme,
-        Roles = RoleNames.Administrator)]
     [ApiController]
     [Route("api/[controller]")]
     public class UsersController : ControllerBase
@@ -24,6 +21,9 @@ namespace GamerCore.Api.Controllers
             _logger = logger;
         }
 
+        [Authorize(
+            AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme,
+            Roles = RoleNames.Administrator)]
         [HttpGet]
         public async Task<ActionResult<List<AppUserDto>>> GetUsersAsync()
         {
@@ -57,6 +57,27 @@ namespace GamerCore.Api.Controllers
 
             _logger.LogInformation("Successfully retrieved {Count} users.", userDtos.Count);
             return Ok(userDtos);
+        }
+
+        [HttpGet("{id}", Name = "GetUserById")]
+        public async Task<IActionResult> GetUserByIdAsync(string id)
+        {
+            var user = await _userManager.FindByIdAsync(id);
+
+            if (user == null)
+            {
+                return NotFound(ApiResponse<object>.CreateError(
+                    StatusCodes.Status404NotFound,
+                    "User not found."));
+            }
+
+            return Ok(ApiResponse<AppUserDto>.CreateSuccess(new AppUserDto
+            {
+                Id = user.Id,
+                Email = user.Email!,
+                FirstName = user.FirstName,
+                LastName = user.LastName
+            }));
         }
     }
 }
