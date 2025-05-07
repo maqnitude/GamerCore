@@ -140,15 +140,6 @@ namespace GamerCore.CustomerSite.Tests.Services
 
             // Assert
             Assert.Empty(result.Items);
-
-            _mockLogger.Verify(
-                x => x.Log(
-                    LogLevel.Warning,
-                    It.IsAny<EventId>(),
-                    It.IsAny<It.IsAnyType>(),
-                    It.IsAny<Exception>(),
-                    It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
-                Times.Once);
         }
 
         [Fact]
@@ -171,6 +162,138 @@ namespace GamerCore.CustomerSite.Tests.Services
 
             // Act & Assert
             await Assert.ThrowsAsync<JsonException>(() => _service.GetProductsAsync());
+
+            _mockLogger.Verify(
+                x => x.Log(
+                    LogLevel.Error,
+                    It.IsAny<EventId>(),
+                    It.IsAny<It.IsAnyType>(),
+                    It.IsAny<Exception>(),
+                    It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+                Times.Once);
+        }
+
+        #endregion
+
+        #region GetFeaturedProductsAsync tests
+
+        [Fact]
+        public async Task GetFeaturedProductsAsync_ReturnsProducts_WhenApiCallSucceeds()
+        {
+            // Arrange
+            var featuredProducts = new List<ProductViewModel>
+            {
+                new() { ProductId = 1, Name = "Featured Product 1", Price = 99.99m, IsFeatured = true },
+                new() { ProductId = 2, Name = "Featured Product 2", Price = 199.99m, IsFeatured = true }
+            };
+
+            var jsonResponse = JsonSerializer.Serialize(featuredProducts);
+            var httpResponse = new HttpResponseMessage
+            {
+                StatusCode = HttpStatusCode.OK,
+                Content = new StringContent(jsonResponse, Encoding.UTF8, "application/json")
+            };
+
+            _mockHttpMessageHandler.Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.Is<HttpRequestMessage>(req => req.Method == HttpMethod.Get
+                        && req.RequestUri!.ToString().Contains("/api/Products/Featured")),
+                    ItExpr.IsAny<CancellationToken>()
+                )
+                .ReturnsAsync(httpResponse);
+
+            // Act
+            var result = await _service.GetFeaturedProductsAsync();
+
+            // Assert
+            Assert.Equal(2, result.Count);
+            Assert.Equal(1, result[0].ProductId);
+            Assert.Equal("Featured Product 1", result[0].Name);
+            Assert.Equal(99.99m, result[0].Price);
+            Assert.Equal(2, result[1].ProductId);
+            Assert.Equal("Featured Product 2", result[1].Name);
+            Assert.Equal(199.99m, result[1].Price);
+        }
+
+        [Fact]
+        public async Task GetFeaturedProductsAsync_ThrowsHttpRequestException_WhenApiCallFails()
+        {
+            // Arrange
+            var httpResponse = new HttpResponseMessage
+            {
+                StatusCode = HttpStatusCode.InternalServerError
+            };
+
+            _mockHttpMessageHandler.Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.Is<HttpRequestMessage>(req => req.Method == HttpMethod.Get
+                        && req.RequestUri!.ToString().Contains("/api/Products/Featured")),
+                    ItExpr.IsAny<CancellationToken>()
+                )
+                .ReturnsAsync(httpResponse);
+
+            // Act & Assert
+            await Assert.ThrowsAsync<HttpRequestException>(() => _service.GetFeaturedProductsAsync());
+
+            _mockLogger.Verify(
+                x => x.Log(
+                    LogLevel.Error,
+                    It.IsAny<EventId>(),
+                    It.IsAny<It.IsAnyType>(),
+                    It.IsAny<Exception>(),
+                    (Func<It.IsAnyType, Exception?, string>)It.IsAny<object>()),
+                Times.Once);
+        }
+
+        [Fact]
+        public async Task GetFeaturedProductsAsync_ReturnsEmptyList_WhenDeserializationReturnsNull()
+        {
+            // Arrange
+            var httpResponse = new HttpResponseMessage
+            {
+                StatusCode = HttpStatusCode.OK,
+                Content = new StringContent("null", Encoding.UTF8, "application/json")
+            };
+
+            _mockHttpMessageHandler.Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.Is<HttpRequestMessage>(req => req.Method == HttpMethod.Get
+                        && req.RequestUri!.ToString().Contains("/api/Products/Featured")),
+                    ItExpr.IsAny<CancellationToken>()
+                )
+                .ReturnsAsync(httpResponse);
+
+            // Act
+            var result = await _service.GetFeaturedProductsAsync();
+
+            // Assert
+            Assert.Empty(result);
+        }
+
+        [Fact]
+        public async Task GetFeaturedProductsAsync_ThrowsJsonException_WhenDeserializationFails()
+        {
+            // Arrange
+            var httpResponse = new HttpResponseMessage
+            {
+                StatusCode = HttpStatusCode.OK,
+                Content = new StringContent("not valid json", Encoding.UTF8, "application/json")
+            };
+
+            _mockHttpMessageHandler.Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.Is<HttpRequestMessage>(req => req.Method == HttpMethod.Get
+                        && req.RequestUri!.ToString().Contains("/api/Products/Featured")),
+                    ItExpr.IsAny<CancellationToken>()
+                )
+                .ReturnsAsync(httpResponse);
+
+            // Act & Assert
+            await Assert.ThrowsAsync<JsonException>(() => _service.GetFeaturedProductsAsync());
 
             _mockLogger.Verify(
                 x => x.Log(

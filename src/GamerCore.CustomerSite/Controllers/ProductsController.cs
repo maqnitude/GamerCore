@@ -64,7 +64,7 @@ namespace GamerCore.CustomerSite.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "An error occurred while displaying the products page.");
-                return RedirectToAction("Error");
+                return RedirectToAction("Error", "Home");
             }
         }
 
@@ -72,9 +72,17 @@ namespace GamerCore.CustomerSite.Controllers
         [HttpGet]
         public async Task<IActionResult> Details(int id)
         {
-            var productDetails = await _productService.GetProductDetailsAsync(id);
+            try
+            {
+                var productDetails = await _productService.GetProductDetailsAsync(id);
 
-            return View(productDetails);
+                return View(productDetails);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while displaying the product details page.");
+                return RedirectToAction("Error", "Home");
+            }
         }
     }
 }

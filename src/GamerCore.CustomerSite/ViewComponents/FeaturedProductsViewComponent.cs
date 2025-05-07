@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace GamerCore.CustomerSite.ViewComponents
 {
-
     public class FeaturedProductsViewComponent : ViewComponent
     {
         private readonly IProductService _productService;

@@ -16,7 +16,7 @@ namespace GamerCore.CustomerSite.Pages.Account
         private readonly string _apiBaseEndpoint = "/api/Auth";
 
         private readonly IHttpClientFactory _httpClientFactory;
-        private readonly ILogger<RegisterModel> _logger;
+        private readonly ILogger<LoginModel> _logger;
 
         private readonly JsonSerializerOptions _jsonSerializerOptions = new()
         {
@@ -25,7 +25,7 @@ namespace GamerCore.CustomerSite.Pages.Account
             DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
         };
 
-        public LoginModel(IHttpClientFactory httpClientFactory, ILogger<RegisterModel> logger)
+        public LoginModel(IHttpClientFactory httpClientFactory, ILogger<LoginModel> logger)
         {
             _httpClientFactory = httpClientFactory;
             _logger = logger;

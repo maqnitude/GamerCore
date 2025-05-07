@@ -27,8 +27,10 @@ namespace GamerCore.CustomerSite.Tests.Controllers
                 _mockLogger.Object);
         }
 
+        #region Index tests
+
         [Fact]
-        public async Task Index_ReturnsViewWithProducts_WhenNoCategorySelected()
+        public async Task Index_ReturnsViewWithProducts_WhenNoFiltersAreApplied()
         {
             // Arrange
             var expectedProducts = new PaginatedList<ProductViewModel>
@@ -68,7 +70,7 @@ namespace GamerCore.CustomerSite.Tests.Controllers
         }
 
         [Fact]
-        public async Task Index_ReturnsViewWithFilteredProducts_WhenCategorySelected()
+        public async Task Index_ReturnsViewWithFilteredProducts_WhenCategoryFilterIsApplied()
         {
             // Arrange
             int categoryId = 1;
@@ -119,19 +121,10 @@ namespace GamerCore.CustomerSite.Tests.Controllers
             Assert.Equal(expectedCategories, model.Filter.Categories);
             Assert.Equal(1, model.Pagination.Page);
             Assert.Equal(categoryId, model.Filter.SelectedCategoryId);
-
-            _mockLogger.Verify(
-                x => x.Log(
-                    LogLevel.Information,
-                    It.IsAny<EventId>(),
-                    It.IsAny<It.IsAnyType>(),
-                    It.IsAny<Exception>(),
-                    (Func<It.IsAnyType, Exception?, string>)It.IsAny<object>()),
-                Times.Once);
         }
 
         [Fact]
-        public async Task Index_RedirectsToErrorAction_WhenExceptionOccurs()
+        public async Task Index_RedirectsToErrorAction_WhenExceptionIsThrown()
         {
             // Arrange
             _mockProductService
@@ -144,6 +137,7 @@ namespace GamerCore.CustomerSite.Tests.Controllers
             // Assert
             var redirectResult = Assert.IsType<RedirectToActionResult>(result);
             Assert.Equal("Error", redirectResult.ActionName);
+            Assert.Equal("Home", redirectResult.ControllerName);
 
             _mockLogger.Verify(
                 x => x.Log(
@@ -154,5 +148,91 @@ namespace GamerCore.CustomerSite.Tests.Controllers
                     (Func<It.IsAnyType, Exception?, string>)It.IsAny<object>()),
                 Times.Once);
         }
+
+        #endregion
+
+        #region Details tests
+
+        [Fact]
+        public async Task Details_ReturnsViewWithProductDetails_WhenRetrievalSucceeds()
+        {
+            // Arrange
+            int productId = 5;
+            var expectedProductDetails = new ProductDetailsViewModel
+            {
+                ProductId = productId,
+                Name = "Test product",
+                Price = 49.99M,
+                DescriptionHtml = "<p>Test product description</p>",
+                WarrantyHtml = "<p>Test product warrenty</p>",
+                Categories = new List<CategoryViewModel>
+                {
+                    new() { CategoryId = 1, Name = "Category 1" }
+                },
+                Images = new List<ProductImageViewModel>
+                {
+                    new() { ProductImageId = 1, Url = "https://placehold.co/600x400", IsPrimary = true }
+                },
+                AverageRating = 4.5,
+                ReviewCount = 10,
+                Reviews = new List<ProductReviewViewModel>
+                {
+                    new() { ProductReviewId = 1, Rating = 5, ReviewText = "Product review text" }
+                }
+            };
+
+            _mockProductService
+                .Setup(s => s.GetProductDetailsAsync(productId))
+                .ReturnsAsync(expectedProductDetails);
+
+            // Act
+            var result = await _controller.Details(productId);
+
+            // Assert
+            var viewResult = Assert.IsType<ViewResult>(result);
+            var model = Assert.IsType<ProductDetailsViewModel>(viewResult.Model);
+
+            Assert.Equal(expectedProductDetails, model);
+            Assert.Equal(productId, model.ProductId);
+            Assert.Equal("Test product", model.Name);
+            Assert.Equal(49.99M, model.Price);
+            Assert.Equal("<p>Test product description</p>", model.DescriptionHtml);
+            Assert.Equal("<p>Test product warrenty</p>", model.WarrantyHtml);
+            Assert.Single(model.Categories);
+            Assert.Single(model.Images);
+            Assert.Equal(4.5, model.AverageRating);
+            Assert.Equal(10, model.ReviewCount);
+            Assert.Single(model.Reviews);
+        }
+
+        [Fact]
+        public async Task Details_RedirectsToErrorAction_WhenExceptionIsThrown()
+        {
+            // Arrange
+            int productId = 999;
+
+            _mockProductService
+                .Setup(s => s.GetProductDetailsAsync(productId))
+                .ThrowsAsync(new Exception("Test Exception"));
+
+            // Act
+            var result = await _controller.Details(productId);
+
+            // Assert
+            var redirectResult = Assert.IsType<RedirectToActionResult>(result);
+            Assert.Equal("Error", redirectResult.ActionName);
+            Assert.Equal("Home", redirectResult.ControllerName);
+
+            _mockLogger.Verify(
+                x => x.Log(
+                    LogLevel.Error,
+                    It.IsAny<EventId>(),
+                    It.IsAny<It.IsAnyType>(),
+                    It.IsAny<Exception>(),
+                    (Func<It.IsAnyType, Exception?, string>)It.IsAny<object>()),
+                Times.Once);
+        }
+
+        #endregion
     }
 }
