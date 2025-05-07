@@ -33,31 +33,41 @@ namespace GamerCore.Api.Controllers
                     "Invalid request data."));
             }
 
-            var result = await _authService.RegisterAsync(registerDto);
-
-            if (!result.Succeeded)
+            try
             {
-                return BadRequest(ApiResponse<object>.CreateError(
-                    StatusCodes.Status400BadRequest,
-                    result.ErrorMessage!));
-            }
+                var result = await _authService.RegisterAsync(registerDto);
 
-            var user = result.User!;
-
-            _logger.LogInformation("User {UserId} ({Email}) registered successfully", user.Id, user.Email);
-
-            return CreatedAtAction(
-                "GetUserById",
-                "Users",
-                new { id = user.Id },
-                ApiResponse<AppUserDto>.CreateSuccess(new AppUserDto
+                if (!result.Succeeded)
                 {
-                    Id = user.Id,
-                    Email = user.Email!,
-                    FirstName = user.FirstName,
-                    LastName = user.LastName
-                })
-            );
+                    return BadRequest(ApiResponse<object>.CreateError(
+                        StatusCodes.Status400BadRequest,
+                        result.ErrorMessage!));
+                }
+
+                var user = result.User!;
+
+                _logger.LogInformation("User {UserId} ({Email}) registered successfully", user.Id, user.Email);
+
+                return CreatedAtAction(
+                    "GetUserById",
+                    "Users",
+                    new { id = user.Id },
+                    ApiResponse<AppUserDto>.CreateSuccess(new AppUserDto
+                    {
+                        Id = user.Id,
+                        Email = user.Email!,
+                        FirstName = user.FirstName,
+                        LastName = user.LastName
+                    })
+                );
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while registerting.");
+                return StatusCode(500, ApiResponse<object>.CreateError(
+                    StatusCodes.Status500InternalServerError,
+                    "Internal server error."));
+            }
         }
 
         /// <summary>
@@ -75,33 +85,43 @@ namespace GamerCore.Api.Controllers
                     "Invalid request data."));
             }
 
-            var result = await _authService.LoginAsync(loginDto);
-
-            if (!result.Succeeded)
+            try
             {
-                switch (result.ResultType)
+                var result = await _authService.LoginAsync(loginDto);
+
+                if (!result.Succeeded)
                 {
-                    case LoginResultType.LockedOut:
-                        return BadRequest(ApiResponse<object>.CreateError(
-                            StatusCodes.Status400BadRequest,
-                            result.ErrorMessage!));
+                    switch (result.ResultType)
+                    {
+                        case LoginResultType.LockedOut:
+                            return BadRequest(ApiResponse<object>.CreateError(
+                                StatusCodes.Status400BadRequest,
+                                result.ErrorMessage!));
 
-                    default:
-                        return Unauthorized(ApiResponse<object>.CreateError(
-                            StatusCodes.Status401Unauthorized,
-                            result.ErrorMessage ?? "Invalid email or password."));
+                        default:
+                            return Unauthorized(ApiResponse<object>.CreateError(
+                                StatusCodes.Status401Unauthorized,
+                                result.ErrorMessage ?? "Invalid email or password."));
+                    }
                 }
+
+                var user = result.User!;
+
+                return Ok(ApiResponse<AppUserDto>.CreateSuccess(new AppUserDto
+                {
+                    Id = user.Id,
+                    Email = user.Email!,
+                    FirstName = user.FirstName,
+                    LastName = user.LastName
+                }));
             }
-
-            var user = result.User!;
-
-            return Ok(ApiResponse<AppUserDto>.CreateSuccess(new AppUserDto
+            catch (Exception ex)
             {
-                Id = user.Id,
-                Email = user.Email!,
-                FirstName = user.FirstName,
-                LastName = user.LastName
-            }));
+                _logger.LogError(ex, "An error occurred while logging in.");
+                return StatusCode(500, ApiResponse<object>.CreateError(
+                    StatusCodes.Status500InternalServerError,
+                    "Internal server error."));
+            }
         }
 
         /// <summary>
@@ -119,46 +139,66 @@ namespace GamerCore.Api.Controllers
                     "Invalid request data."));
             }
 
-            var result = await _authService.LoginJwtAsync(loginDto);
-
-            if (!result.Succeeded)
+            try
             {
-                switch (result.ResultType)
+                var result = await _authService.LoginJwtAsync(loginDto);
+
+                if (!result.Succeeded)
                 {
-                    case LoginResultType.LockedOut:
-                        return BadRequest(ApiResponse<object>.CreateError(
-                            StatusCodes.Status400BadRequest,
-                            result.ErrorMessage!));
+                    switch (result.ResultType)
+                    {
+                        case LoginResultType.LockedOut:
+                            return BadRequest(ApiResponse<object>.CreateError(
+                                StatusCodes.Status400BadRequest,
+                                result.ErrorMessage!));
 
-                    case LoginResultType.AccessDenied:
-                        return StatusCode(StatusCodes.Status403Forbidden, ApiResponse<object>.CreateError(
-                            StatusCodes.Status403Forbidden,
-                            result.ErrorMessage!));
+                        case LoginResultType.AccessDenied:
+                            return StatusCode(StatusCodes.Status403Forbidden, ApiResponse<object>.CreateError(
+                                StatusCodes.Status403Forbidden,
+                                result.ErrorMessage!));
 
-                    default:
-                        return Unauthorized(ApiResponse<object>.CreateError(
-                            StatusCodes.Status401Unauthorized,
-                            result.ErrorMessage ?? "Invalid email or password."));
+                        default:
+                            return Unauthorized(ApiResponse<object>.CreateError(
+                                StatusCodes.Status401Unauthorized,
+                                result.ErrorMessage ?? "Invalid email or password."));
+                    }
                 }
-            }
 
-            return Ok(ApiResponse<string>.CreateSuccess(result.AccessToken));
+                return Ok(ApiResponse<string>.CreateSuccess(result.AccessToken));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while logging in.");
+                return StatusCode(500, ApiResponse<object>.CreateError(
+                    StatusCodes.Status500InternalServerError,
+                    "Internal server error."));
+            }
         }
 
         [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme)]
         [HttpPost("Logout")]
         public async Task<IActionResult> LogoutAsync()
         {
-            var result = await _authService.LogoutAsync(User);
-
-            if (!result)
+            try
             {
-                return BadRequest(ApiResponse<object>.CreateError(
-                    StatusCodes.Status400BadRequest,
-                    "No active user session found."));
-            }
+                var result = await _authService.LogoutAsync(User);
 
-            return Ok(ApiResponse<object>.CreateSuccess(null));
+                if (!result)
+                {
+                    return BadRequest(ApiResponse<object>.CreateError(
+                        StatusCodes.Status400BadRequest,
+                        "No active user session found."));
+                }
+
+                return Ok(ApiResponse<object>.CreateSuccess(null));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while logging out.");
+                return StatusCode(500, ApiResponse<object>.CreateError(
+                    StatusCodes.Status500InternalServerError,
+                    "Internal server error."));
+            }
         }
 
         // For JWT auth, client simply discards the token

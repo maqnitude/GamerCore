@@ -52,7 +52,7 @@ namespace GamerCore.Api.Controllers
         {
             try
             {
-                var categoryDto = await _service.GetCategoryAsync(id);
+                var categoryDto = await _service.GetCategoryByIdAsync(id);
 
                 if (categoryDto == null)
                 {

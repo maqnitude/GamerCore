@@ -18,7 +18,8 @@ namespace GamerCore.Api.Tests.Utilities
                 var category = new Category
                 {
                     CategoryId = i,
-                    Name = $"Category {i}"
+                    Name = $"Category {i}",
+                    Description = $"Category description {i}"
                 };
 
                 _categories.Add(category);

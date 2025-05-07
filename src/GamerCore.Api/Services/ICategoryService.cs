@@ -5,7 +5,7 @@ namespace GamerCore.Api.Services
     public interface ICategoryService
     {
         Task<List<CategoryDto>> GetCategoriesAsync();
-        Task<CategoryDto?> GetCategoryAsync(int id);
+        Task<CategoryDto?> GetCategoryByIdAsync(int id);
 
         /// <summary>
         /// Create a category.
