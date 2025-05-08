@@ -112,6 +112,12 @@ namespace GamerCore.CustomerSite.Pages.Account
                             new(ClaimTypes.Email, user.Email)
                         };
 
+                        // Add role claim for role authorization
+                        foreach (var role in user.Roles)
+                        {
+                            claims.Add(new(ClaimTypes.Role, role));
+                        }
+
                         var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
                         var principal = new ClaimsPrincipal(identity);
 

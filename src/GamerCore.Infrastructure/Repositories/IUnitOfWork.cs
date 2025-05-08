@@ -2,8 +2,9 @@ namespace GamerCore.Infrastructure.Repositories
 {
     public interface IUnitOfWork
     {
-        IProductRepository Products { get; }
         ICategoryRepository Categories { get; }
+        IProductRepository Products { get; }
+        IReviewRepository Reviews { get; }
 
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
     }

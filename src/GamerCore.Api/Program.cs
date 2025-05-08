@@ -54,15 +54,17 @@ builder.Services.AddAuthentication(options =>
         };
     });
 
-builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+builder.Services.AddScoped<IProductRepository, ProductRepository>();
+builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 builder.Services.AddScoped<IJwtService, JwtService>();
 
 builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<IReviewService, ReviewService>();
 
 var app = builder.Build();
 
@@ -83,7 +85,7 @@ app.UseAuthorization();
 app.MapControllers();
 
 // Development only
+await AppIdentityDbContextSeed.EnsurePopulatedAsync(app);
 CatalogDbContextSeed.EnsurePopulated(app);
-AppIdentityDbContextSeed.EnsurePopulated(app);
 
 app.Run();

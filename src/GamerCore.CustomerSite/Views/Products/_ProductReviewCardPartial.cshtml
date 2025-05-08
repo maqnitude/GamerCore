@@ -4,7 +4,7 @@
   <div class="card-body">
     <div class="d-flex justify-content-between mb-2">
       <div>
-        <h6 class="fw-bold mb-1">CustomerName</h6>
+        <h6 class="fw-bold mb-1">@Model.UserFirstName @Model.UserLastName</h6>
         <small class="text-muted">Reviewed on ReviewDate</small>
       </div>
       <partial name="_ProductRatingPartial" model="((double)Model.Rating, (int?)null, true)" />
@@ -12,9 +12,12 @@
 
     <hr>
 
-    <h5 class="mb-2">ReviewTitle</h5>
+    @if (!string.IsNullOrEmpty(Model.ReviewTitle))
+    {
+      <h5 class="mb-2">@Model.ReviewTitle</h5>
+    }
 
-    @if (!string.IsNullOrWhiteSpace(Model.ReviewText))
+    @if (!string.IsNullOrEmpty(Model.ReviewText))
     {
       <p class="card-text">@Model.ReviewText</p>
     }
@@ -23,11 +26,13 @@
       <p class="card-text text-muted"><em>No comment provided.</em></p>
     }
 
+    @*
     <div class="mt-2">
       <span class="badge bg-success">
         <i class="bi bi-check-circle me-1"></i> Verified Purchase
       </span>
     </div>
+    *@
   </div>
 </div>
 

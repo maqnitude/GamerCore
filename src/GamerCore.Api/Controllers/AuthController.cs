@@ -1,9 +1,11 @@
 using System.Security.Claims;
 using GamerCore.Api.Services;
+using GamerCore.Core.Entities;
 using GamerCore.Core.Models;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GamerCore.Api.Controllers
@@ -13,13 +15,16 @@ namespace GamerCore.Api.Controllers
     public class AuthController : ControllerBase
     {
         private readonly IAuthService _authService;
+        private readonly UserManager<AppUser> _userManager;
         private readonly ILogger<AuthController> _logger;
 
         public AuthController(
             IAuthService authService,
+            UserManager<AppUser> userManager,
             ILogger<AuthController> logger)
         {
             _authService = authService;
+            _userManager = userManager;
             _logger = logger;
         }
 
@@ -106,13 +111,16 @@ namespace GamerCore.Api.Controllers
                 }
 
                 var user = result.User!;
+                // IMPORTANT: Need role for role based authorization
+                var userRoles = await _userManager.GetRolesAsync(user);
 
                 return Ok(ApiResponse<AppUserDto>.CreateSuccess(new AppUserDto
                 {
                     Id = user.Id,
                     Email = user.Email!,
                     FirstName = user.FirstName,
-                    LastName = user.LastName
+                    LastName = user.LastName,
+                    Roles = userRoles.ToList()
                 }));
             }
             catch (Exception ex)

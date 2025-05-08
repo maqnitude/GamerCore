@@ -2,6 +2,7 @@ using System.Net;
 using System.Text;
 using GamerCore.Core.Entities;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -13,6 +14,7 @@ namespace GamerCore.Infrastructure
         {
             using var scope = app.ApplicationServices.CreateScope();
             var context = scope.ServiceProvider.GetRequiredService<CatalogDbContext>();
+            var userManager = scope.ServiceProvider.GetRequiredService<UserManager<AppUser>>();
 
             if (context.Database.GetPendingMigrations().Any())
             {
@@ -45,7 +47,7 @@ namespace GamerCore.Infrastructure
             // Requires products
             if (!context.ProductReviews.Any())
             {
-                SeedProductReviews(context);
+                SeedProductReviews(context, userManager);
             }
         }
 
@@ -342,29 +344,46 @@ namespace GamerCore.Infrastructure
             return features.ToString();
         }
 
-        private static void SeedProductReviews(CatalogDbContext context)
+        private static void SeedProductReviews(CatalogDbContext context, UserManager<AppUser> userManager)
         {
             var products = context.Products.ToList();
+            var userIds = userManager.Users
+                // Quick and dirty way to filter out admin
+                .Where(u => u.Email != AppIdentityDbContextSeed.AdminEmail)
+                .Select(u => u.Id)
+                .ToList();
+
             var reviews = new List<ProductReview>();
             var random = new Random();
+
             int reviewId = 1;
 
             foreach (var product in products)
             {
-                int reviewCount = random.Next(1, 11);
+                int reviewCount = random.Next(1, Math.Min(11, userIds.Count + 1));
 
-                for (int i = 0; i < reviewCount; i++)
+                var shuffledUserIds = userIds
+                    .OrderBy(_ => random.Next())
+                    .Take(reviewCount)
+                    .ToList();
+
+                foreach (var userId in shuffledUserIds)
                 {
                     int rating = random.Next(1, 6);
-                    string? comment = random.NextDouble() < 0.5
-                        ? $"Product review text {reviewId++}"
+
+                    bool hasReview = random.NextDouble() < 0.5;
+                    string? reviewTitle = hasReview ? $"Title of the review {reviewId++}" : null;
+                    string? reviewText = hasReview
+                        ? $"This is the review text of this customer on this product {reviewId}"
                         : null;
 
                     reviews.Add(new ProductReview
                     {
                         ProductId = product.ProductId,
                         Rating = rating,
-                        ReviewText = comment
+                        ReviewTitle = reviewTitle,
+                        ReviewText = reviewText,
+                        UserId = userId
                     });
                 }
             }

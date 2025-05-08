@@ -57,7 +57,10 @@ export interface ProductImage {
 export interface ProductReview {
   productReviewId: number;
   rating: number;
+  reviewTitle: string | null;
   reviewText: string | null;
+  userFirstName: string;
+  userLastName: string;
 }
 
 export interface ProductDetails {

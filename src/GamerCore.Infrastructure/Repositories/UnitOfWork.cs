@@ -6,16 +6,19 @@ namespace GamerCore.Infrastructure.Repositories
 
         public UnitOfWork(
             CatalogDbContext context,
+            ICategoryRepository categoryRepository,
             IProductRepository productRepository,
-            ICategoryRepository categoryRepository)
+            IReviewRepository reviewRepository)
         {
             _context = context;
-            Products = productRepository;
             Categories = categoryRepository;
+            Products = productRepository;
+            Reviews = reviewRepository;
         }
 
-        public IProductRepository Products { get; }
         public ICategoryRepository Categories { get; }
+        public IProductRepository Products { get; }
+        public IReviewRepository Reviews { get; }
 
         public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {

@@ -4,6 +4,7 @@ using GamerCore.Api.Tests.Utilities;
 using GamerCore.Core.Constants;
 using GamerCore.Core.Entities;
 using GamerCore.Infrastructure.Repositories;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using MockQueryable;
 using Moq;
@@ -15,6 +16,10 @@ namespace GamerCore.Api.Tests.Services
         private readonly Mock<IProductRepository> _mockProductRepository;
         private readonly Mock<ICategoryRepository> _mockCategoryRepository;
         private readonly Mock<IUnitOfWork> _mockUnitOfWork;
+
+        private readonly Mock<IUserStore<AppUser>> _mockUserStore;
+        private readonly Mock<UserManager<AppUser>> _mockUserManager;
+
         private readonly Mock<ILogger<ProductService>> _mockLogger;
         private readonly ProductService _service;
 
@@ -23,12 +28,19 @@ namespace GamerCore.Api.Tests.Services
             _mockProductRepository = new Mock<IProductRepository>();
             _mockCategoryRepository = new Mock<ICategoryRepository>();
             _mockUnitOfWork = new Mock<IUnitOfWork>();
+
+            _mockUserStore = new Mock<IUserStore<AppUser>>();
+#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
+            _mockUserManager = new Mock<UserManager<AppUser>>(_mockUserStore.Object,
+                null, null, null, null, null, null, null, null);
+#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
+
             _mockLogger = new Mock<ILogger<ProductService>>();
 
             _mockUnitOfWork.SetupGet(uow => uow.Products).Returns(_mockProductRepository.Object);
             _mockUnitOfWork.SetupGet(uow => uow.Categories).Returns(_mockCategoryRepository.Object);
 
-            _service = new ProductService(_mockUnitOfWork.Object, _mockLogger.Object);
+            _service = new ProductService(_mockUnitOfWork.Object, _mockUserManager.Object, _mockLogger.Object);
         }
 
         #region GetFilteredProductsAsync tests
@@ -197,6 +209,10 @@ namespace GamerCore.Api.Tests.Services
 
             _mockProductRepository.Setup(repo => repo.GetQueryableProducts())
                 .Returns(products.AsQueryable().BuildMock());
+
+            var users = new List<AppUser>();
+            _mockUserManager.Setup(um => um.Users)
+                .Returns(users.AsQueryable().BuildMock());
 
             // Act
             var result = await _service.GetProductDetailsAsync(productId);

@@ -78,6 +78,7 @@ namespace GamerCore.Api.Tests.Utilities
                         {
                             ProductReviewId = productId,
                             Rating = 3,
+                            ReviewTitle = "Review title",
                             ReviewText = "Review text",
                             ProductId = productId,
                             Product = product

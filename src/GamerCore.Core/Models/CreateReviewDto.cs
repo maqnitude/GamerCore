@@ -1,15 +1,20 @@
-namespace GamerCore.Core.Entities
+using System.ComponentModel.DataAnnotations;
+
+namespace GamerCore.Core.Models
 {
-    public class ProductReview : BaseEntity
+    public class CreateReviewDto
     {
-        public int ProductReviewId { get; set; }
+        [Required]
+        [Range(1, 5)]
         public int Rating { get; set; }
+
+        [StringLength(100)]
         public string? ReviewTitle { get; set; }
+
+        [StringLength(1000)]
         public string? ReviewText { get; set; }
 
         public string UserId { get; set; } = string.Empty;
-
         public int ProductId { get; set; }
-        public Product Product { get; set; } = null!;
     }
 }

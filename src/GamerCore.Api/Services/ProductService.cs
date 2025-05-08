@@ -1,9 +1,11 @@
+using System.Collections.Immutable;
 using System.Diagnostics;
 using GamerCore.Api.Models;
 using GamerCore.Core.Constants;
 using GamerCore.Core.Entities;
 using GamerCore.Core.Models;
 using GamerCore.Infrastructure.Repositories;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace GamerCore.Api.Services
@@ -11,11 +13,16 @@ namespace GamerCore.Api.Services
     public class ProductService : IProductService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly UserManager<AppUser> _userManager;
         private readonly ILogger<ProductService> _logger;
 
-        public ProductService(IUnitOfWork unitOfWork, ILogger<ProductService> logger)
+        public ProductService(
+            IUnitOfWork unitOfWork,
+            UserManager<AppUser> userManager,
+            ILogger<ProductService> logger)
         {
             _unitOfWork = unitOfWork;
+            _userManager = userManager;
             _logger = logger;
         }
 
@@ -168,7 +175,10 @@ namespace GamerCore.Api.Services
                     {
                         ProductReviewId = r.ProductReviewId,
                         Rating = r.Rating,
-                        ReviewText = r.ReviewText
+                        ReviewTitle = r.ReviewTitle,
+                        ReviewText = r.ReviewText,
+                        // This is used to query the reviews later
+                        UserId = r.UserId
                     }),
                     CreatedAt = p.CreatedAt,
                     UpdatedAt = p.UpdatedAt
@@ -178,12 +188,30 @@ namespace GamerCore.Api.Services
             if (productDetailsDto == null)
             {
                 _logger.LogWarning("Product not found (id: {Id}).", id);
-            }
-            else
-            {
-                _logger.LogInformation("Successfully retrieved product details (id: {Id}).", id);
+                return null;
             }
 
+            if (productDetailsDto.Reviews.Any())
+            {
+                var userIds = productDetailsDto.Reviews
+                    .Select(r => r.UserId)
+                    .Distinct()
+                    .ToList();
+                var userMap = await _userManager.Users
+                    .Where(u => userIds.Contains(u.Id))
+                    .ToDictionaryAsync(u => u.Id, u => u);
+
+                foreach (var review in productDetailsDto.Reviews)
+                {
+                    if (userMap.TryGetValue(review.UserId, out var user))
+                    {
+                        review.UserFirstName = user.FirstName;
+                        review.UserLastName = user.LastName;
+                    }
+                }
+            }
+
+            _logger.LogInformation("Successfully retrieved product details (id: {Id}).", id);
             return productDetailsDto;
         }
 

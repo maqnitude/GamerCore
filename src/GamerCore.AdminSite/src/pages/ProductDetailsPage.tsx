@@ -165,7 +165,9 @@ function ProductDetailsPage() {
                         <thead>
                           <tr>
                             <th>#</th>
+                            <th>Customer</th>
                             <th>Rating</th>
+                            <th>Title</th>
                             <th>Review</th>
                             <th></th>
                           </tr>
@@ -174,13 +176,19 @@ function ProductDetailsPage() {
                           {productDetails.reviews.map((review, index) => (
                             <tr key={review.productReviewId}>
                               <td>{index + 1}</td>
+                              <td>{review.userFirstName} {review.userLastName}</td>
                               <td>
                                 <div className="d-flex align-items-center">
                                   <span className="me-1">{review.rating}</span>
                                   <i className="bi bi-star-fill text-warning"></i>
                                 </div>
                               </td>
-                              <td>{review.reviewText}</td>
+                              {review.reviewTitle
+                                ? <td>{review.reviewTitle}</td>
+                                : <td className="text-muted fst-italic">No title.</td>}
+                              {review.reviewText
+                                ? <td>{review.reviewText}</td>
+                                : <td className="text-muted fst-italic">No review provided.</td>}
                               <td>
                                 <button className="btn btn-sm btn-outline-danger float-end">
                                   <i className="bi bi-trash"></i>

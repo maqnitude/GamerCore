@@ -42,7 +42,7 @@ namespace GamerCore.Infrastructure
         private void UpdateTimestamps()
         {
             var now = DateTime.UtcNow;
-            var productsToUpdateDict = new Dictionary<int, Product>();
+            var productIdsToUpdate = new HashSet<int>();
 
             foreach (var entry in ChangeTracker.Entries<BaseEntity>())
             {
@@ -66,28 +66,28 @@ namespace GamerCore.Infrastructure
                 {
                     if (entry.Entity is ProductCategory productCategory)
                     {
-                        productsToUpdateDict[productCategory.ProductId] = productCategory.Product;
+                        productIdsToUpdate.Add(productCategory.ProductId);
                     }
                     else if (entry.Entity is ProductDetail productDetail)
                     {
-                        productsToUpdateDict[productDetail.ProductId] = productDetail.Product;
+                        productIdsToUpdate.Add(productDetail.ProductId);
                     }
                     else if (entry.Entity is ProductImage productImage)
                     {
-                        productsToUpdateDict[productImage.ProductId] = productImage.Product;
+                        productIdsToUpdate.Add(productImage.ProductId);
                     }
                     else if (entry.Entity is ProductReview productReview)
                     {
-                        productsToUpdateDict[productReview.ProductId] = productReview.Product;
+                        productIdsToUpdate.Add(productReview.ProductId);
                     }
                 }
             }
 
-            if (productsToUpdateDict.Count > 0)
+            if (productIdsToUpdate.Count > 0)
             {
-                foreach (var kvp in productsToUpdateDict)
+                var productsToUpdate = Products.Where(p => productIdsToUpdate.Contains(p.ProductId));
+                foreach (var product in productsToUpdate)
                 {
-                    var product = kvp.Value;
                     var entry = Entry(product);
 
                     if (entry.State == EntityState.Detached)

@@ -1,0 +1,43 @@
+@model CreateReviewViewModel
+
+@{
+  var isAuthenticated = User.Identity?.IsAuthenticated ?? false;
+}
+
+@if (isAuthenticated)
+{
+  <form asp-controller="Reviews" asp-action="Create" method="post">
+    <input asp-for="ProductId" />
+    <div class="mb-3">
+      <label asp-for="Rating" class="form-label">Rating (1-5)</label>
+      <select asp-for="Rating" class="form-select">
+        <option value="">Select a rating</option>
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+        <option value="5">5</option>
+      </select>
+      <span asp-validation-for="Rating" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+      <label asp-for="ReviewTitle" class="form-label">Review Title</label>
+      <input asp-for="ReviewTitle" class="form-control" />
+      <span asp-validation-for="ReviewTitle" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+      <label asp-for="ReviewText" class="form-label">Your Review</label>
+      <textarea asp-for="ReviewText" class="form-control" rows="4"></textarea>
+      <span asp-validation-for="ReviewText" class="text-danger"></span>
+    </div>
+    <button type="submit" class="btn btn-primary">Submit</button>
+    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+  </form>
+}
+else
+{
+  <span>
+    You are not logged in. Please log in to write a review.
+    <a class="link-primary" asp-page="/Account/Login">Log in</a>.
+  </span>
+}

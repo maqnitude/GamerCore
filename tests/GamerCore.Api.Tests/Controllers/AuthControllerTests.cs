@@ -4,6 +4,7 @@ using GamerCore.Api.Services;
 using GamerCore.Core.Entities;
 using GamerCore.Core.Models;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -13,6 +14,10 @@ namespace GamerCore.Api.Tests.Controllers
     public class AuthControllerTests
     {
         private readonly Mock<IAuthService> _mockAuthService;
+
+        private readonly Mock<IUserStore<AppUser>> _mockUserStore;
+        private readonly Mock<UserManager<AppUser>> _mockUserManager;
+
         private readonly Mock<ILogger<AuthController>> _mockLogger;
 
         private readonly AuthController _controller;
@@ -20,9 +25,16 @@ namespace GamerCore.Api.Tests.Controllers
         public AuthControllerTests()
         {
             _mockAuthService = new Mock<IAuthService>();
+
+            _mockUserStore = new Mock<IUserStore<AppUser>>();
+#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
+            _mockUserManager = new Mock<UserManager<AppUser>>(_mockUserStore.Object,
+                null, null, null, null, null, null, null, null);
+#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
+
             _mockLogger = new Mock<ILogger<AuthController>>();
 
-            _controller = new AuthController(_mockAuthService.Object, _mockLogger.Object);
+            _controller = new AuthController(_mockAuthService.Object, _mockUserManager.Object, _mockLogger.Object);
         }
 
         #region RegisterAsync tests
@@ -160,6 +172,10 @@ namespace GamerCore.Api.Tests.Controllers
 
             _mockAuthService.Setup(x => x.LoginAsync(It.IsAny<LoginDto>()))
                 .ReturnsAsync(LoginResult.Success(null, user));
+
+            var userRoles = new List<string> { "User" };
+            _mockUserManager.Setup(x => x.GetRolesAsync(It.IsAny<AppUser>()))
+                .ReturnsAsync(userRoles);
 
             // Act
             var result = await _controller.LoginAsync(loginDto);
