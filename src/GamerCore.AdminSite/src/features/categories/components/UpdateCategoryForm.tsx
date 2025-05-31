@@ -7,7 +7,7 @@ import { Category, UpdateCategoryPayload } from "../../../types";
 import LoadingSpinner from "../../../components/LoadingSpinner";
 
 interface UpdateCategoryFormProps {
-  categoryId: number;
+  categoryId: string;
   onClose: () => void;
   onCategoryUpdated?: (updatedCategory: Category) => void;
 }
@@ -17,7 +17,11 @@ interface FormValues {
   description: string;
 }
 
-function UpdateCategoryForm({ categoryId, onClose, onCategoryUpdated }: UpdateCategoryFormProps) {
+function UpdateCategoryForm({
+  categoryId,
+  onClose,
+  onCategoryUpdated,
+}: UpdateCategoryFormProps) {
   const [initialData, setInitialData] = useState<Category | null>(null);
 
   const { updateCategory, updating, error: updateError } = useUpdateCategory();
@@ -28,12 +32,12 @@ function UpdateCategoryForm({ categoryId, onClose, onCategoryUpdated }: UpdateCa
     register,
     handleSubmit,
     reset,
-    formState: { errors, isSubmitting }
+    formState: { errors, isSubmitting },
   } = useForm<FormValues>({
     defaultValues: {
       name: "",
-      description: ""
-    }
+      description: "",
+    },
   });
 
   const loadCategoryData = useCallback(async () => {
@@ -42,8 +46,8 @@ function UpdateCategoryForm({ categoryId, onClose, onCategoryUpdated }: UpdateCa
       setInitialData(data);
       reset({
         name: data.name,
-        description: data.description
-      })
+        description: data.description,
+      });
     } catch (err) {
       console.error(err);
 
@@ -52,7 +56,7 @@ function UpdateCategoryForm({ categoryId, onClose, onCategoryUpdated }: UpdateCa
         type: "error",
         message: "Failed to fetch category data.",
         autoDismiss: true,
-        dismissDelay: 7500
+        dismissDelay: 7500,
       });
 
       onClose();
@@ -65,10 +69,10 @@ function UpdateCategoryForm({ categoryId, onClose, onCategoryUpdated }: UpdateCa
 
   const onSubmit = async (data: FormValues) => {
     const payload: UpdateCategoryPayload = {
-      categoryId: categoryId,
+      id: categoryId,
       name: data.name,
-      description: data.description
-    }
+      description: data.description,
+    };
 
     try {
       const updatedCategory = await updateCategory(categoryId, payload);
@@ -78,7 +82,7 @@ function UpdateCategoryForm({ categoryId, onClose, onCategoryUpdated }: UpdateCa
         message: "Category created successfully.",
         metadata: { updatedCategory },
         autoDismiss: true,
-        dismissDelay: 5000
+        dismissDelay: 5000,
       });
 
       // Notify categories page to update the local list
@@ -92,19 +96,16 @@ function UpdateCategoryForm({ categoryId, onClose, onCategoryUpdated }: UpdateCa
         type: "error",
         message: updateError || "Failed to update category.",
         autoDismiss: true,
-        dismissDelay: 7500
+        dismissDelay: 7500,
       });
     }
-  }
+  };
 
   return (
     <>
       <div className="modal fade d-block show" tabIndex={-1}>
         <div className="modal-dialog modal-dialog-centered">
-          <form
-            className="modal-content"
-            onSubmit={handleSubmit(onSubmit)}
-          >
+          <form className="modal-content" onSubmit={handleSubmit(onSubmit)}>
             <div className="modal-header">
               <h5 className="modal-title">Update Category</h5>
               <button
@@ -129,9 +130,7 @@ function UpdateCategoryForm({ categoryId, onClose, onCategoryUpdated }: UpdateCa
                   {...register("name", { required: "Name is required" })}
                 />
                 {errors.name && (
-                  <div className="invalid-feedback">
-                    {errors.name.message}
-                  </div>
+                  <div className="invalid-feedback">{errors.name.message}</div>
                 )}
               </div>
 
@@ -143,8 +142,9 @@ function UpdateCategoryForm({ categoryId, onClose, onCategoryUpdated }: UpdateCa
                 <textarea
                   id="category-description"
                   rows={3}
-                  className={`form-control ${errors.description ? "is-invalid" : ""
-                    }`}
+                  className={`form-control ${
+                    errors.description ? "is-invalid" : ""
+                  }`}
                   {...register("description", {
                     required: false,
                   })}
@@ -173,9 +173,9 @@ function UpdateCategoryForm({ categoryId, onClose, onCategoryUpdated }: UpdateCa
                 {isSubmitting && updating ? "Saving..." : "Save"}
               </button>
             </div>
-          </form >
-        </div >
-      </div >
+          </form>
+        </div>
+      </div>
 
       <div className="modal-backdrop show"></div>
     </>

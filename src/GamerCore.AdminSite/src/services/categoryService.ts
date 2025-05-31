@@ -1,4 +1,8 @@
-import { Category, CreateCategoryPayload, UpdateCategoryPayload } from "../types";
+import {
+  Category,
+  CreateCategoryPayload,
+  UpdateCategoryPayload,
+} from "../types";
 import authService from "./authService";
 
 const baseApiEndpoint = "/api/categories";
@@ -8,7 +12,7 @@ const CategoryService = {
     const apiEndpoint = baseApiEndpoint;
 
     const response = await fetch(apiEndpoint, {
-      method: "GET"
+      method: "GET",
     });
 
     if (!response.ok) {
@@ -18,11 +22,11 @@ const CategoryService = {
     return response.json();
   },
 
-  getCategory: async (id: number): Promise<Category> => {
+  getCategory: async (id: string): Promise<Category> => {
     const apiEndpoint = baseApiEndpoint + `/${id}`;
 
     const response = await fetch(apiEndpoint, {
-      method: "GET"
+      method: "GET",
     });
 
     if (!response.ok) {
@@ -44,10 +48,10 @@ const CategoryService = {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`
+        Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify(payload)
-    })
+      body: JSON.stringify(payload),
+    });
 
     if (!response.ok) {
       throw new Error(`${response.status} - ${response.statusText}`);
@@ -56,7 +60,10 @@ const CategoryService = {
     return response.json();
   },
 
-  updateCategory: async (id: number, payload: UpdateCategoryPayload): Promise<Category> => {
+  updateCategory: async (
+    id: string,
+    payload: UpdateCategoryPayload
+  ): Promise<Category> => {
     const apiEndpoint = baseApiEndpoint + `/${id}`;
 
     const token = authService.getToken();
@@ -68,9 +75,9 @@ const CategoryService = {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`
+        Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify(payload)
+      body: JSON.stringify(payload),
     });
 
     if (!response.ok) {
@@ -80,7 +87,7 @@ const CategoryService = {
     return response.json();
   },
 
-  deleteCategory: async (id: number): Promise<void> => {
+  deleteCategory: async (id: string): Promise<void> => {
     const apiEndpoint = baseApiEndpoint + `/${id}`;
 
     const token = authService.getToken();
@@ -91,14 +98,14 @@ const CategoryService = {
     const response = await fetch(apiEndpoint, {
       method: "DELETE",
       headers: {
-        "Authorization": `Bearer ${token}`
-      }
+        Authorization: `Bearer ${token}`,
+      },
     });
 
     if (!response.ok) {
       throw new Error(`${response.status} - ${response.statusText}`);
     }
-  }
-}
+  },
+};
 
 export default CategoryService;

@@ -20,23 +20,26 @@ namespace GamerCore.Api.Tests.Controllers
             _controller = new CategoriesController(_mockService.Object, _mockLogger.Object);
         }
 
-        #region GetCategoriesAsync tests
+        #region GetCategories tests
 
         [Fact]
-        public async Task GetCategoriesAsync_ReturnsOk_WhenCategoriesExist()
+        public async Task GetCategories_ReturnsOk_WhenCategoriesExist()
         {
             // Arrange
+            var category1Id = Guid.NewGuid().ToString();
+            var category2Id = Guid.NewGuid().ToString();
+
             var categoryDtos = new List<CategoryDto>
             {
-                new() { CategoryId = 1, Name = "Category 1", Description = "Description 1", ProductCount = 5 },
-                new() { CategoryId = 2, Name = "Category 2", Description = "Description 2", ProductCount = 3 },
+                new() { Id = category1Id, Name = "Category 1", Description = "Description 1", ProductCount = 5 },
+                new() { Id = category2Id, Name = "Category 2", Description = "Description 2", ProductCount = 3 },
             };
 
             _mockService.Setup(service => service.GetCategoriesAsync())
                 .ReturnsAsync(categoryDtos);
 
             // Act
-            var result = await _controller.GetCategoriesAsync();
+            var result = await _controller.GetCategories();
 
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(result.Result);
@@ -44,7 +47,7 @@ namespace GamerCore.Api.Tests.Controllers
             Assert.Equal(categoryDtos.Count, returnedCategoryDtos.Count);
             for (int i = 0; i < categoryDtos.Count; i++)
             {
-                Assert.Equal(categoryDtos[i].CategoryId, returnedCategoryDtos[i].CategoryId);
+                Assert.Equal(categoryDtos[i].Id, returnedCategoryDtos[i].Id);
                 Assert.Equal(categoryDtos[i].Name, returnedCategoryDtos[i].Name);
                 Assert.Equal(categoryDtos[i].Description, returnedCategoryDtos[i].Description);
                 Assert.Equal(categoryDtos[i].ProductCount, returnedCategoryDtos[i].ProductCount);
@@ -52,28 +55,28 @@ namespace GamerCore.Api.Tests.Controllers
         }
 
         [Fact]
-        public async Task GetCategoriesAsync_ReturnsNoContent_WhenNoCategoryExists()
+        public async Task GetCategories_ReturnsNoContent_WhenNoCategoryExists()
         {
             // Arrange
             _mockService.Setup(service => service.GetCategoriesAsync())
                 .ReturnsAsync(new List<CategoryDto>());
 
             // Act
-            var result = await _controller.GetCategoriesAsync();
+            var result = await _controller.GetCategories();
 
             // Assert
             Assert.IsType<NoContentResult>(result.Result);
         }
 
         [Fact]
-        public async Task GetCategoriesAsync_ReturnsInternalServerError_WhenExceptionIsThrown()
+        public async Task GetCategories_ReturnsInternalServerError_WhenExceptionIsThrown()
         {
             // Arrange
             _mockService.Setup(service => service.GetCategoriesAsync())
                 .ThrowsAsync(new Exception("Test Exception"));
 
             // Act
-            var result = await _controller.GetCategoriesAsync();
+            var result = await _controller.GetCategories();
 
             // Assert
             var objectResult = Assert.IsType<ObjectResult>(result.Result);
@@ -92,15 +95,17 @@ namespace GamerCore.Api.Tests.Controllers
 
         #endregion
 
-        #region GetCategoryByIdAsync tests
+        #region GetCategoryById tests
 
         [Fact]
-        public async Task GetCategoryByIdAsync_ReturnsOk_WhenCategoryExists()
+        public async Task GetCategoryById_ReturnsOk_WhenCategoryExists()
         {
             // Arrange
+            var categoryId = Guid.NewGuid().ToString();
+
             var categoryDto = new CategoryDto
             {
-                CategoryId = 1,
+                Id = categoryId,
                 Name = "Category 1",
                 Description = "Description 1",
                 ProductCount = 5,
@@ -108,15 +113,15 @@ namespace GamerCore.Api.Tests.Controllers
                 UpdatedAt = DateTime.UtcNow.AddDays(-5)
             };
 
-            _mockService.Setup(service => service.GetCategoryByIdAsync(1)).ReturnsAsync(categoryDto);
+            _mockService.Setup(service => service.GetCategoryByIdAsync(categoryId)).ReturnsAsync(categoryDto);
 
             // Act
-            var result = await _controller.GetCategoryByIdAsync(1);
+            var result = await _controller.GetCategoryById(categoryId);
 
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(result.Result);
             var returnedCategory = Assert.IsType<CategoryDto>(okResult.Value);
-            Assert.Equal(categoryDto.CategoryId, returnedCategory.CategoryId);
+            Assert.Equal(categoryDto.Id, returnedCategory.Id);
             Assert.Equal(categoryDto.Name, returnedCategory.Name);
             Assert.Equal(categoryDto.Description, returnedCategory.Description);
             Assert.Equal(categoryDto.ProductCount, returnedCategory.ProductCount);
@@ -125,28 +130,32 @@ namespace GamerCore.Api.Tests.Controllers
         }
 
         [Fact]
-        public async Task GetCategoryByIdAsync_ReturnsNotFound_WhenCategoryDoesNotExist()
+        public async Task GetCategoryById_ReturnsNotFound_WhenCategoryDoesNotExist()
         {
             // Arrange
-            _mockService.Setup(service => service.GetCategoryByIdAsync(999))
+            var categoryId = Guid.NewGuid().ToString();
+
+            _mockService.Setup(service => service.GetCategoryByIdAsync(categoryId))
                 .ReturnsAsync((CategoryDto?)null);
 
             // Act
-            var result = await _controller.GetCategoryByIdAsync(999);
+            var result = await _controller.GetCategoryById(categoryId);
 
             // Assert
             Assert.IsType<NotFoundResult>(result.Result);
         }
 
         [Fact]
-        public async Task GetCategoryByIdAsync_ReturnsInternalServerError_WhenExceptionIsThrown()
+        public async Task GetCategoryById_ReturnsInternalServerError_WhenExceptionIsThrown()
         {
             // Arrange
-            _mockService.Setup(service => service.GetCategoryByIdAsync(It.IsAny<int>()))
+            var categoryId = Guid.NewGuid().ToString();
+
+            _mockService.Setup(service => service.GetCategoryByIdAsync(It.IsAny<string>()))
                 .ThrowsAsync(new Exception("Test Exception"));
 
             // Act
-            var result = await _controller.GetCategoryByIdAsync(1);
+            var result = await _controller.GetCategoryById(categoryId);
 
             // Assert
             var objectResult = Assert.IsType<ObjectResult>(result.Result);
@@ -165,12 +174,14 @@ namespace GamerCore.Api.Tests.Controllers
 
         #endregion
 
-        #region CreateCategoryAsync tests
+        #region CreateCategory tests
 
         [Fact]
-        public async Task CreateCategoryAsync_ReturnsCreated_WhenCategoryIsCreated()
+        public async Task CreateCategory_ReturnsCreated_WhenCategoryIsCreated()
         {
             // Arrange
+            var categoryId = Guid.NewGuid().ToString();
+
             var createCategoryDto = new CreateCategoryDto
             {
                 Name = "New Category",
@@ -179,7 +190,7 @@ namespace GamerCore.Api.Tests.Controllers
 
             var createdCategoryDto = new CategoryDto
             {
-                CategoryId = 1,
+                Id = categoryId,
                 Name = "New Category",
                 Description = "New Category Description",
                 ProductCount = 0,
@@ -191,22 +202,22 @@ namespace GamerCore.Api.Tests.Controllers
                 .ReturnsAsync(createdCategoryDto);
 
             // Act
-            var result = await _controller.CreateCategoryAsync(createCategoryDto);
+            var result = await _controller.CreateCategory(createCategoryDto);
 
             // Assert
             var createdAtActionResult = Assert.IsType<CreatedAtActionResult>(result);
             Assert.Equal("GetCategoryById", createdAtActionResult.ActionName);
             Assert.Equal("Categories", createdAtActionResult.ControllerName);
-            Assert.Equal(createdCategoryDto.CategoryId, createdAtActionResult.RouteValues?["id"]);
+            Assert.Equal(createdCategoryDto.Id, createdAtActionResult.RouteValues?["id"]);
 
             var returnedCategory = Assert.IsType<CategoryDto>(createdAtActionResult.Value);
-            Assert.Equal(createdCategoryDto.CategoryId, returnedCategory.CategoryId);
+            Assert.Equal(createdCategoryDto.Id, returnedCategory.Id);
             Assert.Equal(createCategoryDto.Name, returnedCategory.Name);
             Assert.Equal(createCategoryDto.Description, returnedCategory.Description);
         }
 
         [Fact]
-        public async Task CreateCategoryAsync_ReturnsBadRequest_WhenModelStateIsInvalid()
+        public async Task CreateCategory_ReturnsBadRequest_WhenModelStateIsInvalid()
         {
             // Arrange
             var createCategoryDto = new CreateCategoryDto
@@ -218,14 +229,14 @@ namespace GamerCore.Api.Tests.Controllers
             _controller.ModelState.AddModelError("Name", "Name is required");
 
             // Act
-            var result = await _controller.CreateCategoryAsync(createCategoryDto);
+            var result = await _controller.CreateCategory(createCategoryDto);
 
             // Assert
             Assert.IsType<BadRequestObjectResult>(result);
         }
 
         [Fact]
-        public async Task CreateCategoryAsync_ReturnsInternalServerError_WhenExceptionIsThrown()
+        public async Task CreateCategory_ReturnsInternalServerError_WhenExceptionIsThrown()
         {
             // Arrange
             var createCategoryDto = new CreateCategoryDto
@@ -238,7 +249,7 @@ namespace GamerCore.Api.Tests.Controllers
                 .ThrowsAsync(new Exception("Test Exception"));
 
             // Act
-            var result = await _controller.CreateCategoryAsync(createCategoryDto);
+            var result = await _controller.CreateCategory(createCategoryDto);
 
             // Assert
             var objectResult = Assert.IsType<ObjectResult>(result);
@@ -257,23 +268,24 @@ namespace GamerCore.Api.Tests.Controllers
 
         #endregion
 
-        #region UpdateCategoryAsync tests
+        #region UpdateCategory tests
 
         [Fact]
-        public async Task UpdateCategoryAsync_ReturnsOk_WhenCategoryIsUpdated()
+        public async Task UpdateCategory_ReturnsOk_WhenCategoryIsUpdated()
         {
             // Arrange
-            int categoryId = 1;
+            var categoryId = Guid.NewGuid().ToString();
+
             var updateCategoryDto = new UpdateCategoryDto
             {
-                CategoryId = categoryId,
+                Id = categoryId,
                 Name = "Updated Category",
                 Description = "Updated Description"
             };
 
             var updatedCategoryDto = new CategoryDto
             {
-                CategoryId = categoryId,
+                Id = categoryId,
                 Name = "Updated Category",
                 Description = "Updated Description",
                 ProductCount = 2,
@@ -285,25 +297,26 @@ namespace GamerCore.Api.Tests.Controllers
                 .ReturnsAsync(updatedCategoryDto);
 
             // Act
-            var result = await _controller.UpdateCategoryAsync(categoryId, updateCategoryDto);
+            var result = await _controller.UpdateCategory(categoryId, updateCategoryDto);
 
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(result.Result);
             var returnedCategory = Assert.IsType<CategoryDto>(okResult.Value);
-            Assert.Equal(updatedCategoryDto.CategoryId, returnedCategory.CategoryId);
+            Assert.Equal(updatedCategoryDto.Id, returnedCategory.Id);
             Assert.Equal(updateCategoryDto.Name, returnedCategory.Name);
             Assert.Equal(updateCategoryDto.Description, returnedCategory.Description);
             Assert.Equal(updatedCategoryDto.ProductCount, returnedCategory.ProductCount);
         }
 
         [Fact]
-        public async Task UpdateCategoryAsync_ReturnsBadRequest_WhenModelStateIsInvalid()
+        public async Task UpdateCategory_ReturnsBadRequest_WhenModelStateIsInvalid()
         {
             // Arrange
-            int categoryId = 1;
+            var categoryId = Guid.NewGuid().ToString();
+
             var updateCategoryDto = new UpdateCategoryDto
             {
-                CategoryId = categoryId,
+                Id = categoryId,
                 Name = "",
                 Description = "Updated Description"
             };
@@ -311,20 +324,21 @@ namespace GamerCore.Api.Tests.Controllers
             _controller.ModelState.AddModelError("Name", "Name is required");
 
             // Act
-            var result = await _controller.UpdateCategoryAsync(categoryId, updateCategoryDto);
+            var result = await _controller.UpdateCategory(categoryId, updateCategoryDto);
 
             // Assert
             Assert.IsType<BadRequestObjectResult>(result.Result);
         }
 
         [Fact]
-        public async Task UpdateCategoryAsync_ReturnsNotFound_WhenCategoryDoesNotExist()
+        public async Task UpdateCategory_ReturnsNotFound_WhenCategoryDoesNotExist()
         {
             // Arrange
-            int categoryId = 999;
+            var categoryId = Guid.NewGuid().ToString();
+
             var updateCategoryDto = new UpdateCategoryDto
             {
-                CategoryId = categoryId,
+                Id = categoryId,
                 Name = "Non-existent Category",
                 Description = "This category does not exist"
             };
@@ -333,20 +347,21 @@ namespace GamerCore.Api.Tests.Controllers
                 .ReturnsAsync((CategoryDto?)null);
 
             // Act
-            var result = await _controller.UpdateCategoryAsync(categoryId, updateCategoryDto);
+            var result = await _controller.UpdateCategory(categoryId, updateCategoryDto);
 
             // Assert
             Assert.IsType<NotFoundResult>(result.Result);
         }
 
         [Fact]
-        public async Task UpdateCategoryAsync_ReturnsInternalServerError_WhenExceptionIsThrown()
+        public async Task UpdateCategory_ReturnsInternalServerError_WhenExceptionIsThrown()
         {
             // Arrange
-            int categoryId = 1;
+            var categoryId = Guid.NewGuid().ToString();
+
             var updateCategoryDto = new UpdateCategoryDto
             {
-                CategoryId = categoryId,
+                Id = categoryId,
                 Name = "Updated Category",
                 Description = "Updated Description"
             };
@@ -355,7 +370,7 @@ namespace GamerCore.Api.Tests.Controllers
                 .ThrowsAsync(new Exception("Test Exception"));
 
             // Act
-            var result = await _controller.UpdateCategoryAsync(categoryId, updateCategoryDto);
+            var result = await _controller.UpdateCategory(categoryId, updateCategoryDto);
 
             // Assert
             var objectResult = Assert.IsType<ObjectResult>(result.Result);
@@ -374,51 +389,51 @@ namespace GamerCore.Api.Tests.Controllers
 
         #endregion
 
-        #region DeleteCategoryAsync tests
+        #region DeleteCategory tests
 
         [Fact]
-        public async Task DeleteCategoryAsync_ReturnsNoContent_WhenCategoryIsDeleted()
+        public async Task DeleteCategory_ReturnsNoContent_WhenCategoryIsDeleted()
         {
             // Arrange
-            int categoryId = 1;
+            var categoryId = Guid.NewGuid().ToString();
 
             _mockService.Setup(service => service.DeleteCategoryAsync(categoryId))
                 .ReturnsAsync(true);
 
             // Act
-            var result = await _controller.DeleteCategoryAsync(categoryId);
+            var result = await _controller.DeleteCategory(categoryId);
 
             // Assert
             Assert.IsType<NoContentResult>(result);
         }
 
         [Fact]
-        public async Task DeleteCategoryAsync_ReturnsNotFound_WhenCategoryDoesNotExist()
+        public async Task DeleteCategory_ReturnsNotFound_WhenCategoryDoesNotExist()
         {
             // Arrange
-            int categoryId = 999;
+            var categoryId = Guid.NewGuid().ToString();
 
             _mockService.Setup(service => service.DeleteCategoryAsync(categoryId))
                 .ReturnsAsync(false);
 
             // Act
-            var result = await _controller.DeleteCategoryAsync(categoryId);
+            var result = await _controller.DeleteCategory(categoryId);
 
             // Assert
             Assert.IsType<NotFoundResult>(result);
         }
 
         [Fact]
-        public async Task DeleteCategoryAsync_ReturnsInternalServerError_WhenExceptionIsThrown()
+        public async Task DeleteCategory_ReturnsInternalServerError_WhenExceptionIsThrown()
         {
             // Arrange
-            int categoryId = 1;
+            var categoryId = Guid.NewGuid().ToString();
 
             _mockService.Setup(service => service.DeleteCategoryAsync(categoryId))
                 .ThrowsAsync(new Exception("Test Exception"));
 
             // Act
-            var result = await _controller.DeleteCategoryAsync(categoryId);
+            var result = await _controller.DeleteCategory(categoryId);
 
             // Assert
             var objectResult = Assert.IsType<ObjectResult>(result);

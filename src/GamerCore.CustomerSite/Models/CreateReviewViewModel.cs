@@ -15,7 +15,8 @@ namespace GamerCore.CustomerSite.Models
         [StringLength(1000)]
         public string? ReviewText { get; set; }
 
+        [Required]
         [HiddenInput]
-        public int ProductId { get; set; }
+        public string ProductId { get; set; } = string.Empty;
     }
 }

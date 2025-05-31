@@ -7,7 +7,7 @@ import { formatDate } from "../../../utils";
 
 interface ProductsTableProps {
   products: Product[];
-  onProductDeleted?: (productId: number) => void;
+  onProductDeleted?: (productId: string) => void;
 }
 
 function ProductsTable({ products, onProductDeleted }: ProductsTableProps) {
@@ -18,11 +18,11 @@ function ProductsTable({ products, onProductDeleted }: ProductsTableProps) {
 
   const navigate = useNavigate();
 
-  const handleViewDetails = (productId: number) => {
+  const handleViewDetails = (productId: string) => {
     navigate(`/products/details/${productId}`);
   };
 
-  const handleUpdate = (productId: number) => {
+  const handleUpdate = (productId: string) => {
     navigate(`/products/edit/${productId}`);
   };
 
@@ -35,29 +35,29 @@ function ProductsTable({ products, onProductDeleted }: ProductsTableProps) {
       cancelText: "Cancel",
       onConfirm: async () => {
         try {
-          await deleteProduct(product.productId);
+          await deleteProduct(product.id);
 
           // Notify the products page to update
           if (onProductDeleted) {
-            onProductDeleted(product.productId);
+            onProductDeleted(product.id);
           }
 
           addToast({
             type: "success",
             message: `Product ${product.name} was deleted successfully.`,
             autoDismiss: true,
-            dismissDelay: 5000
+            dismissDelay: 5000,
           });
         } catch {
           addToast({
             type: "error",
             message: deleteError || "Failed to delete product.",
             autoDismiss: true,
-            dismissDelay: 7500
-          })
+            dismissDelay: 7500,
+          });
         }
-      }
-    })
+      },
+    });
   };
 
   return (
@@ -77,14 +77,16 @@ function ProductsTable({ products, onProductDeleted }: ProductsTableProps) {
         </thead>
         <tbody>
           {products.map((product) => (
-            <tr key={product.productId}>
-              <td>{product.productId}</td>
+            <tr key={product.id}>
+              <td>{product.id}</td>
               <td>{product.name}</td>
               <td>{product.price.toFixed(2)}</td>
               <td>
                 <div className="d-flex align-items-center">
                   <i className="bi bi-star-fill text-warning"></i>
-                  <span className="ms-1">{product.averageRating.toFixed(2)}</span>
+                  <span className="ms-1">
+                    {product.averageRating.toFixed(2)}
+                  </span>
                 </div>
               </td>
               <td>{product.reviewCount}</td>
@@ -94,14 +96,14 @@ function ProductsTable({ products, onProductDeleted }: ProductsTableProps) {
                 <div className="btn-group btn-group-sm float-end">
                   <button
                     className="btn btn-outline-info"
-                    onClick={() => handleViewDetails(product.productId)}
+                    onClick={() => handleViewDetails(product.id)}
                   >
                     <i className="bi bi-eye me-2"></i>
                     Details
                   </button>
                   <button
                     className="btn btn-outline-primary"
-                    onClick={() => handleUpdate(product.productId)}
+                    onClick={() => handleUpdate(product.id)}
                   >
                     <i className="bi bi-pencil me-2"></i>
                     Edit

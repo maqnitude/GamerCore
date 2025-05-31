@@ -6,12 +6,14 @@ namespace GamerCore.CustomerSite.Services
 {
     public class ReviewService : IReviewService
     {
-        private readonly string _baseApiEndpoint = "/api/Reviews";
+        private readonly string _baseApiEndpoint = "/api/reviews";
 
         private readonly IHttpClientFactory _httpClientFactory;
-        private readonly ILogger<ProductService> _logger;
+        private readonly ILogger<ReviewService> _logger;
 
-        public ReviewService(IHttpClientFactory httpClientFactory, ILogger<ProductService> logger)
+        public ReviewService(
+            IHttpClientFactory httpClientFactory,
+            ILogger<ReviewService> logger)
         {
             _httpClientFactory = httpClientFactory;
             _logger = logger;

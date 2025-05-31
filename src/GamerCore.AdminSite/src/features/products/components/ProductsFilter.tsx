@@ -4,18 +4,22 @@ import LoadingSpinner from "../../../components/LoadingSpinner";
 import useCategories from "../../categories/hooks/useCategories";
 
 interface ProductsFilterProps {
-  onFilterChange: (categoryId: number | undefined) => void;
+  onCategoryFilterChange: (categoryId?: string) => void;
 }
 
-function ProductsFilter({ onFilterChange }: ProductsFilterProps) {
-  const [selectedCategoryId, setSelectedCategoryId] = useState<number | undefined>();
-  const { categories, loading: categoriesLoading, error: categoriesError } = useCategories();
+function ProductsFilter({ onCategoryFilterChange }: ProductsFilterProps) {
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string>();
+  const {
+    categories,
+    loading: categoriesLoading,
+    error: categoriesError,
+  } = useCategories();
 
   const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const categoryId = e.target.value === "" ? undefined : Number(e.target.value);
+    const categoryId = e.target.value === "" ? undefined : e.target.value;
     setSelectedCategoryId(categoryId);
-    onFilterChange(categoryId);
-  }
+    onCategoryFilterChange(categoryId);
+  };
 
   return (
     <div className="card">
@@ -28,7 +32,12 @@ function ProductsFilter({ onFilterChange }: ProductsFilterProps) {
           </div>
           <div className="col">
             <div className="form-group d-flex flex-row align-items-center">
-              <label htmlFor="categoryFilter" className="form-label fw-bold me-2">Category:</label>
+              <label
+                htmlFor="categoryFilter"
+                className="form-label fw-bold me-2"
+              >
+                Category:
+              </label>
               <select
                 id="categoryFilter"
                 className="form-select"
@@ -37,17 +46,21 @@ function ProductsFilter({ onFilterChange }: ProductsFilterProps) {
                 disabled={categoriesLoading}
               >
                 <option value="">All Categories</option>
-                {categories.map(category => (
-                  <option key={category.categoryId} value={category.categoryId.toString()}>
+                {categories.map((category) => (
+                  <option key={category.id} value={category.id.toString()}>
                     {category.name}
                   </option>
                 ))}
               </select>
 
               {categoriesLoading && <LoadingSpinner />}
-              {categoriesError && <ErrorAlert
-                message={categoriesError.concat("\nFailed to fetch categories.")}
-              />}
+              {categoriesError && (
+                <ErrorAlert
+                  message={categoriesError.concat(
+                    "\nFailed to fetch categories."
+                  )}
+                />
+              )}
             </div>
           </div>
         </div>

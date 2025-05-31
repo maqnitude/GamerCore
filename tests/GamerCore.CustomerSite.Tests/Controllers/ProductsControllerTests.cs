@@ -35,15 +35,17 @@ namespace GamerCore.CustomerSite.Tests.Controllers
             // Arrange
             var expectedProducts = new PaginatedList<ProductViewModel>
             {
-                Items = [new() { ProductId = 1, Name = "Test Product", Price = 10.00M }],
+                Items = [new() { Id = Guid.NewGuid().ToString(), Name = "Test Product", Price = 10.00M }],
                 Page = 1,
                 PageSize = 10,
                 TotalItems = 1
             };
 
+            var expectedCategoryId = Guid.NewGuid();
+
             var expectedCategories = new List<CategoryViewModel>
             {
-                new() { CategoryId = 1, Name = "Test Category" }
+                new() { Id = Guid.NewGuid().ToString(), Name = "Test Category" }
             };
 
             _mockProductService
@@ -73,10 +75,11 @@ namespace GamerCore.CustomerSite.Tests.Controllers
         public async Task Index_ReturnsViewWithFilteredProducts_WhenCategoryFilterIsApplied()
         {
             // Arrange
-            int categoryId = 1;
+            var categoryId = Guid.NewGuid().ToString();
+
             var category = new CategoryViewModel
             {
-                CategoryId = categoryId,
+                Id = categoryId,
                 Name = "Test Category"
             };
 
@@ -86,7 +89,7 @@ namespace GamerCore.CustomerSite.Tests.Controllers
                 [
                     new()
                     {
-                        ProductId = 1,
+                        Id = Guid.NewGuid().ToString(),
                         Name = "Test Product",
                         Price = 10.00M,
                         Categories = [category]
@@ -157,27 +160,28 @@ namespace GamerCore.CustomerSite.Tests.Controllers
         public async Task Details_ReturnsViewWithProductDetails_WhenRetrievalSucceeds()
         {
             // Arrange
-            int productId = 5;
+            var productId = Guid.NewGuid().ToString();
+
             var expectedProductDetails = new ProductDetailsViewModel
             {
-                ProductId = productId,
+                Id = productId,
                 Name = "Test product",
                 Price = 49.99M,
                 DescriptionHtml = "<p>Test product description</p>",
                 WarrantyHtml = "<p>Test product warrenty</p>",
                 Categories = new List<CategoryViewModel>
                 {
-                    new() { CategoryId = 1, Name = "Category 1" }
+                    new() { Id = Guid.NewGuid().ToString(), Name = "Category 1" }
                 },
                 Images = new List<ProductImageViewModel>
                 {
-                    new() { ProductImageId = 1, Url = "https://placehold.co/600x400", IsPrimary = true }
+                    new() { Id = Guid.NewGuid().ToString(), Url = "https://placehold.co/600x400", IsPrimary = true }
                 },
                 AverageRating = 4.5,
                 ReviewCount = 10,
                 Reviews = new List<ProductReviewViewModel>
                 {
-                    new() { ProductReviewId = 1, Rating = 5, ReviewText = "Product review text" }
+                    new() { Id = Guid.NewGuid().ToString(), Rating = 5, ReviewText = "Product review text" }
                 }
             };
 
@@ -193,7 +197,7 @@ namespace GamerCore.CustomerSite.Tests.Controllers
             var model = Assert.IsType<ProductDetailsViewModel>(viewResult.Model);
 
             Assert.Equal(expectedProductDetails, model);
-            Assert.Equal(productId, model.ProductId);
+            Assert.Equal(productId, model.Id);
             Assert.Equal("Test product", model.Name);
             Assert.Equal(49.99M, model.Price);
             Assert.Equal("<p>Test product description</p>", model.DescriptionHtml);
@@ -209,7 +213,7 @@ namespace GamerCore.CustomerSite.Tests.Controllers
         public async Task Details_RedirectsToErrorAction_WhenExceptionIsThrown()
         {
             // Arrange
-            int productId = 999;
+            var productId = Guid.NewGuid().ToString();
 
             _mockProductService
                 .Setup(s => s.GetProductDetailsAsync(productId))

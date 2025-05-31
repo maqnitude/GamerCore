@@ -28,7 +28,7 @@ export interface User {
 }
 
 export interface Category {
-  categoryId: number;
+  id: string;
   name: string;
   description: string;
   productCount: number;
@@ -37,7 +37,7 @@ export interface Category {
 }
 
 export interface Product {
-  productId: number;
+  id: string;
   name: string;
   price: number;
   categories: Category[];
@@ -49,13 +49,13 @@ export interface Product {
 }
 
 export interface ProductImage {
-  productImageId: number;
+  id: string;
   url: string;
   isPrimary: boolean;
 }
 
 export interface ProductReview {
-  productReviewId: number;
+  id: string;
   rating: number;
   reviewTitle: string | null;
   reviewText: string | null;
@@ -64,7 +64,7 @@ export interface ProductReview {
 }
 
 export interface ProductDetails {
-  productId: number;
+  id: string;
   name: string;
   price: number;
   categories: Category[];
@@ -92,7 +92,7 @@ export interface CreateCategoryPayload {
 }
 
 export interface UpdateCategoryPayload {
-  categoryId: number;
+  id: string;
   name: string;
   description: string;
 }
@@ -102,16 +102,16 @@ export interface CreateProductPayload {
   price: number;
   descriptionHtml: string;
   warrantyHtml: string;
-  categoryIds: number[];
+  categoryIds: string[];
   primaryImageUrl: string;
   imageUrls: string[] | null;
 }
 
 export interface UpdateProductPayload {
-  productId: number;
+  id: string;
   name: string;
   price: number;
-  categoryIds: number[];
+  categoryIds: string[];
   descriptionHtml: string;
   warrantyHtml: string;
   primaryImageUrl: string;

@@ -27,7 +27,7 @@
         <div>
           <h3 class="mb-0">
             @(Model.Filter.SelectedCategoryId != null
-                        ? Model.Filter.Categories.FirstOrDefault(c => c.CategoryId == Model.Filter.SelectedCategoryId)?.Name
+                        ? Model.Filter.Categories.FirstOrDefault(c => c.Id == Model.Filter.SelectedCategoryId)?.Name
                         : "All Products")
           </h3>
           <p class="text-muted mb-0">Showing @Model.Products.Count of @Model.Pagination.TotalItems products</p>
@@ -88,41 +88,3 @@
     </div>
   </div>
 </div>
-
-@* OLD
-<div class="d-flex gap-2">
-  <!-- Filter panel -->
-  <div class="col-3 border border-dark rounded">
-    <div class="sticky-top">
-      <partial name="_ProductFilterPartial" model="@Model.Filter" />
-    </div>
-  </div>
-
-  <!-- Products display -->
-  <div class="col-9 border border-dark rounded">
-    <div class="container">
-      @if (Model.Products.Any())
-      {
-        <div class="row mb-4">
-          @foreach (var product in Model.Products)
-          {
-            <div class="col-sm-6 col-md-4 col-lg-3">
-              <partial name="_ProductCardPartial" model="product" />
-            </div>
-          }
-        </div>
-      }
-      else
-      {
-        <span class="text-center">No product found.</span>
-      }
-    </div>
-
-    <div class="d-flex justify-content-center">
-      <pagination pagination="@Model.Pagination"
-                  page-url="@Url.Action("Index", "Products", new { page = Model.Pagination.Page, categoryId = Model.Filter.SelectedCategoryId })">
-      </pagination>
-    </div>
-  </div>
-</div>
-*@

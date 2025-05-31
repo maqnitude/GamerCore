@@ -8,14 +8,14 @@ namespace GamerCore.Api.Services
 {
     public class AuthService : IAuthService
     {
-        private readonly UserManager<AppUser> _userManager;
-        private readonly SignInManager<AppUser> _signInManager;
+        private readonly UserManager<User> _userManager;
+        private readonly SignInManager<User> _signInManager;
         private readonly IJwtService _jwtService;
         private readonly ILogger<AuthService> _logger;
 
         public AuthService(
-            UserManager<AppUser> userManager,
-            SignInManager<AppUser> signInManager,
+            UserManager<User> userManager,
+            SignInManager<User> signInManager,
             IJwtService jwtService,
             ILogger<AuthService> logger)
         {
@@ -35,7 +35,7 @@ namespace GamerCore.Api.Services
 
             // Use email for username to simplify things because
             // emails are inherently unique
-            var user = new AppUser
+            var user = new User
             {
                 FirstName = registerDto.FirstName,
                 LastName = registerDto.LastName,
@@ -50,7 +50,7 @@ namespace GamerCore.Api.Services
                 return RegistrationResult.Error("Registration failed.");
             }
 
-            var roleResult = await _userManager.AddToRoleAsync(user, RoleNames.User);
+            var roleResult = await _userManager.AddToRoleAsync(user, RoleConstants.Customer);
             if (!roleResult.Succeeded)
             {
                 // Delete the created user too
@@ -62,6 +62,11 @@ namespace GamerCore.Api.Services
             return RegistrationResult.Success(user);
         }
 
+        /// <summary>
+        /// [DEPRECATED]
+        /// </summary>
+        /// <param name="loginDto"></param>
+        /// <returns></returns>
         public async Task<LoginResult> LoginAsync(LoginDto loginDto)
         {
             var user = await _userManager.FindByEmailAsync(loginDto.Email);
@@ -93,6 +98,11 @@ namespace GamerCore.Api.Services
             return LoginResult.InvalidCredentials();
         }
 
+        /// <summary>
+        /// [DEPRECATED]
+        /// </summary>
+        /// <param name="loginDto"></param>
+        /// <returns></returns>
         public async Task<LoginResult> LoginJwtAsync(LoginDto loginDto)
         {
             var user = await _userManager.FindByEmailAsync(loginDto.Email);
@@ -110,7 +120,7 @@ namespace GamerCore.Api.Services
             if (result.Succeeded)
             {
                 var roles = await _userManager.GetRolesAsync(user);
-                if (!roles.Contains(RoleNames.Administrator))
+                if (!roles.Contains(RoleConstants.Admin))
                 {
                     return LoginResult.AccessDenied();
                 }
@@ -132,6 +142,11 @@ namespace GamerCore.Api.Services
             return LoginResult.InvalidCredentials();
         }
 
+        /// <summary>
+        /// [DEPRECATED]
+        /// </summary>
+        /// <param name="user"></param>
+        /// <returns></returns>
         public async Task<bool> LogoutAsync(ClaimsPrincipal user)
         {
             var userId = user.FindFirstValue(ClaimTypes.NameIdentifier);

@@ -6,7 +6,7 @@ function useUpdateCategory() {
   const [updating, setUpdating] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  const updateCategory = useCallback(async (id: number, payload: UpdateCategoryPayload) => {
+  const updateCategory = useCallback(async (id: string, payload: UpdateCategoryPayload) => {
     try {
       setUpdating(true);
       const updatedCategory = await CategoryService.updateCategory(id, payload);

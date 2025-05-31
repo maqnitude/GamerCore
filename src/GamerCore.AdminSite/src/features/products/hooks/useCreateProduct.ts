@@ -3,7 +3,7 @@ import ProductService from "../../../services/productService";
 import { CreateProductPayload } from "../../../types";
 
 function useCreateProduct() {
-  const [createdProductId, setCreatedProductId] = useState<number | null>(null);
+  const [createdProductId, setCreatedProductId] = useState<string | null>(null);
   const [creating, setCreating] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 

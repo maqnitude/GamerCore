@@ -4,6 +4,6 @@ namespace GamerCore.Api.Services
 {
     public interface IJwtService
     {
-        Task<string> GenerateJwtTokenAsync(AppUser user);
+        Task<string> GenerateJwtTokenAsync(User user);
     }
 }

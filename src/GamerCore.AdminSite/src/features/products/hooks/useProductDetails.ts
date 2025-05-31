@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { ProductDetails } from "../../../types";
 import ProductService from "../../../services/productService";
 
-function useProductDetails(productId: number) {
+function useProductDetails(id: string) {
   const [productDetails, setProductDetails] = useState<ProductDetails>();
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -12,7 +12,7 @@ function useProductDetails(productId: number) {
     setError(null);
 
     try {
-      const data = await ProductService.getProductDetails(productId);
+      const data = await ProductService.getProductDetails(id);
       setProductDetails(data);
     } catch (err) {
       console.error("Error fetching product details: ", err);
@@ -20,7 +20,7 @@ function useProductDetails(productId: number) {
     } finally {
       setLoading(false);
     }
-  }, [productId]);
+  }, [id]);
 
   useEffect(() => {
     getProductDetails();

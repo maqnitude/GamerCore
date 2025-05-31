@@ -7,7 +7,7 @@ namespace GamerCore.CustomerSite.Pages.Account
 {
     public class LogoutModel : PageModel
     {
-        private readonly string _apiBaseEndpoint = "/api/Auth";
+        private readonly string _apiBaseEndpoint = "/api/auth";
 
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly ILogger<LogoutModel> _logger;
@@ -22,7 +22,7 @@ namespace GamerCore.CustomerSite.Pages.Account
         {
             returnUrl ??= Url.Content("~/");
 
-            string apiEndpoint = _apiBaseEndpoint + "/Logout";
+            string apiEndpoint = _apiBaseEndpoint + "/logout";
 
             try
             {

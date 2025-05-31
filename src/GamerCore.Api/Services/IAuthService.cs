@@ -16,16 +16,16 @@ namespace GamerCore.Api.Services
     {
         public bool Succeeded { get; private set; }
         public string? ErrorMessage { get; private set; }
-        public AppUser? User { get; private set; }
+        public User? User { get; private set; }
 
-        private RegistrationResult(bool succeeded, string? errorMessage = null, AppUser? user = null)
+        private RegistrationResult(bool succeeded, string? errorMessage = null, User? user = null)
         {
             Succeeded = succeeded;
             ErrorMessage = errorMessage;
             User = user;
         }
 
-        public static RegistrationResult Success(AppUser user)
+        public static RegistrationResult Success(User user)
         {
             return new RegistrationResult(true, null, user);
         }
@@ -52,7 +52,7 @@ namespace GamerCore.Api.Services
         public bool Succeeded { get; private set; }
         public string? ErrorMessage { get; private set; }
         public string? AccessToken { get; private set; }
-        public AppUser? User { get; private set; }
+        public User? User { get; private set; }
 
         public LoginResultType ResultType { get; private set; }
 
@@ -60,7 +60,7 @@ namespace GamerCore.Api.Services
             LoginResultType resultType,
             string? errorMessage = null,
             string? accessToken = null,
-            AppUser? user = null)
+            User? user = null)
         {
             ResultType = resultType;
             Succeeded = resultType == LoginResultType.Success;
@@ -69,7 +69,7 @@ namespace GamerCore.Api.Services
             User = user;
         }
 
-        public static LoginResult Success(string? accessToken = null, AppUser? user = null)
+        public static LoginResult Success(string? accessToken = null, User? user = null)
         {
             return new LoginResult(LoginResultType.Success, null, accessToken, user);
         }

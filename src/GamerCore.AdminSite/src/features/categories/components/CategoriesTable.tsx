@@ -6,24 +6,24 @@ import useDeleteCategory from "../hooks/useDeleteCategory";
 
 interface CategoriesTableProps {
   categories: Category[];
-  onEditButtonClick: (categoryId: number) => void;
-  onCategoryDeleted?: (categoryId: number) => void;
+  onEditButtonClick: (categoryId: string) => void;
+  onCategoryDeleted?: (categoryId: string) => void;
 }
 
 function CategoriesTable({
   categories,
   onEditButtonClick,
-  onCategoryDeleted
+  onCategoryDeleted,
 }: CategoriesTableProps) {
   const { showModal } = useModal();
   const { addToast } = useToast();
 
   const { deleteCategory, deleting, error: deleteError } = useDeleteCategory();
 
-  const handleEdit = (categoryId: number) => {
+  const handleEdit = (categoryId: string) => {
     // Tell categories page to open the update form
     onEditButtonClick(categoryId);
-  }
+  };
 
   const handleDelete = (category: Category) => {
     showModal({
@@ -34,29 +34,29 @@ function CategoriesTable({
       cancelText: "Cancel",
       onConfirm: async () => {
         try {
-          await deleteCategory(category.categoryId);
+          await deleteCategory(category.id);
 
           // Notify the categories page to update
           if (onCategoryDeleted) {
-            onCategoryDeleted(category.categoryId);
+            onCategoryDeleted(category.id);
           }
 
           addToast({
             type: "success",
             message: `Category ${category.name} was deleted successfully.`,
             autoDismiss: true,
-            dismissDelay: 5000
+            dismissDelay: 5000,
           });
         } catch {
           addToast({
             type: "error",
             message: deleteError || "Failed to delete category.",
             autoDismiss: true,
-            dismissDelay: 7500
-          })
+            dismissDelay: 7500,
+          });
         }
-      }
-    })
+      },
+    });
   };
 
   return (
@@ -75,8 +75,8 @@ function CategoriesTable({
         </thead>
         <tbody>
           {categories.map((category) => (
-            <tr key={category.categoryId}>
-              <td>{category.categoryId}</td>
+            <tr key={category.id}>
+              <td>{category.id}</td>
               <td>{category.name}</td>
               <td>{category.description}</td>
               <td>{category.productCount}</td>
@@ -90,7 +90,7 @@ function CategoriesTable({
                 <div className="btn-group btn-group-sm float-end">
                   <button
                     className="btn btn-outline-primary d-flex flex-row align-items-center"
-                    onClick={() => handleEdit(category.categoryId)}
+                    onClick={() => handleEdit(category.id)}
                   >
                     <i className="bi bi-pencil me-2"></i>
                     Edit

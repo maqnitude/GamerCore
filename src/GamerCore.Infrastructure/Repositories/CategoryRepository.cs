@@ -1,12 +1,13 @@
 using GamerCore.Core.Entities;
+using GamerCore.Infrastructure.Data;
 
 namespace GamerCore.Infrastructure.Repositories
 {
     public class CategoryRepository : ICategoryRepository
     {
-        private readonly CatalogDbContext _context;
+        private readonly ApplicationDbContext _context;
 
-        public CategoryRepository(CatalogDbContext context)
+        public CategoryRepository(ApplicationDbContext context)
         {
             _context = context;
         }

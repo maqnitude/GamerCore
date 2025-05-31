@@ -5,7 +5,7 @@ function useDeleteCategory() {
   const [deleting, setDeleting] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  const deleteCategory = useCallback(async (id: number) => {
+  const deleteCategory = useCallback(async (id: string) => {
     try {
       setDeleting(true);
       await CategoryService.deleteCategory(id);

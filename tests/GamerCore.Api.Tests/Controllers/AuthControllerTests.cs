@@ -15,8 +15,8 @@ namespace GamerCore.Api.Tests.Controllers
     {
         private readonly Mock<IAuthService> _mockAuthService;
 
-        private readonly Mock<IUserStore<AppUser>> _mockUserStore;
-        private readonly Mock<UserManager<AppUser>> _mockUserManager;
+        private readonly Mock<IUserStore<User>> _mockUserStore;
+        private readonly Mock<UserManager<User>> _mockUserManager;
 
         private readonly Mock<ILogger<AuthController>> _mockLogger;
 
@@ -26,9 +26,9 @@ namespace GamerCore.Api.Tests.Controllers
         {
             _mockAuthService = new Mock<IAuthService>();
 
-            _mockUserStore = new Mock<IUserStore<AppUser>>();
+            _mockUserStore = new Mock<IUserStore<User>>();
 #pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
-            _mockUserManager = new Mock<UserManager<AppUser>>(_mockUserStore.Object,
+            _mockUserManager = new Mock<UserManager<User>>(_mockUserStore.Object,
                 null, null, null, null, null, null, null, null);
 #pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
 
@@ -37,10 +37,10 @@ namespace GamerCore.Api.Tests.Controllers
             _controller = new AuthController(_mockAuthService.Object, _mockUserManager.Object, _mockLogger.Object);
         }
 
-        #region RegisterAsync tests
+        #region Register tests
 
         [Fact]
-        public async Task RegisterAsync_ReturnsCreated_WhenRegistrationSucceeds()
+        public async Task Register_ReturnsCreated_WhenRegistrationSucceeds()
         {
             // Arrange
             var registerDto = new RegisterDto
@@ -51,7 +51,7 @@ namespace GamerCore.Api.Tests.Controllers
                 LastName = "User"
             };
 
-            var user = new AppUser
+            var user = new User
             {
                 Id = "userId123",
                 Email = registerDto.Email,
@@ -63,11 +63,11 @@ namespace GamerCore.Api.Tests.Controllers
                 .ReturnsAsync(RegistrationResult.Success(user));
 
             // Act
-            var result = await _controller.RegisterAsync(registerDto);
+            var result = await _controller.Register(registerDto);
 
             // Assert
             var createdAtActionResult = Assert.IsType<CreatedAtActionResult>(result);
-            var response = Assert.IsType<ApiResponse<AppUserDto>>(createdAtActionResult.Value);
+            var response = Assert.IsType<ApiResponse<UserDto>>(createdAtActionResult.Value);
             Assert.NotNull(response.Data);
             Assert.Equal(user.Id, response.Data.Id);
             Assert.Equal(user.Email, response.Data.Email);
@@ -78,14 +78,14 @@ namespace GamerCore.Api.Tests.Controllers
         }
 
         [Fact]
-        public async Task RegisterAsync_ReturnsBadRequest_WhenModelStateIsInvalid()
+        public async Task Register_ReturnsBadRequest_WhenModelStateIsInvalid()
         {
             // Arrange
             var registerDto = new RegisterDto();
             _controller.ModelState.AddModelError("Email", "Email is required");
 
             // Act
-            var result = await _controller.RegisterAsync(registerDto);
+            var result = await _controller.Register(registerDto);
 
             // Assert
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
@@ -95,7 +95,7 @@ namespace GamerCore.Api.Tests.Controllers
         }
 
         [Fact]
-        public async Task RegisterAsync_ReturnsBadRequest_WhenRegistrationFails()
+        public async Task Register_ReturnsBadRequest_WhenRegistrationFails()
         {
             // Arrange
             var registerDto = new RegisterDto
@@ -111,7 +111,7 @@ namespace GamerCore.Api.Tests.Controllers
                 .ReturnsAsync(RegistrationResult.Error(errorMessage));
 
             // Act
-            var result = await _controller.RegisterAsync(registerDto);
+            var result = await _controller.Register(registerDto);
 
             // Assert
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
@@ -122,7 +122,7 @@ namespace GamerCore.Api.Tests.Controllers
         }
 
         [Fact]
-        public async Task RegisterAsync_ReturnsInternalServerError_WhenExceptionIsThrown()
+        public async Task Register_ReturnsInternalServerError_WhenExceptionIsThrown()
         {
             // Arrange
             var registerDto = new RegisterDto
@@ -137,7 +137,7 @@ namespace GamerCore.Api.Tests.Controllers
                 .ThrowsAsync(new Exception("Test Exception"));
 
             // Act
-            var result = await _controller.RegisterAsync(registerDto);
+            var result = await _controller.Register(registerDto);
 
             // Assert
             var statusCodeResult = Assert.IsType<ObjectResult>(result);
@@ -149,10 +149,10 @@ namespace GamerCore.Api.Tests.Controllers
 
         #endregion
 
-        #region LoginAsync tests
+        #region Login tests
 
         [Fact]
-        public async Task LoginAsync_ReturnsOk_WhenLoginSucceeds()
+        public async Task Login_ReturnsOk_WhenLoginSucceeds()
         {
             // Arrange
             var loginDto = new LoginDto
@@ -162,7 +162,7 @@ namespace GamerCore.Api.Tests.Controllers
                 RememberMe = true
             };
 
-            var user = new AppUser
+            var user = new User
             {
                 Id = "userId123",
                 Email = loginDto.Email,
@@ -174,15 +174,15 @@ namespace GamerCore.Api.Tests.Controllers
                 .ReturnsAsync(LoginResult.Success(null, user));
 
             var userRoles = new List<string> { "User" };
-            _mockUserManager.Setup(x => x.GetRolesAsync(It.IsAny<AppUser>()))
+            _mockUserManager.Setup(x => x.GetRolesAsync(It.IsAny<User>()))
                 .ReturnsAsync(userRoles);
 
             // Act
-            var result = await _controller.LoginAsync(loginDto);
+            var result = await _controller.Login(loginDto);
 
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(result);
-            var response = Assert.IsType<ApiResponse<AppUserDto>>(okResult.Value);
+            var response = Assert.IsType<ApiResponse<UserDto>>(okResult.Value);
             Assert.NotNull(response.Data);
             Assert.Equal(user.Id, response.Data.Id);
             Assert.Equal(user.Email, response.Data.Email);
@@ -191,14 +191,14 @@ namespace GamerCore.Api.Tests.Controllers
         }
 
         [Fact]
-        public async Task LoginAsync_ReturnsBadRequest_WhenModelStateIsInvalid()
+        public async Task Login_ReturnsBadRequest_WhenModelStateIsInvalid()
         {
             // Arrange
             var loginDto = new LoginDto();
             _controller.ModelState.AddModelError("Email", "Email is required");
 
             // Act
-            var result = await _controller.LoginAsync(loginDto);
+            var result = await _controller.Login(loginDto);
 
             // Assert
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
@@ -208,7 +208,7 @@ namespace GamerCore.Api.Tests.Controllers
         }
 
         [Fact]
-        public async Task LoginAsync_ReturnsBadRequest_WhenUserIsLockedOut()
+        public async Task Login_ReturnsBadRequest_WhenUserIsLockedOut()
         {
             // Arrange
             var loginDto = new LoginDto
@@ -222,7 +222,7 @@ namespace GamerCore.Api.Tests.Controllers
                 .ReturnsAsync(LoginResult.LockedOut());
 
             // Act
-            var result = await _controller.LoginAsync(loginDto);
+            var result = await _controller.Login(loginDto);
 
             // Assert
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
@@ -232,7 +232,7 @@ namespace GamerCore.Api.Tests.Controllers
         }
 
         [Fact]
-        public async Task LoginAsync_ReturnsUnauthorized_WhenEmailOrPasswordIsInvalid()
+        public async Task Login_ReturnsUnauthorized_WhenEmailOrPasswordIsInvalid()
         {
             // Arrange
             var loginDto = new LoginDto
@@ -246,7 +246,7 @@ namespace GamerCore.Api.Tests.Controllers
                 .ReturnsAsync(LoginResult.InvalidCredentials());
 
             // Act
-            var result = await _controller.LoginAsync(loginDto);
+            var result = await _controller.Login(loginDto);
 
             // Assert
             var unauthorizedResult = Assert.IsType<UnauthorizedObjectResult>(result);
@@ -256,7 +256,7 @@ namespace GamerCore.Api.Tests.Controllers
         }
 
         [Fact]
-        public async Task LoginAsync_ReturnsInternalServerError_WhenExceptionIsThrown()
+        public async Task Login_ReturnsInternalServerError_WhenExceptionIsThrown()
         {
             // Arrange
             var loginDto = new LoginDto
@@ -270,7 +270,7 @@ namespace GamerCore.Api.Tests.Controllers
                 .ThrowsAsync(new Exception("Test Excpetion"));
 
             // Act
-            var result = await _controller.LoginAsync(loginDto);
+            var result = await _controller.Login(loginDto);
 
             // Assert
             var statusCodeResult = Assert.IsType<ObjectResult>(result);
@@ -282,10 +282,10 @@ namespace GamerCore.Api.Tests.Controllers
 
         #endregion
 
-        #region LoginJwtAsync tests
+        #region LoginJwt tests
 
         [Fact]
-        public async Task LoginJwtAsync_ReturnsOk_WhenLoginSucceeds()
+        public async Task LoginJwt_ReturnsOk_WhenLoginSucceeds()
         {
             // Arrange
             var loginDto = new LoginDto
@@ -300,7 +300,7 @@ namespace GamerCore.Api.Tests.Controllers
                 .ReturnsAsync(LoginResult.Success(jwtToken));
 
             // Act
-            var result = await _controller.LoginJwtAsync(loginDto);
+            var result = await _controller.LoginJwt(loginDto);
 
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(result);
@@ -309,14 +309,14 @@ namespace GamerCore.Api.Tests.Controllers
         }
 
         [Fact]
-        public async Task LoginJwtAsync_ReturnsBadRequest_WhenModelStateIsInvalid()
+        public async Task LoginJwt_ReturnsBadRequest_WhenModelStateIsInvalid()
         {
             // Arrange
             var loginDto = new LoginDto();
             _controller.ModelState.AddModelError("Email", "Email is required");
 
             // Act
-            var result = await _controller.LoginJwtAsync(loginDto);
+            var result = await _controller.LoginJwt(loginDto);
 
             // Assert
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
@@ -326,7 +326,7 @@ namespace GamerCore.Api.Tests.Controllers
         }
 
         [Fact]
-        public async Task LoginJwtAsync_ReturnsBadRequest_WhenUserIsLockedOut()
+        public async Task LoginJwt_ReturnsBadRequest_WhenUserIsLockedOut()
         {
             // Arrange
             var loginDto = new LoginDto
@@ -340,7 +340,7 @@ namespace GamerCore.Api.Tests.Controllers
                 .ReturnsAsync(LoginResult.LockedOut());
 
             // Act
-            var result = await _controller.LoginJwtAsync(loginDto);
+            var result = await _controller.LoginJwt(loginDto);
 
             // Assert
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
@@ -350,7 +350,7 @@ namespace GamerCore.Api.Tests.Controllers
         }
 
         [Fact]
-        public async Task LoginJwtAsync_ReturnsForbidden_WhenAccessIsDenied()
+        public async Task LoginJwt_ReturnsForbidden_WhenAccessIsDenied()
         {
             // Arrange
             var loginDto = new LoginDto
@@ -365,7 +365,7 @@ namespace GamerCore.Api.Tests.Controllers
                 .ReturnsAsync(LoginResult.AccessDenied());
 
             // Act
-            var result = await _controller.LoginJwtAsync(loginDto);
+            var result = await _controller.LoginJwt(loginDto);
 
             // Assert
             var forbiddenResult = Assert.IsType<ObjectResult>(result);
@@ -376,7 +376,7 @@ namespace GamerCore.Api.Tests.Controllers
         }
 
         [Fact]
-        public async Task LoginJwtAsync_ReturnsUnauthorized_WhenEmailOrPasswordIsInvalid()
+        public async Task LoginJwt_ReturnsUnauthorized_WhenEmailOrPasswordIsInvalid()
         {
             // Arrange
             var loginDto = new LoginDto
@@ -390,7 +390,7 @@ namespace GamerCore.Api.Tests.Controllers
                 .ReturnsAsync(LoginResult.InvalidCredentials());
 
             // Act
-            var result = await _controller.LoginJwtAsync(loginDto);
+            var result = await _controller.LoginJwt(loginDto);
 
             // Assert
             var unauthorizedResult = Assert.IsType<UnauthorizedObjectResult>(result);
@@ -400,7 +400,7 @@ namespace GamerCore.Api.Tests.Controllers
         }
 
         [Fact]
-        public async Task LoginJwtAsync_ReturnsInternalServerError_WhenExceptionIsThrown()
+        public async Task LoginJwt_ReturnsInternalServerError_WhenExceptionIsThrown()
         {
             // Arrange
             var loginDto = new LoginDto
@@ -414,7 +414,7 @@ namespace GamerCore.Api.Tests.Controllers
                 .ThrowsAsync(new Exception("Test Exception"));
 
             // Act
-            var result = await _controller.LoginJwtAsync(loginDto);
+            var result = await _controller.LoginJwt(loginDto);
 
             // Assert
             var statusCodeResult = Assert.IsType<ObjectResult>(result);
@@ -449,7 +449,7 @@ namespace GamerCore.Api.Tests.Controllers
                 .ReturnsAsync(true);
 
             // Act
-            var result = await _controller.LogoutAsync();
+            var result = await _controller.Logout();
 
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(result);
@@ -479,7 +479,7 @@ namespace GamerCore.Api.Tests.Controllers
                 .ReturnsAsync(false);
 
             // Act
-            var result = await _controller.LogoutAsync();
+            var result = await _controller.Logout();
 
             // Assert
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
@@ -509,7 +509,7 @@ namespace GamerCore.Api.Tests.Controllers
                 .ThrowsAsync(new Exception("Test Exception"));
 
             // Act
-            var result = await _controller.LogoutAsync();
+            var result = await _controller.Logout();
 
             // Assert
             var statusCodeResult = Assert.IsType<ObjectResult>(result);

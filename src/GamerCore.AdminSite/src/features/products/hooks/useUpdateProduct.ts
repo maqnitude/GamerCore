@@ -6,7 +6,7 @@ function useUpdateProduct() {
   const [updating, setUpdating] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  const updateProduct = useCallback(async (id: number, payload: UpdateProductPayload) => {
+  const updateProduct = useCallback(async (id: string, payload: UpdateProductPayload) => {
     try {
       setUpdating(true);
       await ProductService.updateProduct(id, payload);

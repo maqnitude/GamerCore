@@ -17,7 +17,7 @@ namespace GamerCore.Api.Services
         public async Task<ProductReviewDto?> CreateReviewAsync(CreateReviewDto createReviewDto)
         {
             var reviewExisted = _unitOfWork.Reviews.GetQueryableReviews()
-                .Where(r => r.UserId == createReviewDto.UserId && r.ProductId == createReviewDto.ProductId)
+                .Where(r => r.UserId == createReviewDto.UserId && r.ProductId.ToString() == createReviewDto.ProductId)
                 .Any();
 
             if (reviewExisted)
@@ -31,7 +31,7 @@ namespace GamerCore.Api.Services
                 ReviewTitle = createReviewDto.ReviewTitle,
                 ReviewText = createReviewDto.ReviewText,
                 UserId = createReviewDto.UserId,
-                ProductId = createReviewDto.ProductId
+                ProductId = Guid.Parse(createReviewDto.ProductId)
             };
 
             // Add and track
@@ -42,7 +42,7 @@ namespace GamerCore.Api.Services
 
             return new ProductReviewDto
             {
-                ProductReviewId = productReview.ProductReviewId,
+                Id = productReview.Id.ToString(),
                 Rating = productReview.Rating,
                 ReviewTitle = productReview.ReviewTitle,
                 ReviewText = productReview.ReviewText,

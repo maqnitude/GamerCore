@@ -1,13 +1,22 @@
-import { CreateProductPayload, PaginatedList, Product, ProductDetails, UpdateProductPayload } from "../types";
+import {
+  CreateProductPayload,
+  PaginatedList,
+  Product,
+  ProductDetails,
+  UpdateProductPayload,
+} from "../types";
 import authService from "./authService";
 
 const baseApiEndpoint = "/api/products";
 
 const ProductService = {
-  getProducts: async (page: number = 1, categoryIds?: number[]): Promise<PaginatedList<Product>> => {
+  getProducts: async (
+    page: number = 1,
+    categoryIds: string[] | null
+  ): Promise<PaginatedList<Product>> => {
     let apiEndpoint = baseApiEndpoint;
 
-    apiEndpoint += `?page=${page}`
+    apiEndpoint += `?page=${page}`;
 
     if (categoryIds) {
       categoryIds.forEach((categoryId) => {
@@ -16,7 +25,7 @@ const ProductService = {
     }
 
     const response = await fetch(apiEndpoint, {
-      method: "GET"
+      method: "GET",
     });
 
     if (!response.ok) {
@@ -26,11 +35,11 @@ const ProductService = {
     return response.json();
   },
 
-  getProductDetails: async (id: number): Promise<ProductDetails> => {
+  getProductDetails: async (id: string): Promise<ProductDetails> => {
     const apiEndpoint = baseApiEndpoint + `/${id}`;
 
     const response = await fetch(apiEndpoint, {
-      method: "GET"
+      method: "GET",
     });
 
     if (!response.ok) {
@@ -40,7 +49,7 @@ const ProductService = {
     return response.json();
   },
 
-  createProduct: async (payload: CreateProductPayload): Promise<number> => {
+  createProduct: async (payload: CreateProductPayload): Promise<string> => {
     const apiEndpoint = baseApiEndpoint;
 
     const token = authService.getToken();
@@ -52,20 +61,23 @@ const ProductService = {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`
+        Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify(payload)
+      body: JSON.stringify(payload),
     });
 
     if (!response.ok) {
       throw new Error(`${response.status} - ${response.statusText}`);
     }
 
-    const createdProductId = await response.json();
-    return createdProductId as number;
+    const createdProductId = await response.text();
+    return createdProductId;
   },
 
-  updateProduct: async (id: number, payload: UpdateProductPayload): Promise<void> => {
+  updateProduct: async (
+    id: string,
+    payload: UpdateProductPayload
+  ): Promise<void> => {
     const apiEndpoint = baseApiEndpoint + `/${id}`;
 
     const token = authService.getToken();
@@ -77,9 +89,9 @@ const ProductService = {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`
+        Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify(payload)
+      body: JSON.stringify(payload),
     });
 
     if (!response.ok) {
@@ -87,7 +99,7 @@ const ProductService = {
     }
   },
 
-  deleteProduct: async (id: number): Promise<void> => {
+  deleteProduct: async (id: string): Promise<void> => {
     const apiEndpoint = baseApiEndpoint + `/${id}`;
 
     const token = authService.getToken();
@@ -98,14 +110,14 @@ const ProductService = {
     const response = await fetch(apiEndpoint, {
       method: "DELETE",
       headers: {
-        "Authorization": `Bearer ${token}`
-      }
+        Authorization: `Bearer ${token}`,
+      },
     });
 
     if (!response.ok) {
       throw new Error(`${response.status} - ${response.statusText}`);
     }
-  }
+  },
 };
 
 export default ProductService;

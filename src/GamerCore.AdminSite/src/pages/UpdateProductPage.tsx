@@ -6,7 +6,7 @@ function UpdateProductPage() {
 
   return (
     <div>
-      <UpdateProductForm productId={Number(productId)} />
+      <UpdateProductForm productId={productId!} />
     </div>
   );
 }

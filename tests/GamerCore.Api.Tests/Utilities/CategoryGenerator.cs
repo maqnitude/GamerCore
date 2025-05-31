@@ -15,11 +15,12 @@ namespace GamerCore.Api.Tests.Utilities
 
             for (int i = 1; i <= categoryCount; i++)
             {
+                var id = Guid.NewGuid();
                 var category = new Category
                 {
-                    CategoryId = i,
-                    Name = $"Category {i}",
-                    Description = $"Category description {i}"
+                    Id = id,
+                    Name = $"Category {id}",
+                    Description = $"Category description {id}"
                 };
 
                 _categories.Add(category);

@@ -44,8 +44,8 @@ namespace GamerCore.CustomerSite.Tests.Services
             // Arrange
             var categories = new List<CategoryViewModel>
             {
-                new() { CategoryId = 1, Name = "Category 1"},
-                new() { CategoryId = 2, Name = "Category 2"},
+                new() { Id = Guid.NewGuid().ToString(), Name = "Category 1"},
+                new() { Id = Guid.NewGuid().ToString(), Name = "Category 2"},
             };
 
             var jsonResponse = JsonSerializer.Serialize(categories);
@@ -59,7 +59,7 @@ namespace GamerCore.CustomerSite.Tests.Services
                 .Setup<Task<HttpResponseMessage>>(
                     "SendAsync",
                     ItExpr.Is<HttpRequestMessage>(req => req.Method == HttpMethod.Get
-                        && req.RequestUri!.ToString().Contains("/api/Categories")),
+                        && req.RequestUri!.ToString().Contains("/api/categories")),
                     ItExpr.IsAny<CancellationToken>()
                 )
                 .ReturnsAsync(httpResponse);
@@ -72,7 +72,7 @@ namespace GamerCore.CustomerSite.Tests.Services
 
             for (int i = 0; i < categories.Count; i++)
             {
-                Assert.Equal(categories[i].CategoryId, result[i].CategoryId);
+                Assert.Equal(categories[i].Id, result[i].Id);
                 Assert.Equal(categories[i].Name, result[i].Name);
             }
         }

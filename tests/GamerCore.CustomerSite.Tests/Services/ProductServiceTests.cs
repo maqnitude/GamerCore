@@ -43,12 +43,15 @@ namespace GamerCore.CustomerSite.Tests.Services
         public async Task GetProductsAsync_ReturnsProducts_WhenApiCallSucceeds()
         {
             // Arrange
+            var product1Id = Guid.NewGuid().ToString();
+            var product2Id = Guid.NewGuid().ToString();
+
             var paginatedList = new PaginatedList<ProductViewModel>
             {
                 Items = new List<ProductViewModel>
                 {
-                    new() { ProductId = 1, Name = "Product 1", Price = 99.99m },
-                    new() { ProductId = 2, Name = "Product 2", Price = 199.99m }
+                    new() { Id = product1Id, Name = "Product 1", Price = 99.99m },
+                    new() { Id = product2Id, Name = "Product 2", Price = 199.99m }
                 },
                 Page = 1,
                 PageSize = 10,
@@ -66,7 +69,7 @@ namespace GamerCore.CustomerSite.Tests.Services
                 .Setup<Task<HttpResponseMessage>>(
                     "SendAsync",
                     ItExpr.Is<HttpRequestMessage>(req => req.Method == HttpMethod.Get
-                        && req.RequestUri!.ToString().Contains("/api/Products?page=1")),
+                        && req.RequestUri!.ToString().Contains("/api/products?page=1")),
                     ItExpr.IsAny<CancellationToken>()
                 )
                 .ReturnsAsync(httpResponse);
@@ -76,10 +79,10 @@ namespace GamerCore.CustomerSite.Tests.Services
 
             // Assert
             Assert.Equal(2, result.Items.Count);
-            Assert.Equal(1, result.Items[0].ProductId);
+            Assert.Equal(product1Id, result.Items[0].Id);
             Assert.Equal("Product 1", result.Items[0].Name);
             Assert.Equal(99.99m, result.Items[0].Price);
-            Assert.Equal(2, result.Items[1].ProductId);
+            Assert.Equal(product2Id, result.Items[1].Id);
             Assert.Equal("Product 2", result.Items[1].Name);
             Assert.Equal(199.99m, result.Items[1].Price);
             Assert.Equal(1, result.Page);
@@ -181,10 +184,13 @@ namespace GamerCore.CustomerSite.Tests.Services
         public async Task GetFeaturedProductsAsync_ReturnsProducts_WhenApiCallSucceeds()
         {
             // Arrange
+            var product1Id = Guid.NewGuid().ToString();
+            var product2Id = Guid.NewGuid().ToString();
+
             var featuredProducts = new List<ProductViewModel>
             {
-                new() { ProductId = 1, Name = "Featured Product 1", Price = 99.99m, IsFeatured = true },
-                new() { ProductId = 2, Name = "Featured Product 2", Price = 199.99m, IsFeatured = true }
+                new() { Id = product1Id, Name = "Featured Product 1", Price = 99.99m, IsFeatured = true },
+                new() { Id = product2Id, Name = "Featured Product 2", Price = 199.99m, IsFeatured = true }
             };
 
             var jsonResponse = JsonSerializer.Serialize(featuredProducts);
@@ -198,7 +204,7 @@ namespace GamerCore.CustomerSite.Tests.Services
                 .Setup<Task<HttpResponseMessage>>(
                     "SendAsync",
                     ItExpr.Is<HttpRequestMessage>(req => req.Method == HttpMethod.Get
-                        && req.RequestUri!.ToString().Contains("/api/Products/Featured")),
+                        && req.RequestUri!.ToString().Contains("/api/products/featured")),
                     ItExpr.IsAny<CancellationToken>()
                 )
                 .ReturnsAsync(httpResponse);
@@ -208,10 +214,10 @@ namespace GamerCore.CustomerSite.Tests.Services
 
             // Assert
             Assert.Equal(2, result.Count);
-            Assert.Equal(1, result[0].ProductId);
+            Assert.Equal(product1Id, result[0].Id);
             Assert.Equal("Featured Product 1", result[0].Name);
             Assert.Equal(99.99m, result[0].Price);
-            Assert.Equal(2, result[1].ProductId);
+            Assert.Equal(product2Id, result[1].Id);
             Assert.Equal("Featured Product 2", result[1].Name);
             Assert.Equal(199.99m, result[1].Price);
         }
@@ -229,7 +235,7 @@ namespace GamerCore.CustomerSite.Tests.Services
                 .Setup<Task<HttpResponseMessage>>(
                     "SendAsync",
                     ItExpr.Is<HttpRequestMessage>(req => req.Method == HttpMethod.Get
-                        && req.RequestUri!.ToString().Contains("/api/Products/Featured")),
+                        && req.RequestUri!.ToString().Contains("/api/products/featured")),
                     ItExpr.IsAny<CancellationToken>()
                 )
                 .ReturnsAsync(httpResponse);
@@ -261,7 +267,7 @@ namespace GamerCore.CustomerSite.Tests.Services
                 .Setup<Task<HttpResponseMessage>>(
                     "SendAsync",
                     ItExpr.Is<HttpRequestMessage>(req => req.Method == HttpMethod.Get
-                        && req.RequestUri!.ToString().Contains("/api/Products/Featured")),
+                        && req.RequestUri!.ToString().Contains("/api/products/featured")),
                     ItExpr.IsAny<CancellationToken>()
                 )
                 .ReturnsAsync(httpResponse);
@@ -287,13 +293,13 @@ namespace GamerCore.CustomerSite.Tests.Services
                 .Setup<Task<HttpResponseMessage>>(
                     "SendAsync",
                     ItExpr.Is<HttpRequestMessage>(req => req.Method == HttpMethod.Get
-                        && req.RequestUri!.ToString().Contains("/api/Products/Featured")),
+                        && req.RequestUri!.ToString().Contains("/api/products/featured")),
                     ItExpr.IsAny<CancellationToken>()
                 )
                 .ReturnsAsync(httpResponse);
 
             // Act & Assert
-            await Assert.ThrowsAsync<JsonException>(() => _service.GetFeaturedProductsAsync());
+            await Assert.ThrowsAsync<JsonException>(_service.GetFeaturedProductsAsync);
 
             _mockLogger.Verify(
                 x => x.Log(
@@ -313,9 +319,11 @@ namespace GamerCore.CustomerSite.Tests.Services
         public async Task GetProductDetailsAsync_ReturnsProductDetails_WhenApiCallSucceeds()
         {
             // Arrange
+            var productId = Guid.NewGuid().ToString();
+
             var productDetails = new ProductDetailsViewModel
             {
-                ProductId = 1,
+                Id = productId,
                 Name = "Test Product",
                 Price = 99.99m,
                 DescriptionHtml = "<p>Test description</p>",
@@ -333,16 +341,16 @@ namespace GamerCore.CustomerSite.Tests.Services
                 .Setup<Task<HttpResponseMessage>>(
                     "SendAsync",
                     ItExpr.Is<HttpRequestMessage>(req => req.Method == HttpMethod.Get
-                        && req.RequestUri!.ToString().Contains("/api/Products/1")),
+                        && req.RequestUri!.ToString().Contains($"/api/products/{productId}")),
                     ItExpr.IsAny<CancellationToken>()
                 )
                 .ReturnsAsync(httpResponse);
 
             // Act
-            var result = await _service.GetProductDetailsAsync(1);
+            var result = await _service.GetProductDetailsAsync(productId);
 
             // Assert
-            Assert.Equal(1, result.ProductId);
+            Assert.Equal(productId, result.Id);
             Assert.Equal("Test Product", result.Name);
             Assert.Equal(99.99m, result.Price);
             Assert.Equal("<p>Test description</p>", result.DescriptionHtml);
@@ -367,7 +375,7 @@ namespace GamerCore.CustomerSite.Tests.Services
                 .ReturnsAsync(httpResponse);
 
             // Act & Assert
-            await Assert.ThrowsAsync<HttpRequestException>(() => _service.GetProductDetailsAsync(1));
+            await Assert.ThrowsAsync<HttpRequestException>(() => _service.GetProductDetailsAsync(Guid.NewGuid().ToString()));
 
             _mockLogger.Verify(
                 x => x.Log(

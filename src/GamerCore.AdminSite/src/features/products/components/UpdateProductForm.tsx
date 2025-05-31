@@ -18,14 +18,18 @@ interface FormValues {
   categoryId: string;
   primaryImageUrl: string;
   imageUrls: { url: string }[];
-};
+}
 
-function UpdateProductForm({ productId }: { productId: number }) {
+function UpdateProductForm({ productId }: { productId: string }) {
   const [initialData, setInitialData] = useState<ProductDetails | null>(null);
   const [removedImageUrls, setRemovedImageUrls] = useState<string[]>([]);
   const [lastUpdated, setLastUpdated] = useState<string>("");
 
-  const { categories, loading: categoriesLoading, error: categoriesError } = useCategories();
+  const {
+    categories,
+    loading: categoriesLoading,
+    error: categoriesError,
+  } = useCategories();
   const { updateProduct, updating, error: updateError } = useUpdateProduct();
 
   const { addToast } = useToast();
@@ -40,12 +44,12 @@ function UpdateProductForm({ productId }: { productId: number }) {
       warrantyHtml: "",
       categoryId: "",
       primaryImageUrl: "",
-      imageUrls: [{ url: "" }]
-    }
+      imageUrls: [{ url: "" }],
+    },
   });
   const { fields, append, remove } = useFieldArray({
     control,
-    name: "imageUrls"
+    name: "imageUrls",
   });
 
   // Load exiting product data
@@ -59,15 +63,13 @@ function UpdateProductForm({ productId }: { productId: number }) {
         price: data.price,
         descriptionHtml: data.descriptionHtml,
         warrantyHtml: data.warrantyHtml,
-        categoryId: data.categories.length != 0
-          ? String(data.categories[0].categoryId)
-          : "",
-        primaryImageUrl: data.images
-          .find(i => i.isPrimary)?.url,
+        categoryId:
+          data.categories.length != 0 ? String(data.categories[0].id) : "",
+        primaryImageUrl: data.images.find((i) => i.isPrimary)?.url,
         imageUrls: data.images
-          .filter(i => !i.isPrimary)
-          .map(i => ({ url: i.url }))
-      })
+          .filter((i) => !i.isPrimary)
+          .map((i) => ({ url: i.url })),
+      });
       setLastUpdated(formatDate(data.updatedAt));
     } catch (err) {
       console.error(err);
@@ -81,14 +83,16 @@ function UpdateProductForm({ productId }: { productId: number }) {
 
   const onSubmit = async (data: FormValues) => {
     const payload: UpdateProductPayload = {
-      productId: productId,
+      id: productId,
       name: data.name,
       price: data.price,
-      categoryIds: data.categoryId ? [Number(data.categoryId)] : [],
+      categoryIds: data.categoryId ? [data.categoryId] : [],
       descriptionHtml: data.descriptionHtml,
       warrantyHtml: data.warrantyHtml,
       primaryImageUrl: data.primaryImageUrl,
-      imageUrls: data.imageUrls.map(entry => entry.url).filter(url => url.trim() !== "")
+      imageUrls: data.imageUrls
+        .map((entry) => entry.url)
+        .filter((url) => url.trim() !== ""),
     };
 
     try {
@@ -99,7 +103,7 @@ function UpdateProductForm({ productId }: { productId: number }) {
         message: "Product updated successfully.",
         metadata: { updatedProductId: productId },
         autoDismiss: true,
-        dismissDelay: 5000
+        dismissDelay: 5000,
       });
 
       navigate("/products");
@@ -109,7 +113,7 @@ function UpdateProductForm({ productId }: { productId: number }) {
         message: updateError || "Failed to update product.",
         autoDismiss: true,
         dismissDelay: 7500,
-      })
+      });
     }
   };
 
@@ -117,20 +121,18 @@ function UpdateProductForm({ productId }: { productId: number }) {
     const url = fields[index].url;
 
     if (url && url.trim() !== "") {
-      setRemovedImageUrls(prev => [...prev, url]);
+      setRemovedImageUrls((prev) => [...prev, url]);
     }
     remove(index);
-  }
+  };
 
   const handleUndo = (url: string) => {
-    setRemovedImageUrls(prev => prev.filter(u => u !== url));
+    setRemovedImageUrls((prev) => prev.filter((u) => u !== url));
     append({ url });
-  }
+  };
 
   if (!initialData) {
-    return (
-      <LoadingSpinner />
-    );
+    return <LoadingSpinner />;
   }
 
   return (
@@ -139,7 +141,9 @@ function UpdateProductForm({ productId }: { productId: number }) {
         <div className="card-header bg-light d-flex justify-content-between align-items-center py-2">
           <div>
             <h5 className="mb-0">Update Product</h5>
-            <small className="text-muted">ID: {productId} - {initialData.name}</small>
+            <small className="text-muted">
+              ID: {productId} - {initialData.name}
+            </small>
           </div>
           {/*
           <div>
@@ -153,9 +157,11 @@ function UpdateProductForm({ productId }: { productId: number }) {
            */}
         </div>
 
-        {updateError && <div className="card-body py-2 px-3 border-bottom bg-light bg-opacity-25">
-          <ErrorAlert message={updateError} />
-        </div>}
+        {updateError && (
+          <div className="card-body py-2 px-3 border-bottom bg-light bg-opacity-25">
+            <ErrorAlert message={updateError} />
+          </div>
+        )}
 
         <div className="card-body p-3">
           <form onSubmit={handleSubmit(onSubmit)}>
@@ -171,7 +177,9 @@ function UpdateProductForm({ productId }: { productId: number }) {
                     <div className="row g-2">
                       {/* Name */}
                       <div className="col-md-8">
-                        <label htmlFor="name" className="form-label small mb-1">Name</label>
+                        <label htmlFor="name" className="form-label small mb-1">
+                          Name
+                        </label>
                         <input
                           id="name"
                           className="form-control form-control-sm"
@@ -181,23 +189,44 @@ function UpdateProductForm({ productId }: { productId: number }) {
 
                       {/* Price */}
                       <div className="col-md-4">
-                        <label htmlFor="price" className="form-label small mb-1">Price ($)</label>
+                        <label
+                          htmlFor="price"
+                          className="form-label small mb-1"
+                        >
+                          Price ($)
+                        </label>
                         <input
                           id="price"
                           type="number"
                           step="0.01"
                           className="form-control form-control-sm"
-                          {...register("price", { required: true, valueAsNumber: true })}
+                          {...register("price", {
+                            required: true,
+                            valueAsNumber: true,
+                          })}
                         />
                       </div>
 
                       {/* Category Dropdown */}
                       <div className="col-12">
-                        <label htmlFor="category" className="form-label small mb-1">Category</label>
-                        {categoriesLoading && <div className="py-1"><LoadingSpinner /></div>}
-                        {categoriesError &&
-                          <ErrorAlert message={categoriesError.concat("\nFailed to fetch categories.")} />
-                        }
+                        <label
+                          htmlFor="category"
+                          className="form-label small mb-1"
+                        >
+                          Category
+                        </label>
+                        {categoriesLoading && (
+                          <div className="py-1">
+                            <LoadingSpinner />
+                          </div>
+                        )}
+                        {categoriesError && (
+                          <ErrorAlert
+                            message={categoriesError.concat(
+                              "\nFailed to fetch categories."
+                            )}
+                          />
+                        )}
                         {categories && (
                           <select
                             id="category"
@@ -206,7 +235,7 @@ function UpdateProductForm({ productId }: { productId: number }) {
                           >
                             <option value="">Select a category</option>
                             {categories.map((c: Category) => (
-                              <option key={c.categoryId} value={c.categoryId}>
+                              <option key={c.id} value={c.id}>
                                 {c.name}
                               </option>
                             ))}
@@ -221,19 +250,29 @@ function UpdateProductForm({ productId }: { productId: number }) {
                 <div className="card">
                   <div className="card-header py-2 d-flex justify-content-between align-items-center">
                     <h6 className="mb-0">Images</h6>
-                    <span className="badge bg-info">{fields.length + 1} total</span>
+                    <span className="badge bg-info">
+                      {fields.length + 1} total
+                    </span>
                   </div>
                   <div className="card-body">
                     {/* Primary Image URL with preview */}
                     <div className="mb-3">
                       <div className="d-flex justify-content-between align-items-center mb-1">
-                        <label htmlFor="primaryImageUrl" className="form-label small mb-0">Primary Image URL</label>
+                        <label
+                          htmlFor="primaryImageUrl"
+                          className="form-label small mb-0"
+                        >
+                          Primary Image URL
+                        </label>
                         <a
                           href="#"
                           className="btn btn-sm btn-link py-0"
                           onClick={(e) => {
                             e.preventDefault();
-                            window.open(initialData.images.find(i => i.isPrimary)?.url, "_blank")
+                            window.open(
+                              initialData.images.find((i) => i.isPrimary)?.url,
+                              "_blank"
+                            );
                           }}
                         >
                           Preview
@@ -247,10 +286,15 @@ function UpdateProductForm({ productId }: { productId: number }) {
                     </div>
 
                     {/* Additional Image URLs */}
-                    <label className="form-label small mb-1">Additional Images</label>
+                    <label className="form-label small mb-1">
+                      Additional Images
+                    </label>
                     <div className="border rounded p-2 bg-light bg-opacity-50">
                       {fields.map((field, index) => (
-                        <div key={field.id} className="input-group input-group-sm mb-1">
+                        <div
+                          key={field.id}
+                          className="input-group input-group-sm mb-1"
+                        >
                           <input
                             className="form-control form-control-sm"
                             {...register(`imageUrls.${index}.url` as const)}
@@ -260,7 +304,7 @@ function UpdateProductForm({ productId }: { productId: number }) {
                             className="btn btn-outline-secondary btn-sm"
                             onClick={(e) => {
                               e.preventDefault();
-                              window.open(field.url, "_blank")
+                              window.open(field.url, "_blank");
                             }}
                             title="Preview image"
                           >
@@ -289,22 +333,32 @@ function UpdateProductForm({ productId }: { productId: number }) {
                     {removedImageUrls.length > 0 && (
                       <div className="mt-3">
                         <div className="d-flex justify-content-between align-items-center mb-1">
-                          <label className="form-label small mb-0">Removed Images</label>
-                          <span className="badge bg-warning text-dark">{removedImageUrls.length}</span>
+                          <label className="form-label small mb-0">
+                            Removed Images
+                          </label>
+                          <span className="badge bg-warning text-dark">
+                            {removedImageUrls.length}
+                          </span>
                         </div>
                         <div
                           className="border border-warning rounded p-2 bg-warning bg-opacity-10"
                           style={{ maxHeight: "100px", overflowY: "auto" }}
                         >
                           {removedImageUrls.map((url, index) => (
-                            <div key={index} className="d-flex align-items-center mb-1 small">
-                              <div className="text-truncate me-2" title={url}>{url}</div>
+                            <div
+                              key={index}
+                              className="d-flex align-items-center mb-1 small"
+                            >
+                              <div className="text-truncate me-2" title={url}>
+                                {url}
+                              </div>
                               <button
                                 type="button"
                                 className="btn btn-sm btn-outline-success py-0 px-1 ms-auto"
                                 onClick={() => handleUndo(url)}
                               >
-                                <i className="bi bi-arrow-counterclockwise"></i> Restore
+                                <i className="bi bi-arrow-counterclockwise"></i>{" "}
+                                Restore
                               </button>
                             </div>
                           ))}
@@ -325,8 +379,15 @@ function UpdateProductForm({ productId }: { productId: number }) {
                     {/* Description HTML */}
                     <div className="mb-3">
                       <div className="d-flex justify-content-between align-items-center mb-1">
-                        <label htmlFor="descriptionHtml" className="form-label small mb-0">Description (HTML)</label>
-                        <span className="badge bg-secondary">HTML supported</span>
+                        <label
+                          htmlFor="descriptionHtml"
+                          className="form-label small mb-0"
+                        >
+                          Description (HTML)
+                        </label>
+                        <span className="badge bg-secondary">
+                          HTML supported
+                        </span>
                       </div>
                       <textarea
                         id="descriptionHtml"
@@ -334,17 +395,31 @@ function UpdateProductForm({ productId }: { productId: number }) {
                         className="form-control form-control-sm"
                         {...register("descriptionHtml")}
                       />
-                      <div className="mt-2 border rounded p-2 bg-light" style={{ maxHeight: "256px", overflowY: "auto" }}>
+                      <div
+                        className="mt-2 border rounded p-2 bg-light"
+                        style={{ maxHeight: "256px", overflowY: "auto" }}
+                      >
                         <small className="text-muted">Preview:</small>
-                        <div dangerouslySetInnerHTML={{ __html: initialData.descriptionHtml }} />
+                        <div
+                          dangerouslySetInnerHTML={{
+                            __html: initialData.descriptionHtml,
+                          }}
+                        />
                       </div>
                     </div>
 
                     {/* Warranty HTML */}
                     <div className="mb-0">
                       <div className="d-flex justify-content-between align-items-center mb-1">
-                        <label htmlFor="warrantyHtml" className="form-label small mb-0">Warranty (HTML)</label>
-                        <span className="badge bg-secondary">HTML supported</span>
+                        <label
+                          htmlFor="warrantyHtml"
+                          className="form-label small mb-0"
+                        >
+                          Warranty (HTML)
+                        </label>
+                        <span className="badge bg-secondary">
+                          HTML supported
+                        </span>
                       </div>
                       <textarea
                         id="warrantyHtml"
@@ -352,9 +427,16 @@ function UpdateProductForm({ productId }: { productId: number }) {
                         className="form-control form-control-sm"
                         {...register("warrantyHtml")}
                       />
-                      <div className="mt-2 border rounded p-2 bg-light" style={{ maxHeight: "256px", overflowY: "auto" }}>
+                      <div
+                        className="mt-2 border rounded p-2 bg-light"
+                        style={{ maxHeight: "256px", overflowY: "auto" }}
+                      >
                         <small className="text-muted">Preview:</small>
-                        <div dangerouslySetInnerHTML={{ __html: initialData.warrantyHtml }} />
+                        <div
+                          dangerouslySetInnerHTML={{
+                            __html: initialData.warrantyHtml,
+                          }}
+                        />
                       </div>
                     </div>
                   </div>
@@ -367,13 +449,29 @@ function UpdateProductForm({ productId }: { productId: number }) {
         <div className="card-footer bg-light py-2">
           <div className="d-flex justify-content-between align-items-center">
             <div>
-              <button type="button" className="btn btn-sm btn-outline-secondary me-2" onClick={() => navigate("/products")}>
+              <button
+                type="button"
+                className="btn btn-sm btn-outline-secondary me-2"
+                onClick={() => navigate("/products")}
+              >
                 Cancel
               </button>
-              <button type="button" className="btn btn-sm btn-primary" onClick={handleSubmit(onSubmit)} disabled={updating}>
-                {updating
-                  ? <><span className="spinner-border spinner-border-sm me-2"></span>Saving...</>
-                  : <><i className="bi bi-save me-2"></i>Update</>}
+              <button
+                type="button"
+                className="btn btn-sm btn-primary"
+                onClick={handleSubmit(onSubmit)}
+                disabled={updating}
+              >
+                {updating ? (
+                  <>
+                    <span className="spinner-border spinner-border-sm me-2"></span>
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <i className="bi bi-save me-2"></i>Update
+                  </>
+                )}
               </button>
             </div>
             <div>

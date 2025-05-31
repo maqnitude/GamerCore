@@ -5,7 +5,7 @@ namespace GamerCore.Api.Services
     public interface ICategoryService
     {
         Task<List<CategoryDto>> GetCategoriesAsync();
-        Task<CategoryDto?> GetCategoryByIdAsync(int id);
+        Task<CategoryDto?> GetCategoryByIdAsync(string id);
 
         /// <summary>
         /// Create a category.
@@ -19,13 +19,13 @@ namespace GamerCore.Api.Services
         /// </summary>
         /// <param name="updateCategoryDto"></param>
         /// <returns>Updated category DTO. Null if not found.</returns>
-        Task<CategoryDto?> UpdateCategoryAsync(int id, UpdateCategoryDto updateCategoryDto);
+        Task<CategoryDto?> UpdateCategoryAsync(string id, UpdateCategoryDto updateCategoryDto);
 
         /// <summary>
         /// Find and delete a category.
         /// </summary>
         /// <param name="id"></param>
         /// <returns>True if found and deleted. False if not found.</returns>
-        Task<bool> DeleteCategoryAsync(int id);
+        Task<bool> DeleteCategoryAsync(string id);
     }
 }

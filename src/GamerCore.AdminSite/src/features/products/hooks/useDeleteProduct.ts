@@ -5,7 +5,7 @@ function useDeleteProduct() {
   const [deleting, setDeleting] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  const deleteProduct = useCallback(async (id: number) => {
+  const deleteProduct = useCallback(async (id: string) => {
     try {
       setDeleting(true);
       await ProductService.deleteProduct(id);

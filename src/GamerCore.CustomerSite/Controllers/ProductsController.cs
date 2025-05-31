@@ -20,16 +20,16 @@ namespace GamerCore.CustomerSite.Controllers
             _logger = logger;
         }
 
-        // GET: /Products?page=1&categoryId=5
+        // GET: /Products?page=1&categoryId=<guid>
         [HttpGet]
         public async Task<IActionResult> Index(
             [FromQuery] int page = 1,
-            [FromQuery] int? categoryId = null)
+            [FromQuery] string? categoryId = null)
         {
             try
             {
                 var paginatedListTask = categoryId != null
-                    ? _productService.GetProductsAsync(page, [categoryId.Value])
+                    ? _productService.GetProductsAsync(page, [categoryId])
                     : _productService.GetProductsAsync(page);
                 var categoriesTask = _categoryService.GetCategoriesAsync();
 
@@ -68,9 +68,9 @@ namespace GamerCore.CustomerSite.Controllers
             }
         }
 
-        // GET: /Products/Details/5
+        // GET: /Products/Details/<guid>
         [HttpGet]
-        public async Task<IActionResult> Details(int id)
+        public async Task<IActionResult> Details(string id)
         {
             try
             {

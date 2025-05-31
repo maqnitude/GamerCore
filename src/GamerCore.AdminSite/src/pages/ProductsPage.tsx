@@ -10,10 +10,13 @@ import { Product } from "../types";
 
 function ProductsPage() {
   const [page, setPage] = useState<number>(1);
-  const [selectedCategoryId, setSelectedCategoryId] = useState<number | undefined>();
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string>();
   const [localProducts, setLocalProducts] = useState<Product[]>([]);
 
-  const { paginatedList, loading, error } = useProducts(page, selectedCategoryId);
+  const { paginatedList, loading, error } = useProducts(
+    page,
+    selectedCategoryId
+  );
 
   const navigate = useNavigate();
 
@@ -25,31 +28,33 @@ function ProductsPage() {
 
   const handlePageChange = (page: number) => {
     setPage(page);
-  }
+  };
 
-  const handleFilterChange = (categoryId: number | undefined) => {
+  const handleCategoryFilterChange = (categoryId?: string) => {
     setSelectedCategoryId(categoryId);
     setPage(1);
-  }
+  };
 
   // Update the products list and refetch if necessary
-  const handleProductDeleted = (productId: number) => {
-    setLocalProducts(prev => {
-      const next = prev.filter(p => p.productId !== productId);
+  const handleProductDeleted = (productId: string) => {
+    setLocalProducts((prev) => {
+      const next = prev.filter((p) => p.id !== productId);
       if (next.length === 0 && page > 1) {
         setPage(page - 1);
       }
       return next;
     });
-  }
+  };
 
   return (
     <div className="container-fluid my-4">
-      {error && <ErrorAlert message={error.concat("\nFailed to fetch products.")} />}
+      {error && (
+        <ErrorAlert message={error.concat("\nFailed to fetch products.")} />
+      )}
 
       {/* Control panel */}
       <div className="d-flex justify-content-between align-items-center">
-        <ProductsFilter onFilterChange={handleFilterChange} />
+        <ProductsFilter onCategoryFilterChange={handleCategoryFilterChange} />
 
         <button
           className="btn btn-primary"

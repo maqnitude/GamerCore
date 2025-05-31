@@ -13,7 +13,7 @@ namespace GamerCore.CustomerSite.Pages.Account
 {
     public class LoginModel : PageModel
     {
-        private readonly string _apiBaseEndpoint = "/api/Auth";
+        private readonly string _apiBaseEndpoint = "/api/auth";
 
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly ILogger<LoginModel> _logger;
@@ -34,7 +34,7 @@ namespace GamerCore.CustomerSite.Pages.Account
         [BindProperty]
         public InputModel Input { get; set; } = null!;
 
-        public string ReturnUrl { get; set; } = string.Empty;
+        public string? ReturnUrl { get; set; }
 
         [TempData]
         public string ErrorMessage { get; set; } = string.Empty;
@@ -74,7 +74,7 @@ namespace GamerCore.CustomerSite.Pages.Account
                 return Page();
             }
 
-            string apiEndpoint = _apiBaseEndpoint + "/Login";
+            string apiEndpoint = _apiBaseEndpoint + "/login";
 
             try
             {
@@ -98,7 +98,7 @@ namespace GamerCore.CustomerSite.Pages.Account
                 {
                     using var streamContent = await response.Content.ReadAsStreamAsync();
                     var apiResponse = await JsonSerializer
-                        .DeserializeAsync<ApiResponse<AppUserDto>>(streamContent, _jsonSerializerOptions);
+                        .DeserializeAsync<ApiResponse<UserDto>>(streamContent, _jsonSerializerOptions);
 
                     if (apiResponse?.Data != null)
                     {

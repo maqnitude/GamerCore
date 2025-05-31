@@ -3,7 +3,6 @@ using GamerCore.Core.Constants;
 using GamerCore.Core.Models;
 using GamerCore.CustomerSite.Models;
 using GamerCore.CustomerSite.Services;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -20,12 +19,9 @@ namespace GamerCore.CustomerSite.Controllers
             _logger = logger;
         }
 
-        [Authorize(
-            AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme,
-            Roles = RoleNames.User)]
+        [Authorize(Roles = RoleConstants.Customer)]
         [HttpPost]
-        [ActionName("Create")]
-        public async Task<IActionResult> CreateReviewAsync(CreateReviewViewModel createReviewViewModel)
+        public async Task<IActionResult> Create(CreateReviewViewModel createReviewViewModel)
         {
             // Redirect to /Home/Error for all errors for now
             if (!ModelState.IsValid)
@@ -35,6 +31,7 @@ namespace GamerCore.CustomerSite.Controllers
 
             try
             {
+                // TODO: Fix this after integrating OpenIddict
                 var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
                 if (string.IsNullOrEmpty(userId))
                 {
@@ -46,8 +43,9 @@ namespace GamerCore.CustomerSite.Controllers
                     Rating = createReviewViewModel.Rating,
                     ReviewTitle = createReviewViewModel.ReviewTitle,
                     ReviewText = createReviewViewModel.ReviewText,
-                    UserId = userId,
-                    ProductId = createReviewViewModel.ProductId
+                    ProductId = createReviewViewModel.ProductId,
+                    // UserId will be set in here until OpenIddict authorization server is implemented
+                    UserId = userId
                 };
 
                 var result = await _reviewService.CreateReviewAsync(createReviewDto);

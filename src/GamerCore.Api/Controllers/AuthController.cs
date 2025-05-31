@@ -11,16 +11,16 @@ using Microsoft.AspNetCore.Mvc;
 namespace GamerCore.Api.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/auth")]
     public class AuthController : ControllerBase
     {
         private readonly IAuthService _authService;
-        private readonly UserManager<AppUser> _userManager;
+        private readonly UserManager<User> _userManager;
         private readonly ILogger<AuthController> _logger;
 
         public AuthController(
             IAuthService authService,
-            UserManager<AppUser> userManager,
+            UserManager<User> userManager,
             ILogger<AuthController> logger)
         {
             _authService = authService;
@@ -28,8 +28,8 @@ namespace GamerCore.Api.Controllers
             _logger = logger;
         }
 
-        [HttpPost("Register")]
-        public async Task<IActionResult> RegisterAsync([FromBody] RegisterDto registerDto)
+        [HttpPost("register")]
+        public async Task<IActionResult> Register([FromBody] RegisterDto registerDto)
         {
             if (!ModelState.IsValid)
             {
@@ -57,7 +57,7 @@ namespace GamerCore.Api.Controllers
                     "GetUserById",
                     "Users",
                     new { id = user.Id },
-                    ApiResponse<AppUserDto>.CreateSuccess(new AppUserDto
+                    ApiResponse<UserDto>.CreateSuccess(new UserDto
                     {
                         Id = user.Id,
                         Email = user.Email!,
@@ -80,8 +80,8 @@ namespace GamerCore.Api.Controllers
         /// </summary>
         /// <param name="loginDto"></param>
         /// <returns></returns>
-        [HttpPost("Login")]
-        public async Task<IActionResult> LoginAsync([FromBody] LoginDto loginDto)
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] LoginDto loginDto)
         {
             if (!ModelState.IsValid)
             {
@@ -114,7 +114,7 @@ namespace GamerCore.Api.Controllers
                 // IMPORTANT: Need role for role based authorization
                 var userRoles = await _userManager.GetRolesAsync(user);
 
-                return Ok(ApiResponse<AppUserDto>.CreateSuccess(new AppUserDto
+                return Ok(ApiResponse<UserDto>.CreateSuccess(new UserDto
                 {
                     Id = user.Id,
                     Email = user.Email!,
@@ -137,8 +137,8 @@ namespace GamerCore.Api.Controllers
         /// </summary>
         /// <param name="loginDto"></param>
         /// <returns></returns>
-        [HttpPost("Admin/Login")]
-        public async Task<IActionResult> LoginJwtAsync([FromBody] LoginDto loginDto)
+        [HttpPost("admin/login")]
+        public async Task<IActionResult> LoginJwt([FromBody] LoginDto loginDto)
         {
             if (!ModelState.IsValid)
             {
@@ -184,8 +184,8 @@ namespace GamerCore.Api.Controllers
         }
 
         [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme)]
-        [HttpPost("Logout")]
-        public async Task<IActionResult> LogoutAsync()
+        [HttpPost("logout")]
+        public async Task<IActionResult> Logout()
         {
             try
             {
@@ -212,7 +212,7 @@ namespace GamerCore.Api.Controllers
         // For JWT auth, client simply discards the token
         // No server side action needed, but we can provide an endpoint for logging
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        [HttpPost("Admin/Logout")]
+        [HttpPost("admin/logout")]
         public IActionResult LogoutJwt()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);

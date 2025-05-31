@@ -1,14 +1,13 @@
 using GamerCore.Api.Models;
 using GamerCore.Api.Services;
 using GamerCore.Core.Constants;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GamerCore.Api.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/categories")]
     public class CategoriesController : ControllerBase
     {
         private readonly ICategoryService _service;
@@ -20,11 +19,11 @@ namespace GamerCore.Api.Controllers
             _logger = logger;
         }
 
-        [HttpGet(Name = "GetCategories")]
+        [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<List<CategoryDto>>> GetCategoriesAsync()
+        public async Task<ActionResult<List<CategoryDto>>> GetCategories()
         {
             try
             {
@@ -44,11 +43,11 @@ namespace GamerCore.Api.Controllers
             }
         }
 
-        [HttpGet("{id}", Name = "GetCategoryById")]
+        [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<CategoryDto>> GetCategoryByIdAsync(int id)
+        public async Task<ActionResult<CategoryDto>> GetCategoryById(string id)
         {
             try
             {
@@ -68,14 +67,12 @@ namespace GamerCore.Api.Controllers
             }
         }
 
-        [Authorize(
-            AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme,
-            Roles = RoleNames.Administrator)]
+        [Authorize(Roles = RoleConstants.Admin)]
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> CreateCategoryAsync([FromBody] CreateCategoryDto createCategoryDto)
+        public async Task<IActionResult> CreateCategory([FromBody] CreateCategoryDto createCategoryDto)
         {
             if (!ModelState.IsValid)
             {
@@ -89,7 +86,7 @@ namespace GamerCore.Api.Controllers
                 return CreatedAtAction(
                     "GetCategoryById",
                     "Categories",
-                    new { id = createdCategoryDto.CategoryId },
+                    new { id = createdCategoryDto.Id },
                     createdCategoryDto);
             }
             catch (Exception ex)
@@ -99,15 +96,13 @@ namespace GamerCore.Api.Controllers
             }
         }
 
-        [Authorize(
-            AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme,
-            Roles = RoleNames.Administrator)]
+        [Authorize(Roles = RoleConstants.Admin)]
         [HttpPut("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<CategoryDto>> UpdateCategoryAsync(int id, [FromBody] UpdateCategoryDto updateCategoryDto)
+        public async Task<ActionResult<CategoryDto>> UpdateCategory(string id, [FromBody] UpdateCategoryDto updateCategoryDto)
         {
             if (!ModelState.IsValid)
             {
@@ -132,14 +127,12 @@ namespace GamerCore.Api.Controllers
             }
         }
 
-        [Authorize(
-            AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme,
-            Roles = RoleNames.Administrator)]
+        [Authorize(Roles = RoleConstants.Admin)]
         [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> DeleteCategoryAsync(int id)
+        public async Task<IActionResult> DeleteCategory(string id)
         {
             try
             {

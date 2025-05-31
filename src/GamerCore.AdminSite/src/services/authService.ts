@@ -2,7 +2,7 @@ import { ApiResponse, LoginPayload } from "../types";
 
 const baseApiEndpoint = "/api/auth";
 
-const JWT_ACCESS_TOKEN = "auth_token";
+const ACCESS_TOKEN = "access_token";
 
 const authService = {
   login: async (payload: LoginPayload): Promise<string> => {
@@ -22,14 +22,14 @@ const authService = {
     const successResponse = await response.json() as ApiResponse<string>;
 
     const token = successResponse.data as string;
-    localStorage.setItem(JWT_ACCESS_TOKEN, token);
+    localStorage.setItem(ACCESS_TOKEN, token);
 
     return token;
   },
 
   logout: (): void => {
     const apiEndpoint = `${baseApiEndpoint}/admin/logout`
-    const token = localStorage.getItem(JWT_ACCESS_TOKEN);
+    const token = localStorage.getItem(ACCESS_TOKEN);
 
     // Call server to log the event
     if (token) {
@@ -42,11 +42,11 @@ const authService = {
       }).catch(() => { /* Silent fail */ })
     }
 
-    localStorage.removeItem(JWT_ACCESS_TOKEN);
+    localStorage.removeItem(ACCESS_TOKEN);
   },
 
   isAuthenticated: (): boolean => {
-    const token = localStorage.getItem(JWT_ACCESS_TOKEN);
+    const token = localStorage.getItem(ACCESS_TOKEN);
     if (!token) {
       return false;
     }
@@ -63,7 +63,7 @@ const authService = {
   },
 
   getToken: (): string | null => {
-    return localStorage.getItem(JWT_ACCESS_TOKEN);
+    return localStorage.getItem(ACCESS_TOKEN);
   }
 };
 

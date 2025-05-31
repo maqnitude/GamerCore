@@ -1,7 +1,6 @@
 using GamerCore.Core.Constants;
 using GamerCore.Core.Entities;
 using GamerCore.Core.Models;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -9,23 +8,21 @@ using Microsoft.AspNetCore.Mvc;
 namespace GamerCore.Api.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/users")]
     public class UsersController : ControllerBase
     {
-        private readonly UserManager<AppUser> _userManager;
+        private readonly UserManager<User> _userManager;
         private readonly ILogger<UsersController> _logger;
 
-        public UsersController(UserManager<AppUser> userManager, ILogger<UsersController> logger)
+        public UsersController(UserManager<User> userManager, ILogger<UsersController> logger)
         {
             _userManager = userManager;
             _logger = logger;
         }
 
-        [Authorize(
-            AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme,
-            Roles = RoleNames.Administrator)]
+        [Authorize(Roles = RoleConstants.Admin)]
         [HttpGet]
-        public async Task<ActionResult<List<AppUserDto>>> GetUsersAsync()
+        public async Task<ActionResult<List<UserDto>>> GetUsers()
         {
             // TODO: Add pagination
             var users = _userManager.Users.ToList();
@@ -35,23 +32,23 @@ namespace GamerCore.Api.Controllers
                 return NoContent();
             }
 
-            var userDtos = new List<AppUserDto>();
+            var userDtos = new List<UserDto>();
             foreach (var user in users)
             {
                 var roles = await _userManager.GetRolesAsync(user);
 
-                if (roles.Contains(RoleNames.Administrator))
+                if (roles.Contains(RoleConstants.Admin))
                 {
                     continue;
                 }
 
-                userDtos.Add(new AppUserDto
+                userDtos.Add(new UserDto
                 {
                     Id = user.Id,
                     Email = user.Email!,
                     FirstName = user.FirstName,
                     LastName = user.LastName,
-                    Roles = roles.ToList()
+                    Roles = [.. roles]
                 });
             }
 
@@ -59,8 +56,8 @@ namespace GamerCore.Api.Controllers
             return Ok(userDtos);
         }
 
-        [HttpGet("{id}", Name = "GetUserById")]
-        public async Task<IActionResult> GetUserByIdAsync(string id)
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetUserById(string id)
         {
             var user = await _userManager.FindByIdAsync(id);
 
@@ -71,7 +68,7 @@ namespace GamerCore.Api.Controllers
                     "User not found."));
             }
 
-            return Ok(ApiResponse<AppUserDto>.CreateSuccess(new AppUserDto
+            return Ok(ApiResponse<UserDto>.CreateSuccess(new UserDto
             {
                 Id = user.Id,
                 Email = user.Email!,

@@ -13,12 +13,12 @@ namespace GamerCore.Api.Services
     public class ProductService : IProductService
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly UserManager<AppUser> _userManager;
+        private readonly UserManager<User> _userManager;
         private readonly ILogger<ProductService> _logger;
 
         public ProductService(
             IUnitOfWork unitOfWork,
-            UserManager<AppUser> userManager,
+            UserManager<User> userManager,
             ILogger<ProductService> logger)
         {
             _unitOfWork = unitOfWork;
@@ -26,7 +26,7 @@ namespace GamerCore.Api.Services
             _logger = logger;
         }
 
-        public async Task<PaginatedList<ProductDto>> GetFilteredProductsAsync(int page, int? pageSize, int[]? categoryIds)
+        public async Task<PaginatedList<ProductDto>> GetFilteredProductsAsync(int page, int? pageSize, string[]? categoryIds)
         {
             int effectivePage = page;
             effectivePage = Math.Max(effectivePage, 1);
@@ -43,7 +43,7 @@ namespace GamerCore.Api.Services
                 // Products must have any of the specified categories
                 queryableProducts = queryableProducts
                     .Where(p => p.ProductCategories
-                        .Any(pc => categoryIds.Contains(pc.CategoryId)));
+                        .Any(pc => categoryIds.Contains(pc.CategoryId.ToString())));
             }
 
             // This is for pagination on client-side
@@ -61,14 +61,14 @@ namespace GamerCore.Api.Services
                 .Take(effectivePageSize)
                 .Select(p => new ProductDto
                 {
-                    ProductId = p.ProductId,
+                    Id = p.Id.ToString(),
                     Name = p.Name,
                     Price = p.Price,
                     IsFeatured = p.IsFeatured,
                     Categories = p.ProductCategories
                         .Select(pc => new CategoryDto
                         {
-                            CategoryId = pc.Category.CategoryId,
+                            Id = pc.Category.Id.ToString(),
                             Name = pc.Category.Name
                         }),
                     ThumbnailUrl = p.Images
@@ -113,14 +113,14 @@ namespace GamerCore.Api.Services
                 .Where(p => p.IsFeatured)
                 .Select(p => new ProductDto
                 {
-                    ProductId = p.ProductId,
+                    Id = p.Id.ToString(),
                     Name = p.Name,
                     Price = p.Price,
                     IsFeatured = p.IsFeatured,
                     Categories = p.ProductCategories
                         .Select(pc => new CategoryDto
                         {
-                            CategoryId = pc.Category.CategoryId,
+                            Id = pc.Category.Id.ToString(),
                             Name = pc.Category.Name
                         }),
                     ThumbnailUrl = p.Images
@@ -140,22 +140,24 @@ namespace GamerCore.Api.Services
             return productDtos;
         }
 
-        public async Task<ProductDetailsDto?> GetProductDetailsAsync(int id)
+        public async Task<ProductDetailsDto?> GetProductDetailsAsync(string id)
         {
             var queryableProducts = _unitOfWork.Products.GetQueryableProducts();
 
+            var parsedId = Guid.Parse(id);
+
             var productDetailsDto = await queryableProducts
                 .AsNoTracking()
-                .Where(p => p.ProductId == id)
+                .Where(p => p.Id == parsedId)
                 .Select(p => new ProductDetailsDto
                 {
-                    ProductId = p.ProductId,
+                    Id = p.Id.ToString(),
                     Name = p.Name,
                     Price = p.Price,
                     Categories = p.ProductCategories
                         .Select(pc => new CategoryDto
                         {
-                            CategoryId = pc.Category.CategoryId,
+                            Id = pc.Category.Id.ToString(),
                             Name = pc.Category.Name
                         }),
                     DescriptionHtml = p.Detail.DescriptionHtml,
@@ -163,7 +165,7 @@ namespace GamerCore.Api.Services
                     Images = p.Images
                         .Select(i => new ProductImageDto
                         {
-                            ProductImageId = i.ProductImageId,
+                            Id = i.Id.ToString(),
                             Url = i.Url,
                             IsPrimary = i.IsPrimary
                         }),
@@ -173,11 +175,11 @@ namespace GamerCore.Api.Services
                     ReviewCount = p.Reviews.Count(),
                     Reviews = p.Reviews.Select(r => new ProductReviewDto
                     {
-                        ProductReviewId = r.ProductReviewId,
+                        Id = r.Id.ToString(),
                         Rating = r.Rating,
                         ReviewTitle = r.ReviewTitle,
                         ReviewText = r.ReviewText,
-                        // This is used to query the reviews later
+                        // This is used to query the reviews below
                         UserId = r.UserId
                     }),
                     CreatedAt = p.CreatedAt,
@@ -215,7 +217,7 @@ namespace GamerCore.Api.Services
             return productDetailsDto;
         }
 
-        public async Task<int> CreateProductAsync(CreateProductDto createProductDto)
+        public async Task<string> CreateProductAsync(CreateProductDto createProductDto)
         {
             var product = new Product
             {
@@ -233,7 +235,7 @@ namespace GamerCore.Api.Services
                 {
                     product.ProductCategories.Add(new ProductCategory
                     {
-                        CategoryId = categoryId
+                        CategoryId = Guid.Parse(categoryId)
                     });
                 }
             }
@@ -271,13 +273,13 @@ namespace GamerCore.Api.Services
             // Commit changes
             await _unitOfWork.SaveChangesAsync();
 
-            _logger.LogInformation("Product created successfully (id: {Id})", product.ProductId);
-            return product.ProductId;
+            _logger.LogInformation("Product created successfully (id: {Id})", product.Id);
+            return product.Id.ToString();
         }
 
-        public async Task<int?> UpdateProductAsync(int id, UpdateProductDto updateProductDto)
+        public async Task<string?> UpdateProductAsync(string id, UpdateProductDto updateProductDto)
         {
-            Debug.Assert(id == updateProductDto.ProductId);
+            Debug.Assert(id.Equals(updateProductDto.Id, StringComparison.OrdinalIgnoreCase));
 
             var product = await FindProductByIdAsync(id);
 
@@ -293,6 +295,8 @@ namespace GamerCore.Api.Services
             product.Name = updateProductDto.Name;
             product.Price = updateProductDto.Price;
 
+            var parsedId = Guid.Parse(id);
+
             // Replace categories
             product.ProductCategories.Clear();
 
@@ -300,8 +304,8 @@ namespace GamerCore.Api.Services
             {
                 product.ProductCategories.Add(new ProductCategory
                 {
-                    ProductId = id,
-                    CategoryId = categoryId
+                    ProductId = parsedId,
+                    CategoryId = Guid.Parse(categoryId)
                 });
             }
 
@@ -319,7 +323,7 @@ namespace GamerCore.Api.Services
             {
                 Url = updateProductDto.PrimaryImageUrl,
                 IsPrimary = true,
-                ProductId = id
+                ProductId = parsedId
             });
 
             if (updateProductDto.ImageUrls != null && updateProductDto.ImageUrls.Count > 0)
@@ -330,7 +334,7 @@ namespace GamerCore.Api.Services
                     {
                         Url = imageUrl,
                         IsPrimary = false,
-                        ProductId = id
+                        ProductId = parsedId
                     });
                 }
             }
@@ -342,7 +346,7 @@ namespace GamerCore.Api.Services
             return id;
         }
 
-        public async Task<bool> DeleteProductAsync(int id)
+        public async Task<bool> DeleteProductAsync(string id)
         {
             var product = await FindProductByIdAsync(id);
 
@@ -360,8 +364,10 @@ namespace GamerCore.Api.Services
             return true;
         }
 
-        private async Task<Product?> FindProductByIdAsync(int id)
+        private async Task<Product?> FindProductByIdAsync(string id)
         {
+            var parsedId = Guid.Parse(id);
+
             var queryableProducts = _unitOfWork.Products.GetQueryableProducts();
 
             var product = await queryableProducts
@@ -369,7 +375,7 @@ namespace GamerCore.Api.Services
                 .Include(p => p.Detail)
                 .Include(p => p.Images)
                 .Include(p => p.Reviews)
-                .FirstOrDefaultAsync(p => p.ProductId == id);
+                .FirstOrDefaultAsync(p => p.Id == parsedId);
 
             if (product == null)
             {

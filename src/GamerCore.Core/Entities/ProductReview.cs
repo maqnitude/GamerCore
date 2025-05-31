@@ -2,14 +2,18 @@ namespace GamerCore.Core.Entities
 {
     public class ProductReview : BaseEntity
     {
-        public int ProductReviewId { get; set; }
+        public Guid Id { get; set; }
+
         public int Rating { get; set; }
+
         public string? ReviewTitle { get; set; }
+
         public string? ReviewText { get; set; }
 
         public string UserId { get; set; } = string.Empty;
 
-        public int ProductId { get; set; }
+        public Guid ProductId { get; set; }
+
         public Product Product { get; set; } = null!;
     }
 }

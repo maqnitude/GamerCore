@@ -23,11 +23,12 @@ namespace GamerCore.CustomerSite.Tests.ViewComponents
             // Arrange
             var categories = new List<CategoryViewModel>
             {
-                new() { CategoryId = 1, Name = "Category 1" },
-                new() { CategoryId = 2, Name = "Category 2" }
+                new() { Id = Guid.NewGuid().ToString(), Name = "Category 1" },
+                new() { Id = Guid.NewGuid().ToString(), Name = "Category 2" }
             };
+
             _mockCategoryService.Setup(s => s.GetCategoriesAsync())
-                              .ReturnsAsync(categories);
+                .ReturnsAsync(categories);
 
             // Act
             var result = await _viewComponent.InvokeAsync();
@@ -44,8 +45,9 @@ namespace GamerCore.CustomerSite.Tests.ViewComponents
         {
             // Arrange
             var categories = new List<CategoryViewModel>();
+
             _mockCategoryService.Setup(s => s.GetCategoriesAsync())
-                              .ReturnsAsync(categories);
+                .ReturnsAsync(categories);
 
             // Act
             var result = await _viewComponent.InvokeAsync();

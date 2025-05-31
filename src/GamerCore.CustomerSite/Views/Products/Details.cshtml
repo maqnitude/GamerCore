@@ -33,7 +33,7 @@
           <div class="mb-2">
             <span class="me-1">Category:</span>
             <a asp-controller="Products" asp-action="Index"
-               asp-route-page="1" asp-route-categoryId="@Model.Categories[0].CategoryId">
+               asp-route-page="1" asp-route-categoryId="@Model.Categories[0].Id">
               @Model.Categories[0].Name
             </a>
           </div>
@@ -146,7 +146,7 @@
       </div>
       <div class="modal-body">
         <partial name="_ProductReviewFormPartial"
-                 model="new CreateReviewViewModel { ProductId = Model.ProductId }" />
+                 model="new CreateReviewViewModel { ProductId = Model.Id }" />
       </div>
     </div>
   </div>
@@ -181,55 +181,3 @@
     });
   </script>
 }
-
-@* OLD
-<div class="container">
-  <div class="row mb-2 gap-2">
-    <div class="col border border-dark">
-      <h5 class="fw-bold">Images</h5>
-      <div class="container">
-        <div class="row">
-          <partial name="_ProductImageCarouselPartial" model="@Model.Images" />
-        </div>
-      </div>
-    </div>
-    <div class="col border border-dark">
-      <h4 class="fw-bold">@Model.Name</h4>
-      <h5>@Model.Price.ToString("C")</h5>
-
-      <partial name="_ProductRatingPartial" model="(Model.AverageRating, (int?)Model.ReviewCount)" />
-
-      <button class="btn btn-primary">
-        Add To Cart (does nothing)
-      </button>
-    </div>
-  </div>
-  <div class="row mb-2">
-    <div class="col border border-dark">
-      <h2 class="fw-bold">Description</h2>
-      @Html.Raw(Model.DescriptionHtml)
-
-      <h2 class="fw-bold">Specification</h2>
-      <p>*Renders specification table*</p>
-
-      <h2 class="fw-bold">Warranty</h2>
-      @Html.Raw(Model.WarrantyHtml)
-    </div>
-  </div>
-  <div class="row mb-2">
-    <div class="col border border-dark">
-      <h5 class="fw-bold">Related Products</h5>
-    </div>
-  </div>
-  <div class="row">
-    <div class="col border border-dark">
-      <h5 class="fw-bold">Reviews</h5>
-
-      @foreach (var review in Model.Reviews)
-      {
-        <partial name="_ProductReviewCardPartial" model="review" />
-      }
-    </div>
-  </div>
-</div>
-*@

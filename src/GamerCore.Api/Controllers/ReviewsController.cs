@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace GamerCore.Api.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/reviews")]
     public class ReviewsController : ControllerBase
     {
         private readonly IReviewService _reviewService;
@@ -17,15 +17,15 @@ namespace GamerCore.Api.Controllers
             _logger = logger;
         }
 
-        [HttpGet("{id}", Name = "GetReviewById")]
-        public IActionResult GetReviewById(int id)
+        [HttpGet("{id}")]
+        public IActionResult GetReviewById(string id)
         {
             // Does nothing right now
             return Ok();
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateReviewAsync([FromBody] CreateReviewDto createReviewDto)
+        public async Task<IActionResult> CreateReview([FromBody] CreateReviewDto createReviewDto)
         {
             if (!ModelState.IsValid)
             {
@@ -34,8 +34,17 @@ namespace GamerCore.Api.Controllers
 
             try
             {
-                var productReviewDto = await _reviewService.CreateReviewAsync(createReviewDto);
+                // TODO: Fix this after integrating OpenIddict
+                // var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                // if (string.IsNullOrEmpty(userId))
+                // {
+                //     return Unauthorized("No authenticated user found.");
+                // }
 
+                // Set the user id string here and not in client-side
+                // createReviewDto.UserId = userId;
+
+                var productReviewDto = await _reviewService.CreateReviewAsync(createReviewDto);
                 if (productReviewDto == null)
                 {
                     _logger.LogError("User has already reviewed this product.");
@@ -43,9 +52,9 @@ namespace GamerCore.Api.Controllers
                 }
 
                 return CreatedAtAction(
-                    "GetReviewById",
+                    nameof(GetReviewById),
                     "Reviews",
-                    new { id = productReviewDto.ProductReviewId },
+                    new { id = productReviewDto.Id },
                     productReviewDto);
             }
             catch (Exception ex)

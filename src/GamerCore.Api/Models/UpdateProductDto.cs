@@ -5,7 +5,8 @@ namespace GamerCore.Api.Models
     public class UpdateProductDto
     {
         // This seems redundant but it doesn't hurt to have an extra validation
-        public int ProductId { get; set; }
+        [Required]
+        public string Id { get; set; } = string.Empty;
 
         [Required]
         public string Name { get; set; } = string.Empty;
@@ -14,7 +15,7 @@ namespace GamerCore.Api.Models
         [Range(0.01, 1000000)]
         public decimal Price { get; set; }
 
-        public List<int> CategoryIds { get; set; } = [];
+        public List<string> CategoryIds { get; set; } = [];
 
         [Required]
         public string DescriptionHtml { get; set; } = string.Empty;

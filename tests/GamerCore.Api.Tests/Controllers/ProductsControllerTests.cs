@@ -21,16 +21,19 @@ namespace GamerCore.Api.Tests.Controllers
             _controller = new ProductsController(_mockService.Object, _mockLogger.Object);
         }
 
-        #region GetProductsAsync tests
+        #region GetProducts tests
 
         [Fact]
-        public async Task GetProductsAsync_ReturnsOk_WhenProductsExist()
+        public async Task GetProducts_ReturnsOk_WhenProductsExist()
         {
             // Arrange
+            var product1Id = Guid.NewGuid().ToString();
+            var product2Id = Guid.NewGuid().ToString();
+
             var productDtos = new List<ProductDto>
             {
-                new() { ProductId = 1, Name = "Product 1" },
-                new() { ProductId = 2, Name = "Product 2" }
+                new() { Id = product1Id, Name = "Product 1" },
+                new() { Id = product2Id, Name = "Product 2" }
             };
 
             var paginatedList = new PaginatedList<ProductDto>
@@ -44,11 +47,11 @@ namespace GamerCore.Api.Tests.Controllers
             _mockService.Setup(service => service.GetFilteredProductsAsync(
                     It.IsAny<int>(),
                     It.IsAny<int?>(),
-                    It.IsAny<int[]?>()))
+                    It.IsAny<string[]?>()))
                 .ReturnsAsync(paginatedList);
 
             // Act
-            var result = await _controller.GetProductsAsync();
+            var result = await _controller.GetProducts();
 
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(result.Result);
@@ -58,33 +61,37 @@ namespace GamerCore.Api.Tests.Controllers
             _mockService.Verify(s => s.GetFilteredProductsAsync(
                 It.IsAny<int>(),
                 It.IsAny<int?>(),
-                It.IsAny<int[]?>()),
+                It.IsAny<string[]?>()),
                 Times.Once);
         }
 
         [Fact]
-        public async Task GetProductsAsync_ParsesCategoryIds_Correctly()
+        public async Task GetProducts_ParsesCategoryIds_Correctly()
         {
             // Arrange
+            var category1Id = Guid.NewGuid().ToString();
+            var category2Id = Guid.NewGuid().ToString();
+            var category3Id = Guid.NewGuid().ToString();
+
             _mockService.Setup(service => service.GetFilteredProductsAsync(
                     It.IsAny<int>(),
                     It.IsAny<int?>(),
-                    It.IsAny<int[]?>()))
+                    It.IsAny<string[]?>()))
                 .ReturnsAsync(new PaginatedList<ProductDto>());
 
             // Act
-            await _controller.GetProductsAsync(categoryIds: "1,2,3");
+            await _controller.GetProducts(categoryIds: $"{category1Id},{category2Id},{category3Id}");
 
             // Assert
             _mockService.Verify(s => s.GetFilteredProductsAsync(
                 It.IsAny<int>(),
                 It.IsAny<int?>(),
-                It.Is<int[]>(arr => arr.SequenceEqual(new[] { 1, 2, 3 }))),
+                It.Is<string[]>(arr => arr.SequenceEqual(new[] { category1Id, category2Id, category3Id }))),
                 Times.Once);
         }
 
         [Fact]
-        public async Task GetProductsAsync_ReturnsNoContent_WhenNoProductsExist()
+        public async Task GetProducts_ReturnsNoContent_WhenNoProductsExist()
         {
             // Arrange
             var emptyPaginatedList = new PaginatedList<ProductDto>
@@ -98,28 +105,28 @@ namespace GamerCore.Api.Tests.Controllers
             _mockService.Setup(service => service.GetFilteredProductsAsync(
                     It.IsAny<int>(),
                     It.IsAny<int?>(),
-                    It.IsAny<int[]?>()))
+                    It.IsAny<string[]?>()))
                 .ReturnsAsync(emptyPaginatedList);
 
             // Act
-            var result = await _controller.GetProductsAsync();
+            var result = await _controller.GetProducts();
 
             // Assert
             Assert.IsType<NoContentResult>(result.Result);
         }
 
         [Fact]
-        public async Task GetProductsAsync_ReturnsInternalServerError_WhenExceptionIsThrown()
+        public async Task GetProducts_ReturnsInternalServerError_WhenExceptionIsThrown()
         {
             // Arrange
             _mockService.Setup(service => service.GetFilteredProductsAsync(
                     It.IsAny<int>(),
                     It.IsAny<int?>(),
-                    It.IsAny<int[]?>()))
+                    It.IsAny<string[]?>()))
                 .ThrowsAsync(new Exception("Test Exception"));
 
             // Act
-            var result = await _controller.GetProductsAsync();
+            var result = await _controller.GetProducts();
 
             // Assert
             var objectResult = Assert.IsType<ObjectResult>(result.Result);
@@ -138,23 +145,26 @@ namespace GamerCore.Api.Tests.Controllers
 
         #endregion
 
-        #region GetFeaturedProductsAsync tests
+        #region GetFeaturedProducts tests
 
         [Fact]
-        public async Task GetFeaturedProductsAsync_ReturnsOk_WhenFeaturedProductsExist()
+        public async Task GetFeaturedProducts_ReturnsOk_WhenFeaturedProductsExist()
         {
             // Arrange
+            var product1Id = Guid.NewGuid().ToString();
+            var product2Id = Guid.NewGuid().ToString();
+
             var featuredProducts = new List<ProductDto>
             {
-                new() { ProductId = 1, Name = "Featured Product 1", IsFeatured = true },
-                new() { ProductId = 2, Name = "Featured Product 2", IsFeatured = true }
+                new() { Id = product1Id, Name = "Featured Product 1", IsFeatured = true },
+                new() { Id = product2Id, Name = "Featured Product 2", IsFeatured = true }
             };
 
             _mockService.Setup(service => service.GetFeaturedProductsAsync())
                 .ReturnsAsync(featuredProducts);
 
             // Act
-            var result = await _controller.GetFeaturedProductsAsync();
+            var result = await _controller.GetFeaturedProducts();
 
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(result.Result);
@@ -165,7 +175,7 @@ namespace GamerCore.Api.Tests.Controllers
         }
 
         [Fact]
-        public async Task GetFeaturedProductsAsync_ReturnsNoContent_WhenNoFeaturedProductsExist()
+        public async Task GetFeaturedProducts_ReturnsNoContent_WhenNoFeaturedProductsExist()
         {
             // Arrange
             var emptyProductsList = new List<ProductDto>();
@@ -174,21 +184,21 @@ namespace GamerCore.Api.Tests.Controllers
                 .ReturnsAsync(emptyProductsList);
 
             // Act
-            var result = await _controller.GetFeaturedProductsAsync();
+            var result = await _controller.GetFeaturedProducts();
 
             // Assert
             Assert.IsType<NoContentResult>(result.Result);
         }
 
         [Fact]
-        public async Task GetFeaturedProductsAsync_ReturnsInternalServerError_WhenExceptionIsThrown()
+        public async Task GetFeaturedProducts_ReturnsInternalServerError_WhenExceptionIsThrown()
         {
             // Arrange
             _mockService.Setup(service => service.GetFeaturedProductsAsync())
                 .ThrowsAsync(new Exception("Test Exception"));
 
             // Act
-            var result = await _controller.GetFeaturedProductsAsync();
+            var result = await _controller.GetFeaturedProducts();
 
             // Assert
             var objectResult = Assert.IsType<ObjectResult>(result.Result);
@@ -207,20 +217,21 @@ namespace GamerCore.Api.Tests.Controllers
 
         #endregion
 
-        #region GetProductDetailsAsync tests
+        #region GetProductDetails tests
 
         [Fact]
-        public async Task GetProductDetailsAsync_ReturnsOk_WhenProductExists()
+        public async Task GetProductDetails_ReturnsOk_WhenProductExists()
         {
             // Arrange
-            int productId = 1;
-            var productDetailsDto = new ProductDetailsDto { ProductId = productId, Name = "Test Product" };
+            var productId = Guid.NewGuid().ToString();
+
+            var productDetailsDto = new ProductDetailsDto { Id = productId, Name = "Test Product" };
 
             _mockService.Setup(service => service.GetProductDetailsAsync(productId))
                 .ReturnsAsync(productDetailsDto);
 
             // Act
-            var result = await _controller.GetProductDetailsAsync(productId);
+            var result = await _controller.GetProductDetails(productId);
 
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(result.Result);
@@ -229,32 +240,32 @@ namespace GamerCore.Api.Tests.Controllers
         }
 
         [Fact]
-        public async Task GetProductDetailsAsync_ReturnsNotFound_WhenProductDoesNotExist()
+        public async Task GetProductDetails_ReturnsNotFound_WhenProductDoesNotExist()
         {
             // Arrange
-            int nonExistentProductId = 999;
+            var nonExistentProductId = Guid.NewGuid().ToString();
 
             _mockService.Setup(service => service.GetProductDetailsAsync(nonExistentProductId))
                 .ReturnsAsync((ProductDetailsDto?)null);
 
             // Act
-            var result = await _controller.GetProductDetailsAsync(nonExistentProductId);
+            var result = await _controller.GetProductDetails(nonExistentProductId);
 
             // Assert
             Assert.IsType<NotFoundResult>(result.Result);
         }
 
         [Fact]
-        public async Task GetProductDetailsAsync_ReturnsInternalServerError_WhenExceptionIsThrown()
+        public async Task GetProductDetails_ReturnsInternalServerError_WhenExceptionIsThrown()
         {
             // Arrange
-            int productId = 1;
+            var productId = Guid.NewGuid().ToString();
 
             _mockService.Setup(service => service.GetProductDetailsAsync(productId))
                 .ThrowsAsync(new Exception("Test Exception"));
 
             // Act
-            var result = await _controller.GetProductDetailsAsync(productId);
+            var result = await _controller.GetProductDetails(productId);
 
             // Assert
             var objectResult = Assert.IsType<ObjectResult>(result.Result);
@@ -273,13 +284,14 @@ namespace GamerCore.Api.Tests.Controllers
 
         #endregion
 
-        #region CreateProductAsync tests
+        #region CreateProduct tests
 
         [Fact]
-        public async Task CreateProductAsync_ReturnsOk_WhenProductIsCreated()
+        public async Task CreateProduct_ReturnsOk_WhenProductIsCreated()
         {
             // Arrange
-            int createdProductId = 1;
+            var createdProductId = Guid.NewGuid().ToString();
+
             var createProductDto = new CreateProductDto
             {
                 Name = "New Product",
@@ -292,7 +304,7 @@ namespace GamerCore.Api.Tests.Controllers
                 .ReturnsAsync(createdProductId);
 
             // Act
-            var result = await _controller.CreateProductAsync(createProductDto);
+            var result = await _controller.CreateProduct(createProductDto);
 
             // Assert
             var createdAtActionResult = Assert.IsType<CreatedAtActionResult>(result);
@@ -305,13 +317,14 @@ namespace GamerCore.Api.Tests.Controllers
         }
 
         [Fact]
-        public async Task CreateProductAsync_ReturnsBadRequest_WhenModelStateIsInvalid()
+        public async Task CreateProduct_ReturnsBadRequest_WhenModelStateIsInvalid()
         {
             var createProductDto = new CreateProductDto();
+
             _controller.ModelState.AddModelError("Name", "Name is required");
 
             // Act
-            var result = await _controller.CreateProductAsync(createProductDto);
+            var result = await _controller.CreateProduct(createProductDto);
 
             // Assert
             Assert.IsType<BadRequestObjectResult>(result);
@@ -320,7 +333,7 @@ namespace GamerCore.Api.Tests.Controllers
         }
 
         [Fact]
-        public async Task CreateProductAsync_ReturnsInternalServerError_WhenExceptionIsThrown()
+        public async Task CreateProduct_ReturnsInternalServerError_WhenExceptionIsThrown()
         {
             // Arrange
             var createProductDto = new CreateProductDto
@@ -335,7 +348,7 @@ namespace GamerCore.Api.Tests.Controllers
                 .ThrowsAsync(new Exception("Test Exception"));
 
             // Act
-            var result = await _controller.CreateProductAsync(createProductDto);
+            var result = await _controller.CreateProduct(createProductDto);
 
             // Assert
             var objectResult = Assert.IsType<ObjectResult>(result);
@@ -360,7 +373,8 @@ namespace GamerCore.Api.Tests.Controllers
         public async Task UpdateProductAsync_ReturnsOk_WhenProductIsUpdated()
         {
             // Arrange
-            int productId = 1;
+            var productId = Guid.NewGuid().ToString();
+
             var updateProductDto = new UpdateProductDto
             {
                 Name = "Updated Product",
@@ -373,7 +387,7 @@ namespace GamerCore.Api.Tests.Controllers
                 .ReturnsAsync(productId);
 
             // Act
-            var result = await _controller.UpdateProductAsync(productId, updateProductDto);
+            var result = await _controller.UpdateProduct(productId, updateProductDto);
 
             // Assert
             Assert.IsType<NoContentResult>(result);
@@ -385,24 +399,27 @@ namespace GamerCore.Api.Tests.Controllers
         public async Task UpdateProductAsync_ReturnsBadRequest_WhenModelStateIsInvalid()
         {
             // Arrange
-            int productId = 1;
+            var productId = Guid.NewGuid().ToString();
+
             var updateProductDto = new UpdateProductDto();
+
             _controller.ModelState.AddModelError("Name", "Name is required");
 
             // Act
-            var result = await _controller.UpdateProductAsync(productId, updateProductDto);
+            var result = await _controller.UpdateProduct(productId, updateProductDto);
 
             // Assert
             Assert.IsType<BadRequestObjectResult>(result);
 
-            _mockService.Verify(s => s.UpdateProductAsync(It.IsAny<int>(), It.IsAny<UpdateProductDto>()), Times.Never);
+            _mockService.Verify(s => s.UpdateProductAsync(It.IsAny<string>(), It.IsAny<UpdateProductDto>()), Times.Never);
         }
 
         [Fact]
         public async Task UpdateProductAsync_ReturnsNotFound_WhenProductDoesNotExist()
         {
             // Arrange
-            int nonExistentProductId = 999;
+            var nonExistentProductId = Guid.NewGuid().ToString();
+
             var updateProductDto = new UpdateProductDto
             {
                 Name = "Updated Product",
@@ -412,10 +429,10 @@ namespace GamerCore.Api.Tests.Controllers
             };
 
             _mockService.Setup(service => service.UpdateProductAsync(nonExistentProductId, It.IsAny<UpdateProductDto>()))
-                .ReturnsAsync((int?)null);
+                .ReturnsAsync((string?)null);
 
             // Act
-            var result = await _controller.UpdateProductAsync(nonExistentProductId, updateProductDto);
+            var result = await _controller.UpdateProduct(nonExistentProductId, updateProductDto);
 
             // Assert
             Assert.IsType<NotFoundResult>(result);
@@ -427,7 +444,8 @@ namespace GamerCore.Api.Tests.Controllers
         public async Task UpdateProductAsync_ReturnsInternalServerError_WhenExceptionIsThrown()
         {
             // Arrange
-            int productId = 1;
+            var productId = Guid.NewGuid().ToString();
+
             var updateProductDto = new UpdateProductDto
             {
                 Name = "Updated Product",
@@ -440,7 +458,7 @@ namespace GamerCore.Api.Tests.Controllers
                 .ThrowsAsync(new Exception("Test Exception"));
 
             // Act
-            var result = await _controller.UpdateProductAsync(productId, updateProductDto);
+            var result = await _controller.UpdateProduct(productId, updateProductDto);
 
             // Assert
             var objectResult = Assert.IsType<ObjectResult>(result);
@@ -459,19 +477,19 @@ namespace GamerCore.Api.Tests.Controllers
 
         #endregion
 
-        #region DeleteProductAsync tests
+        #region DeleteProduct tests
 
         [Fact]
-        public async Task DeleteProductAsync_ReturnsOk_WhenProductIsDeleted()
+        public async Task DeleteProduct_ReturnsOk_WhenProductIsDeleted()
         {
             // Arrange
-            int productId = 1;
+            var productId = Guid.NewGuid().ToString();
 
             _mockService.Setup(service => service.DeleteProductAsync(productId))
                 .ReturnsAsync(true);
 
             // Act
-            var result = await _controller.DeleteProductAsync(productId);
+            var result = await _controller.DeleteProduct(productId);
 
             // Assert
             Assert.IsType<NoContentResult>(result);
@@ -480,16 +498,16 @@ namespace GamerCore.Api.Tests.Controllers
         }
 
         [Fact]
-        public async Task DeleteProductAsync_ReturnsNotFound_WhenProductDoesNotExist()
+        public async Task DeleteProduct_ReturnsNotFound_WhenProductDoesNotExist()
         {
             // Arrange
-            int nonExistentProductId = 999;
+            var nonExistentProductId = Guid.NewGuid().ToString();
 
             _mockService.Setup(service => service.DeleteProductAsync(nonExistentProductId))
                 .ReturnsAsync(false);
 
             // Act
-            var result = await _controller.DeleteProductAsync(nonExistentProductId);
+            var result = await _controller.DeleteProduct(nonExistentProductId);
 
             // Assert
             Assert.IsType<NotFoundResult>(result);
@@ -498,16 +516,16 @@ namespace GamerCore.Api.Tests.Controllers
         }
 
         [Fact]
-        public async Task DeleteProductAsync_ReturnsInternalServerError_WhenExceptionIsThrown()
+        public async Task DeleteProduct_ReturnsInternalServerError_WhenExceptionIsThrown()
         {
             // Arrange
-            int productId = 1;
+            var productId = Guid.NewGuid().ToString();
 
             _mockService.Setup(service => service.DeleteProductAsync(productId))
                 .ThrowsAsync(new Exception("Test Exception"));
 
             // Act
-            var result = await _controller.DeleteProductAsync(productId);
+            var result = await _controller.DeleteProduct(productId);
 
             // Assert
             var objectResult = Assert.IsType<ObjectResult>(result);

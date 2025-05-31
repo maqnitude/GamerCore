@@ -12,7 +12,7 @@ function CategoriesPage() {
 
   const [updateFormVisible, setUpdateFormVisible] = useState<boolean>(false);
   // Need this to pass into the update form to retrieve category data
-  const [updateCategoryId, setUpdateCategoryId] = useState<number | null>(null);
+  const [updateCategoryId, setUpdateCategoryId] = useState<string | null>(null);
 
   const [localCategories, setLocalCategories] = useState<Category[]>([]);
 
@@ -25,7 +25,7 @@ function CategoriesPage() {
   }, [categories]);
 
   // Called in CategoriesTable
-  const handleEditButtonClick = (categoryId: number) => {
+  const handleEditButtonClick = (categoryId: string) => {
     setUpdateCategoryId(categoryId);
     setUpdateFormVisible(true);
   };
@@ -33,21 +33,28 @@ function CategoriesPage() {
   // Update the list with the created/updated category
   // Useful for correctly displaying data like created and updated dates
   const handleCategoryCreated = (createdCategory: Category) => {
-    setLocalCategories(prev => [...prev, createdCategory]);
+    setLocalCategories((prev) =>
+      prev.filter((c) => c.id !== createdCategory.id)
+    );
+    setLocalCategories((prev) => [...prev, createdCategory]);
   };
 
   const handleCategoryUpdated = (updatedCategory: Category) => {
-    setLocalCategories(prev => prev.filter(c => c.categoryId !== updatedCategory.categoryId))
-    setLocalCategories(prev => [...prev, updatedCategory]);
-  }
+    setLocalCategories((prev) =>
+      prev.filter((c) => c.id !== updatedCategory.id)
+    );
+    setLocalCategories((prev) => [...prev, updatedCategory]);
+  };
 
-  const handleCategoryDeleted = (categoryId: number) => {
-    setLocalCategories(prev => prev.filter(c => c.categoryId !== categoryId));
+  const handleCategoryDeleted = (categoryId: string) => {
+    setLocalCategories((prev) => prev.filter((c) => c.id !== categoryId));
   };
 
   return (
     <div className="container-fluid my-4">
-      {error && <ErrorAlert message={error.concat("\nFailed to fetch products.")} />}
+      {error && (
+        <ErrorAlert message={error.concat("\nFailed to fetch products.")} />
+      )}
 
       <div className="d-flex justify-content-between align-items-center">
         <h2>Categories</h2>

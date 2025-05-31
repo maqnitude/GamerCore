@@ -37,12 +37,16 @@ namespace GamerCore.Api.Tests.Services
         {
             // Arrange
             var categories = CategoryGenerator.Generate(5);
+
+            var product1Id = Guid.NewGuid();
+            var product2Id = Guid.NewGuid();
+
             foreach (var category in categories)
             {
                 category.ProductCategories = new List<ProductCategory>
                 {
-                    new() { CategoryId = category.CategoryId, ProductId = 1 },
-                    new() { CategoryId = category.CategoryId, ProductId = 2 }
+                    new() { CategoryId = category.Id, ProductId = product1Id },
+                    new() { CategoryId = category.Id, ProductId = product2Id }
                 };
             }
 
@@ -59,7 +63,7 @@ namespace GamerCore.Api.Tests.Services
             foreach (var category in result)
             {
                 Assert.Equal(2, category.ProductCount);
-                Assert.Contains(categories, c => c.CategoryId == category.CategoryId);
+                Assert.Contains(categories, c => c.Id.ToString() == category.Id);
                 Assert.Contains(categories, c => c.Name == category.Name);
                 Assert.Contains(categories, c => c.Description == category.Description);
             }
@@ -84,28 +88,31 @@ namespace GamerCore.Api.Tests.Services
 
         #endregion
 
-        #region GetCategoryAsync tests
+        #region GetCategoryByIdAsync tests
 
         [Fact]
-        public async Task GetCategoryAsync_ReturnsCategory_WhenCategorieExists()
+        public async Task GetCategoryByIdAsync_ReturnsCategory_WhenCategorieExists()
         {
             // Arrange
             var categories = CategoryGenerator.Generate(5);
-            int targetCategoryId = 3;
+            var targetCategoryId = categories[2].Id;
+
+            var product1Id = Guid.NewGuid();
+            var product2Id = Guid.NewGuid();
 
             foreach (var category in categories)
             {
                 category.ProductCategories = new List<ProductCategory>
                 {
-                    new() { CategoryId = category.CategoryId, ProductId = 1 }
+                    new() { CategoryId = category.Id, ProductId = product1Id }
                 };
 
-                if (category.CategoryId == targetCategoryId)
+                if (category.Id == targetCategoryId)
                 {
                     category.ProductCategories.Add(new ProductCategory
                     {
-                        CategoryId = category.CategoryId,
-                        ProductId = 2
+                        CategoryId = category.Id,
+                        ProductId = product2Id
                     });
                 }
             }
@@ -114,18 +121,18 @@ namespace GamerCore.Api.Tests.Services
                 .Returns(categories.AsQueryable().BuildMock());
 
             // Act
-            var result = await _service.GetCategoryByIdAsync(targetCategoryId);
+            var result = await _service.GetCategoryByIdAsync(targetCategoryId.ToString());
 
             // Assert
             Assert.NotNull(result);
-            Assert.Equal(targetCategoryId, result.CategoryId);
+            Assert.Equal(targetCategoryId.ToString(), result.Id);
             Assert.Equal($"Category {targetCategoryId}", result.Name);
             Assert.Equal($"Category description {targetCategoryId}", result.Description);
             Assert.Equal(2, result.ProductCount);
         }
 
         [Fact]
-        public async Task GetCategoryAsync_ReturnsNull_WhenCategoryDoesNotExist()
+        public async Task GetCategoryByIdAsync_ReturnsNull_WhenCategoryDoesNotExist()
         {
             // Arrange
             var categories = CategoryGenerator.Generate(5);
@@ -134,7 +141,7 @@ namespace GamerCore.Api.Tests.Services
                 .Returns(categories.AsQueryable().BuildMock());
 
             // Act
-            var result = await _service.GetCategoryByIdAsync(999);
+            var result = await _service.GetCategoryByIdAsync(Guid.NewGuid().ToString());
 
             // Assert
             Assert.Null(result);
@@ -148,6 +155,8 @@ namespace GamerCore.Api.Tests.Services
         public async Task CreateCategoryAsync_CreatesAndReturnsCategory()
         {
             // Arrange
+            var categoryId = Guid.NewGuid();
+
             var createCategoryDto = new CreateCategoryDto
             {
                 Name = "New category",
@@ -161,7 +170,7 @@ namespace GamerCore.Api.Tests.Services
                 {
                     capturedCategory = category;
                     // Simulate database setting the ID
-                    category.CategoryId = 1;
+                    category.Id = categoryId;
                 });
 
             _mockUnitOfWork.Setup(uow => uow.SaveChangesAsync(default)).ReturnsAsync(1);
@@ -171,7 +180,7 @@ namespace GamerCore.Api.Tests.Services
 
             // Assert
             Assert.NotNull(result);
-            Assert.Equal(1, result.CategoryId);
+            Assert.Equal(categoryId.ToString(), result.Id);
             Assert.Equal(createCategoryDto.Name, result.Name);
             Assert.Equal(createCategoryDto.Description, result.Description);
 
@@ -196,7 +205,7 @@ namespace GamerCore.Api.Tests.Services
 
             var updateCategoryDto = new UpdateCategoryDto
             {
-                CategoryId = category.CategoryId,
+                Id = category.Id.ToString(),
                 Name = "Updated Category Name",
                 Description = "Updated Category Description"
             };
@@ -223,11 +232,11 @@ namespace GamerCore.Api.Tests.Services
             _mockUnitOfWork.Setup(uow => uow.SaveChangesAsync(default)).ReturnsAsync(1);
 
             // Act
-            var result = await _service.UpdateCategoryAsync(category.CategoryId, updateCategoryDto);
+            var result = await _service.UpdateCategoryAsync(category.Id.ToString(), updateCategoryDto);
 
             // Assert
             Assert.NotNull(result);
-            Assert.Equal(category.CategoryId, result.CategoryId);
+            Assert.Equal(category.Id.ToString(), result.Id);
             Assert.Equal(updateCategoryDto.Name, result.Name);
             Assert.Equal(updateCategoryDto.Description, result.Description);
             Assert.Equal(createdAt, result.CreatedAt);
@@ -250,15 +259,17 @@ namespace GamerCore.Api.Tests.Services
             _mockCategoryRepository.Setup(repo => repo.GetQueryableCategories())
                 .Returns(emptyCategories.AsQueryable().BuildMock());
 
+            var categoryId = Guid.NewGuid().ToString();
+
             var updateDto = new UpdateCategoryDto
             {
-                CategoryId = 999,
+                Id = categoryId,
                 Name = "Non-existent Category",
                 Description = "This category does not exist"
             };
 
             // Act
-            var result = await _service.UpdateCategoryAsync(999, updateDto);
+            var result = await _service.UpdateCategoryAsync(categoryId, updateDto);
 
             // Assert
             Assert.Null(result);
@@ -289,13 +300,13 @@ namespace GamerCore.Api.Tests.Services
             _mockUnitOfWork.Setup(uow => uow.SaveChangesAsync(default)).ReturnsAsync(1);
 
             // Act
-            var result = await _service.DeleteCategoryAsync(category.CategoryId);
+            var result = await _service.DeleteCategoryAsync(category.Id.ToString());
 
             // Assert
             Assert.True(result);
 
             Assert.NotNull(capturedCategory);
-            Assert.Equal(category.CategoryId, capturedCategory.CategoryId);
+            Assert.Equal(category.Id, capturedCategory.Id);
 
             _mockCategoryRepository.Verify(repo => repo.RemoveCategory(It.IsAny<Category>()), Times.Once);
             _mockUnitOfWork.Verify(uow => uow.SaveChangesAsync(default), Times.Once);
@@ -311,7 +322,7 @@ namespace GamerCore.Api.Tests.Services
                 .Returns(emptyCategories.AsQueryable().BuildMock());
 
             // Act
-            var result = await _service.DeleteCategoryAsync(999);
+            var result = await _service.DeleteCategoryAsync(Guid.NewGuid().ToString());
 
             // Assert
             Assert.False(result);

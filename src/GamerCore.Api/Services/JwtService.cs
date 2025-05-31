@@ -10,15 +10,15 @@ namespace GamerCore.Api.Services
     public class JwtService : IJwtService
     {
         private readonly IConfiguration _configuration;
-        private readonly UserManager<AppUser> _userManager;
+        private readonly UserManager<User> _userManager;
 
-        public JwtService(IConfiguration configuration, UserManager<AppUser> userManager)
+        public JwtService(IConfiguration configuration, UserManager<User> userManager)
         {
             _configuration = configuration;
             _userManager = userManager;
         }
 
-        public async Task<string> GenerateJwtTokenAsync(AppUser user)
+        public async Task<string> GenerateJwtTokenAsync(User user)
         {
             var claims = new List<Claim>
             {

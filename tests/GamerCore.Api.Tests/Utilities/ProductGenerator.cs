@@ -21,18 +21,15 @@ namespace GamerCore.Api.Tests.Utilities
             _categories = CategoryGenerator.Generate(categoryCount);
             var random = new Random();
 
-            // Need to track unique Ids across different categories
-            int nextProductId = 1;
-
             foreach (var category in _categories)
             {
                 for (int i = 1; i <= productCount; i++)
                 {
-                    var productId = nextProductId++;
+                    var productId = Guid.NewGuid();
 
                     var product = new Product
                     {
-                        ProductId = productId,
+                        Id = productId,
                         Name = $"Product {productId}",
                         Price = random.Next(1, 1000) * 10.00M,
                     };
@@ -41,7 +38,7 @@ namespace GamerCore.Api.Tests.Utilities
                     {
                         ProductId = productId,
                         Product = product,
-                        CategoryId = category.CategoryId,
+                        CategoryId = category.Id,
                         Category = category
                     };
 
@@ -49,7 +46,7 @@ namespace GamerCore.Api.Tests.Utilities
 
                     var productDetail = new ProductDetail
                     {
-                        ProductDetailId = productId,
+                        Id = Guid.NewGuid(),
                         DescriptionHtml = $"<p>Detailed description for Product {productId}</p><ul><li>Feature 1</li><li>Feature 2</li></ul>",
                         WarrantyHtml = $"<p>Warranty information for Product {productId}</p><p>1 year limited warranty</p>",
                         ProductId = productId,
@@ -62,7 +59,7 @@ namespace GamerCore.Api.Tests.Utilities
                     {
                         var productImage = new ProductImage
                         {
-                            ProductImageId = productId,
+                            Id = Guid.NewGuid(),
                             Url = "https://placehold.co/600x800",
                             IsPrimary = j == 0,
                             ProductId = productId,
@@ -76,7 +73,7 @@ namespace GamerCore.Api.Tests.Utilities
                     {
                         var productReview = new ProductReview
                         {
-                            ProductReviewId = productId,
+                            Id = Guid.NewGuid(),
                             Rating = 3,
                             ReviewTitle = "Review title",
                             ReviewText = "Review text",

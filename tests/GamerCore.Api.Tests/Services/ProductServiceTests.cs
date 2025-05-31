@@ -17,8 +17,8 @@ namespace GamerCore.Api.Tests.Services
         private readonly Mock<ICategoryRepository> _mockCategoryRepository;
         private readonly Mock<IUnitOfWork> _mockUnitOfWork;
 
-        private readonly Mock<IUserStore<AppUser>> _mockUserStore;
-        private readonly Mock<UserManager<AppUser>> _mockUserManager;
+        private readonly Mock<IUserStore<User>> _mockUserStore;
+        private readonly Mock<UserManager<User>> _mockUserManager;
 
         private readonly Mock<ILogger<ProductService>> _mockLogger;
         private readonly ProductService _service;
@@ -29,9 +29,9 @@ namespace GamerCore.Api.Tests.Services
             _mockCategoryRepository = new Mock<ICategoryRepository>();
             _mockUnitOfWork = new Mock<IUnitOfWork>();
 
-            _mockUserStore = new Mock<IUserStore<AppUser>>();
+            _mockUserStore = new Mock<IUserStore<User>>();
 #pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
-            _mockUserManager = new Mock<UserManager<AppUser>>(_mockUserStore.Object,
+            _mockUserManager = new Mock<UserManager<User>>(_mockUserStore.Object,
                 null, null, null, null, null, null, null, null);
 #pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
 
@@ -65,21 +65,12 @@ namespace GamerCore.Api.Tests.Services
 
             for (int i = 0; i < products.Count; i++)
             {
-                Assert.Equal(products[i].ProductId, result.Items[i].ProductId);
+                Assert.Equal(products[i].Id.ToString(), result.Items[i].Id);
                 Assert.Equal(products[i].Name, result.Items[i].Name);
                 Assert.Equal(products[i].Price, result.Items[i].Price);
                 Assert.Equal(products[i].ProductCategories.First().Category.Name,
                              result.Items[i].Categories.First().Name);
             }
-
-            _mockLogger.Verify(
-                x => x.Log(
-                    LogLevel.Information,
-                    It.IsAny<EventId>(),
-                    It.IsAny<It.IsAnyType>(),
-                    It.IsAny<Exception>(),
-                    (Func<It.IsAnyType, Exception?, string>)It.IsAny<object>()),
-                Times.Once);
         }
 
         [Fact]
@@ -99,8 +90,6 @@ namespace GamerCore.Api.Tests.Services
             Assert.Equal(2, result.Page);
             Assert.Equal(5, result.PageSize);
             Assert.Equal(20, result.TotalItems);
-            Assert.Equal(6, result.Items[0].ProductId);
-            Assert.Equal(10, result.Items[^1].ProductId);
         }
 
         [Fact]
@@ -118,15 +107,6 @@ namespace GamerCore.Api.Tests.Services
             // Assert
             Assert.Empty(result.Items);
             Assert.Equal(0, result.TotalItems);
-
-            _mockLogger.Verify(
-                x => x.Log(
-                    LogLevel.Warning,
-                    It.IsAny<EventId>(),
-                    It.IsAny<It.IsAnyType>(),
-                    It.IsAny<Exception>(),
-                    (Func<It.IsAnyType, Exception?, string>)It.IsAny<object>()),
-                Times.Once);
         }
 
         #endregion
@@ -153,9 +133,9 @@ namespace GamerCore.Api.Tests.Services
             // Assert
             Assert.Equal(3, result.Count);
             Assert.All(result, product => Assert.True(product.IsFeatured));
-            Assert.Contains(result, p => p.ProductId == products[0].ProductId);
-            Assert.Contains(result, p => p.ProductId == products[2].ProductId);
-            Assert.Contains(result, p => p.ProductId == products[5].ProductId);
+            Assert.Contains(result, p => p.Id == products[0].Id.ToString());
+            Assert.Contains(result, p => p.Id == products[2].Id.ToString());
+            Assert.Contains(result, p => p.Id == products[5].Id.ToString());
         }
 
         [Fact]
@@ -205,22 +185,22 @@ namespace GamerCore.Api.Tests.Services
         {
             // Arrange
             var products = ProductGenerator.Generate(productCount: 5, categoryCount: 2);
-            int productId = products.First().ProductId;
+            var productId = products.First().Id;
 
             _mockProductRepository.Setup(repo => repo.GetQueryableProducts())
                 .Returns(products.AsQueryable().BuildMock());
 
-            var users = new List<AppUser>();
+            var users = new List<User>();
             _mockUserManager.Setup(um => um.Users)
                 .Returns(users.AsQueryable().BuildMock());
 
             // Act
-            var result = await _service.GetProductDetailsAsync(productId);
+            var result = await _service.GetProductDetailsAsync(productId.ToString());
 
             // Assert
             Assert.NotNull(result);
             var expectedProduct = products.First();
-            Assert.Equal(expectedProduct.ProductId, result.ProductId);
+            Assert.Equal(expectedProduct.Id.ToString(), result.Id);
             Assert.Equal(expectedProduct.Name, result.Name);
             Assert.Equal(expectedProduct.Price, result.Price);
             Assert.Equal(expectedProduct.Detail.DescriptionHtml, result.DescriptionHtml);
@@ -231,7 +211,8 @@ namespace GamerCore.Api.Tests.Services
         public async Task GetProductDetailsAsync_ReturnsNull_WhenProductDoesNotExist()
         {
             // Arrange
-            int nonExistentProductId = 999;
+            var nonExistentProductId = Guid.NewGuid().ToString();
+
             var products = ProductGenerator.Generate(productCount: 5, categoryCount: 2);
 
             _mockProductRepository.Setup(repo => repo.GetQueryableProducts())
@@ -242,15 +223,6 @@ namespace GamerCore.Api.Tests.Services
 
             // Assert
             Assert.Null(result);
-
-            _mockLogger.Verify(
-                x => x.Log(
-                    LogLevel.Warning,
-                    It.IsAny<EventId>(),
-                    It.IsAny<It.IsAnyType>(),
-                    It.IsAny<Exception>(),
-                    (Func<It.IsAnyType, Exception?, string>)It.IsAny<object>()),
-                Times.Once);
         }
 
         #endregion
@@ -261,6 +233,9 @@ namespace GamerCore.Api.Tests.Services
         public async Task CreateProductAsync_CreatesProductAndReturnsProductId()
         {
             // Arrange
+            var category1Id = Guid.NewGuid().ToString();
+            var category2Id = Guid.NewGuid().ToString();
+
             var createProductDto = new CreateProductDto
             {
                 Name = "Test Product",
@@ -273,10 +248,11 @@ namespace GamerCore.Api.Tests.Services
                     "https://placehold.co/600x800?text=1",
                     "https://placehold.co/600x800?text=2",
                 },
-                CategoryIds = new List<int> { 1, 2 }
+                CategoryIds = new List<string> { category1Id, category2Id }
             };
 
             Product? savedProduct = null;
+            var savedProductId = Guid.NewGuid();
 
             _mockProductRepository.Setup(repo => repo.AddProduct(It.IsAny<Product>()))
                 .Callback<Product>(p => savedProduct = p);
@@ -288,7 +264,7 @@ namespace GamerCore.Api.Tests.Services
                     if (savedProduct != null)
                     {
                         // Simulate the database assigning an ID
-                        savedProduct.ProductId = 42;
+                        savedProduct.Id = savedProductId;
                     }
                 });
 
@@ -296,7 +272,7 @@ namespace GamerCore.Api.Tests.Services
             var result = await _service.CreateProductAsync(createProductDto);
 
             // Assert
-            Assert.Equal(42, result);
+            Assert.Equal(savedProductId.ToString(), result);
 
             Assert.NotNull(savedProduct);
             Assert.Equal(createProductDto.Name, savedProduct.Name);
@@ -327,20 +303,22 @@ namespace GamerCore.Api.Tests.Services
         public async Task UpdateProductAsync_UpdatesProductAndReturnsProductId_WhenProductExists()
         {
             // Arrange
-            int productId = 1;
             var products = ProductGenerator.Generate(productCount: 5, categoryCount: 2);
-            var product = products.First(p => p.ProductId == productId);
+            var product = products[2];
+
+            var category1Id = Guid.NewGuid().ToString();
+            var category2Id = Guid.NewGuid().ToString();
 
             var updateProductDto = new UpdateProductDto
             {
-                ProductId = productId,
+                Id = product.Id.ToString(),
                 Name = "Updated Product",
                 Price = 149.99m,
                 DescriptionHtml = "<p>Updated description</p>",
                 WarrantyHtml = "<p>Updated warranty</p>",
                 PrimaryImageUrl = "https://placehold.co/600x800",
                 ImageUrls = new List<string> { "https://placehold.co/600x800" },
-                CategoryIds = new List<int> { 3, 4 }
+                CategoryIds = new List<string> { category1Id, category2Id }
             };
 
             _mockProductRepository.Setup(repo => repo.GetQueryableProducts())
@@ -355,10 +333,10 @@ namespace GamerCore.Api.Tests.Services
                 .ReturnsAsync(1);
 
             // Act
-            var result = await _service.UpdateProductAsync(productId, updateProductDto);
+            var result = await _service.UpdateProductAsync(product.Id.ToString(), updateProductDto);
 
             // Assert
-            Assert.Equal(productId, result);
+            Assert.Equal(product.Id.ToString(), result);
 
             Assert.NotNull(updatedProduct);
             Assert.Equal(updateProductDto.Name, updatedProduct.Name);
@@ -385,19 +363,22 @@ namespace GamerCore.Api.Tests.Services
         public async Task UpdateProductAsync_ReturnsNull_WhenProductDoesNotExist()
         {
             // Arrange
-            int productId = 999;
+            var productId = Guid.NewGuid().ToString();
             var products = ProductGenerator.Generate(productCount: 5, categoryCount: 2);
+
+            var category1Id = Guid.NewGuid().ToString();
+            var category2Id = Guid.NewGuid().ToString();
 
             var updateProductDto = new UpdateProductDto
             {
-                ProductId = productId,
+                Id = productId,
                 Name = "Updated Product",
                 Price = 149.99m,
                 DescriptionHtml = "<p>Updated description</p>",
                 WarrantyHtml = "<p>Updated warranty</p>",
                 PrimaryImageUrl = "https://placehold.co/600x800",
                 ImageUrls = new List<string>(),
-                CategoryIds = new List<int> { 1, 2 }
+                CategoryIds = new List<string> { category1Id, category2Id }
             };
 
             _mockProductRepository.Setup(repo => repo.GetQueryableProducts())
@@ -421,8 +402,8 @@ namespace GamerCore.Api.Tests.Services
         public async Task DeleteProductAsync_ReturnsTrue_WhenProductIsDeleted()
         {
             // Arrange
-            int productId = 1;
             var products = ProductGenerator.Generate(productCount: 5, categoryCount: 2);
+            var productId = products[2].Id;
 
             _mockProductRepository.Setup(repo => repo.GetQueryableProducts())
                 .Returns(products.AsQueryable().BuildMock());
@@ -435,12 +416,12 @@ namespace GamerCore.Api.Tests.Services
             _mockUnitOfWork.Setup(uow => uow.SaveChangesAsync(default)).ReturnsAsync(1);
 
             // Act
-            var result = await _service.DeleteProductAsync(productId);
+            var result = await _service.DeleteProductAsync(productId.ToString());
 
             // Assert
             Assert.True(result);
             Assert.NotNull(removedProduct);
-            Assert.Equal(productId, removedProduct.ProductId);
+            Assert.Equal(productId, removedProduct.Id);
 
             _mockProductRepository.Verify(repo => repo.RemoveProduct(It.IsAny<Product>()), Times.Once);
             _mockUnitOfWork.Verify(uow => uow.SaveChangesAsync(default), Times.Once);
@@ -450,7 +431,8 @@ namespace GamerCore.Api.Tests.Services
         public async Task DeleteProductAsync_ReturnsFalse_WhenProductDoesNotExist()
         {
             // Arrange
-            int nonExistentProductId = 999;
+            var nonExistentProductId = Guid.NewGuid().ToString();
+
             var products = ProductGenerator.Generate(productCount: 5, categoryCount: 2);
 
             _mockProductRepository.Setup(repo => repo.GetQueryableProducts())

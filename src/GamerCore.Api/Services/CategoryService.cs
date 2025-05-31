@@ -33,7 +33,7 @@ namespace GamerCore.Api.Services
                 .AsNoTracking()
                 .Select(c => new CategoryDto
                 {
-                    CategoryId = c.CategoryId,
+                    Id = c.Id.ToString(),
                     Name = c.Name,
                     Description = c.Description,
                     ProductCount = c.ProductCategories.Count(),
@@ -42,20 +42,22 @@ namespace GamerCore.Api.Services
                 })
                 .ToListAsync();
 
-            _logger.LogInformation($"Successfully retrieved {categoryDtos.Count} categories.");
+            _logger.LogInformation("Successfully retrieved {Count} categories.", categoryDtos.Count);
             return categoryDtos;
         }
 
-        public async Task<CategoryDto?> GetCategoryByIdAsync(int id)
+        public async Task<CategoryDto?> GetCategoryByIdAsync(string id)
         {
             var queryableCategories = _unitOfWork.Categories.GetQueryableCategories();
 
+            var parsedId = Guid.Parse(id);
+
             var categoryDto = await queryableCategories
                 .AsNoTracking()
-                .Where(c => c.CategoryId == id)
+                .Where(c => c.Id == parsedId)
                 .Select(c => new CategoryDto
                 {
-                    CategoryId = c.CategoryId,
+                    Id = c.Id.ToString(),
                     Name = c.Name,
                     Description = c.Description,
                     ProductCount = c.ProductCategories.Count,
@@ -88,7 +90,7 @@ namespace GamerCore.Api.Services
 
             return new CategoryDto
             {
-                CategoryId = category.CategoryId,
+                Id = category.Id.ToString(),
                 Name = category.Name,
                 Description = category.Description,
                 CreatedAt = category.CreatedAt,
@@ -96,9 +98,9 @@ namespace GamerCore.Api.Services
             };
         }
 
-        public async Task<CategoryDto?> UpdateCategoryAsync(int id, UpdateCategoryDto updateCategoryDto)
+        public async Task<CategoryDto?> UpdateCategoryAsync(string id, UpdateCategoryDto updateCategoryDto)
         {
-            Debug.Assert(id == updateCategoryDto.CategoryId);
+            Debug.Assert(id.Equals(updateCategoryDto.Id, StringComparison.OrdinalIgnoreCase));
 
             var category = await FindCategoryByIdAsync(id);
 
@@ -118,7 +120,7 @@ namespace GamerCore.Api.Services
 
             return new CategoryDto
             {
-                CategoryId = category.CategoryId,
+                Id = category.Id.ToString(),
                 Name = category.Name,
                 Description = category.Description,
                 CreatedAt = category.CreatedAt,
@@ -126,7 +128,7 @@ namespace GamerCore.Api.Services
             };
         }
 
-        public async Task<bool> DeleteCategoryAsync(int id)
+        public async Task<bool> DeleteCategoryAsync(string id)
         {
             var category = await FindCategoryByIdAsync(id);
 
@@ -142,12 +144,14 @@ namespace GamerCore.Api.Services
             return true;
         }
 
-        private async Task<Category?> FindCategoryByIdAsync(int id)
+        private async Task<Category?> FindCategoryByIdAsync(string id)
         {
             var queryableCategories = _unitOfWork.Categories.GetQueryableCategories();
 
+            var parsedId = Guid.Parse(id);
+
             var category = await queryableCategories
-                .FirstOrDefaultAsync(c => c.CategoryId == id);
+                .FirstOrDefaultAsync(c => c.Id == parsedId);
 
             if (category == null)
             {

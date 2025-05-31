@@ -6,7 +6,7 @@ namespace GamerCore.CustomerSite.Services
 {
     public class ProductService : IProductService
     {
-        private readonly string _baseApiEndpoint = "/api/Products";
+        private readonly string _baseApiEndpoint = "/api/products";
 
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly ILogger<ProductService> _logger;
@@ -22,14 +22,15 @@ namespace GamerCore.CustomerSite.Services
             _logger = logger;
         }
 
-        public async Task<PaginatedList<ProductViewModel>> GetProductsAsync(int page = 1, int[]? categoryIds = null)
+        public async Task<PaginatedList<ProductViewModel>> GetProductsAsync(int page = 1, string[]? categoryIds = null)
         {
+            // TODO: use some utility for the params
             string apiEndpoint = _baseApiEndpoint;
             apiEndpoint += $"?page={page}";
 
             if (categoryIds != null && categoryIds.Length > 0)
             {
-                foreach (int id in categoryIds)
+                foreach (var id in categoryIds)
                 {
                     // NOTE: Be careful double check to make sure the parameter name matches the API
                     apiEndpoint += $"&categoryIds={id}";
@@ -83,7 +84,7 @@ namespace GamerCore.CustomerSite.Services
         public async Task<List<ProductViewModel>> GetFeaturedProductsAsync()
         {
             string apiEndpoint = _baseApiEndpoint;
-            apiEndpoint += "/Featured";
+            apiEndpoint += "/featured";
 
             var client = _httpClientFactory.CreateClient("GamerCoreDev");
 
@@ -129,7 +130,7 @@ namespace GamerCore.CustomerSite.Services
             }
         }
 
-        public async Task<ProductDetailsViewModel> GetProductDetailsAsync(int id)
+        public async Task<ProductDetailsViewModel> GetProductDetailsAsync(string id)
         {
             string apiEndpoint = _baseApiEndpoint + $"/{id}";
 
@@ -151,7 +152,7 @@ namespace GamerCore.CustomerSite.Services
                         return new ProductDetailsViewModel();
                     }
 
-                    _logger.LogInformation("Successfully retrieved product details (id: {Id})", productDetails.ProductId);
+                    _logger.LogInformation("Successfully retrieved product details (id: {Id})", productDetails.Id);
                     return productDetails;
                 }
                 else

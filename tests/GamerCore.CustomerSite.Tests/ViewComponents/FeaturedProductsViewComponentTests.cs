@@ -23,8 +23,8 @@ namespace GamerCore.CustomerSite.Tests.ViewComponents
             // Arrange
             var featuredProducts = new List<ProductViewModel>
             {
-                new() { ProductId = 1, Name = "Product 1", IsFeatured = true },
-                new() { ProductId = 2, Name = "Product 2", IsFeatured = true }
+                new() { Id = Guid.NewGuid().ToString(), Name = "Product 1", IsFeatured = true },
+                new() { Id = Guid.NewGuid().ToString(), Name = "Product 2", IsFeatured = true }
             };
 
             _mockProductService.Setup(s => s.GetFeaturedProductsAsync())

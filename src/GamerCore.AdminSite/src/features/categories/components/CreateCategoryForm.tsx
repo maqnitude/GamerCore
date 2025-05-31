@@ -13,7 +13,10 @@ interface FormValues {
   description: string;
 }
 
-function CreateCategoryForm({ onClose, onCategoryCreated }: CreateCategoryFormProps) {
+function CreateCategoryForm({
+  onClose,
+  onCategoryCreated,
+}: CreateCategoryFormProps) {
   const { createCategory, creating, error: createError } = useCreateCategory();
 
   const { addToast } = useToast();
@@ -21,19 +24,19 @@ function CreateCategoryForm({ onClose, onCategoryCreated }: CreateCategoryFormPr
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting }
+    formState: { errors, isSubmitting },
   } = useForm<FormValues>({
     defaultValues: {
       name: "",
-      description: ""
-    }
+      description: "",
+    },
   });
 
   const onSubmit = async (data: FormValues) => {
     const payload: CreateCategoryPayload = {
       name: data.name,
-      description: data.description
-    }
+      description: data.description,
+    };
 
     try {
       const createdCategory = await createCategory(payload);
@@ -41,9 +44,9 @@ function CreateCategoryForm({ onClose, onCategoryCreated }: CreateCategoryFormPr
       addToast({
         type: "success",
         message: "Category created successfully.",
-        metadata: { createdCategoryId: createdCategory.categoryId },
+        metadata: { createdCategoryId: createdCategory.id },
         autoDismiss: true,
-        dismissDelay: 5000
+        dismissDelay: 5000,
       });
 
       // Notify categories page to update the local list
@@ -57,19 +60,16 @@ function CreateCategoryForm({ onClose, onCategoryCreated }: CreateCategoryFormPr
         type: "error",
         message: createError || "Failed to create category.",
         autoDismiss: true,
-        dismissDelay: 7500
+        dismissDelay: 7500,
       });
     }
-  }
+  };
 
   return (
     <>
       <div className="modal fade d-block show" tabIndex={-1}>
         <div className="modal-dialog modal-dialog-centered">
-          <form
-            className="modal-content"
-            onSubmit={handleSubmit(onSubmit)}
-          >
+          <form className="modal-content" onSubmit={handleSubmit(onSubmit)}>
             <div className="modal-header">
               <h5 className="modal-title">Create New Category</h5>
               <button
@@ -92,9 +92,7 @@ function CreateCategoryForm({ onClose, onCategoryCreated }: CreateCategoryFormPr
                   {...register("name", { required: "Name is required" })}
                 />
                 {errors.name && (
-                  <div className="invalid-feedback">
-                    {errors.name.message}
-                  </div>
+                  <div className="invalid-feedback">{errors.name.message}</div>
                 )}
               </div>
 
@@ -106,8 +104,9 @@ function CreateCategoryForm({ onClose, onCategoryCreated }: CreateCategoryFormPr
                 <textarea
                   id="category-description"
                   rows={3}
-                  className={`form-control ${errors.description ? "is-invalid" : ""
-                    }`}
+                  className={`form-control ${
+                    errors.description ? "is-invalid" : ""
+                  }`}
                   {...register("description", {
                     required: false,
                   })}
@@ -136,9 +135,9 @@ function CreateCategoryForm({ onClose, onCategoryCreated }: CreateCategoryFormPr
                 {isSubmitting && creating ? "Saving..." : "Save"}
               </button>
             </div>
-          </form >
-        </div >
-      </div >
+          </form>
+        </div>
+      </div>
 
       <div className="modal-backdrop show"></div>
     </>

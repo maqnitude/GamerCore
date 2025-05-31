@@ -6,7 +6,7 @@ import { useState } from "react";
 
 function ProductDetailsPage() {
   const { productId } = useParams<{ productId: string }>();
-  const { productDetails, loading, error } = useProductDetails(Number(productId));
+  const { productDetails, loading, error } = useProductDetails(productId!);
 
   const [currentIndex, setCurrentIndex] = useState<number>(0);
 
@@ -15,18 +15,21 @@ function ProductDetailsPage() {
   const prevSlide = () => {
     if (productDetails) {
       const length = productDetails.images.length;
-      setCurrentIndex(i => (i - 1 + length) % length);
+      setCurrentIndex((i) => (i - 1 + length) % length);
     }
-  }
+  };
   const nextSlide = () => {
     if (productDetails) {
       const length = productDetails.images.length;
-      setCurrentIndex(i => (i + 1) % length);
+      setCurrentIndex((i) => (i + 1) % length);
     }
-  }
+  };
 
   if (!productDetails || loading) return <LoadingSpinner />;
-  if (error) return <ErrorAlert message={`${error}\nFailed to fetch product details.`} />;
+  if (error)
+    return (
+      <ErrorAlert message={`${error}\nFailed to fetch product details.`} />
+    );
 
   return (
     <div className="container-fluid py-3">
@@ -34,9 +37,13 @@ function ProductDetailsPage() {
         <div className="card-header bg-light d-flex justify-content-between align-items-center">
           <h5 className="mb-0">{productDetails.name}</h5>
           <div>
-            <span className="badge bg-primary me-2">${productDetails.price.toFixed(2)}</span>
+            <span className="badge bg-primary me-2">
+              ${productDetails.price.toFixed(2)}
+            </span>
             <span className="badge bg-secondary">
-              <i className="bi bi-star-fill"></i> {productDetails.averageRating.toFixed(1)} ({productDetails.reviewCount})
+              <i className="bi bi-star-fill"></i>{" "}
+              {productDetails.averageRating.toFixed(1)} (
+              {productDetails.reviewCount})
             </span>
           </div>
         </div>
@@ -80,7 +87,9 @@ function ProductDetailsPage() {
 
                       <div className="mt-2 px-2 pb-2">
                         <div className="d-flex justify-content-center">
-                          <small>{currentIndex + 1} / {productDetails.images.length}</small>
+                          <small>
+                            {currentIndex + 1} / {productDetails.images.length}
+                          </small>
                         </div>
                       </div>
                     </>
@@ -105,13 +114,18 @@ function ProductDetailsPage() {
                     </div>
                     <div className="card-body py-2">
                       {productDetails.categories.length > 0 ? (
-                        productDetails.categories.map(category => (
-                          <span key={category.categoryId} className="badge bg-info me-1">
+                        productDetails.categories.map((category) => (
+                          <span
+                            key={category.id}
+                            className="badge bg-info me-1"
+                          >
                             {category.name}
                           </span>
                         ))
                       ) : (
-                        <span className="text-muted">No categories assigned</span>
+                        <span className="text-muted">
+                          No categories assigned
+                        </span>
                       )}
                     </div>
                   </div>
@@ -126,8 +140,15 @@ function ProductDetailsPage() {
                       <button className="btn btn-sm btn-outline-secondary">Edit</button>
                       */}
                     </div>
-                    <div className="card-body py-2 description-container" style={{ maxHeight: "256px", overflowY: "auto" }}>
-                      <div dangerouslySetInnerHTML={{ __html: productDetails.descriptionHtml }} />
+                    <div
+                      className="card-body py-2 description-container"
+                      style={{ maxHeight: "256px", overflowY: "auto" }}
+                    >
+                      <div
+                        dangerouslySetInnerHTML={{
+                          __html: productDetails.descriptionHtml,
+                        }}
+                      />
                     </div>
                   </div>
                 </div>
@@ -141,8 +162,15 @@ function ProductDetailsPage() {
                       <button className="btn btn-sm btn-outline-secondary">Edit</button>
                       */}
                     </div>
-                    <div className="card-body py-2 warranty-container" style={{ maxHeight: "256px", overflowY: "auto" }}>
-                      <div dangerouslySetInnerHTML={{ __html: productDetails.warrantyHtml }} />
+                    <div
+                      className="card-body py-2 warranty-container"
+                      style={{ maxHeight: "256px", overflowY: "auto" }}
+                    >
+                      <div
+                        dangerouslySetInnerHTML={{
+                          __html: productDetails.warrantyHtml,
+                        }}
+                      />
                     </div>
                   </div>
                 </div>
@@ -153,8 +181,12 @@ function ProductDetailsPage() {
             <div className="col-12">
               <div className="card">
                 <div className="card-header py-2 d-flex justify-content-between align-items-center">
-                  <h6 className="mb-0">Customer Reviews ({productDetails.reviews.length})</h6>
-                  <button className="btn btn-sm btn-outline-primary">Manage Reviews</button>
+                  <h6 className="mb-0">
+                    Customer Reviews ({productDetails.reviews.length})
+                  </h6>
+                  <button className="btn btn-sm btn-outline-primary">
+                    Manage Reviews
+                  </button>
                 </div>
                 <div className="card-body p-0">
                   {productDetails.reviews.length === 0 ? (
@@ -174,21 +206,31 @@ function ProductDetailsPage() {
                         </thead>
                         <tbody>
                           {productDetails.reviews.map((review, index) => (
-                            <tr key={review.productReviewId}>
+                            <tr key={review.id}>
                               <td>{index + 1}</td>
-                              <td>{review.userFirstName} {review.userLastName}</td>
+                              <td>
+                                {review.userFirstName} {review.userLastName}
+                              </td>
                               <td>
                                 <div className="d-flex align-items-center">
                                   <span className="me-1">{review.rating}</span>
                                   <i className="bi bi-star-fill text-warning"></i>
                                 </div>
                               </td>
-                              {review.reviewTitle
-                                ? <td>{review.reviewTitle}</td>
-                                : <td className="text-muted fst-italic">No title.</td>}
-                              {review.reviewText
-                                ? <td>{review.reviewText}</td>
-                                : <td className="text-muted fst-italic">No review provided.</td>}
+                              {review.reviewTitle ? (
+                                <td>{review.reviewTitle}</td>
+                              ) : (
+                                <td className="text-muted fst-italic">
+                                  No title.
+                                </td>
+                              )}
+                              {review.reviewText ? (
+                                <td>{review.reviewText}</td>
+                              ) : (
+                                <td className="text-muted fst-italic">
+                                  No review provided.
+                                </td>
+                              )}
                               <td>
                                 <button className="btn btn-sm btn-outline-danger float-end">
                                   <i className="bi bi-trash"></i>
@@ -216,7 +258,7 @@ function ProductDetailsPage() {
             </button>
             <button
               className="btn btn-sm btn-primary"
-              onClick={() => navigate(`/products/edit/${productDetails.productId}`)}
+              onClick={() => navigate(`/products/edit/${productDetails.id}`)}
             >
               <i className="bi bi-pencil"></i> Edit
             </button>

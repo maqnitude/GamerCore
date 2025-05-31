@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { PaginatedList, Product } from "../../../types";
 import ProductService from "../../../services/productService";
 
-function useProducts(page: number = 1, categoryId?: number) {
+function useProducts(page: number = 1, categoryId?: string) {
   const [paginatedList, setPaginatedList] = useState<PaginatedList<Product>>();
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -12,7 +12,7 @@ function useProducts(page: number = 1, categoryId?: number) {
     setError(null);
 
     try {
-      const data = await ProductService.getProducts(page, categoryId ? [categoryId] : undefined);
+      const data = await ProductService.getProducts(page, categoryId ? [categoryId] : null);
       setPaginatedList(data);
     } catch (err) {
       console.error("Error fetching products: ", err);

@@ -107,7 +107,7 @@ namespace GamerCore.CustomerSite.Pages.Account
         public async Task OnPostAsync_RedirectsToReturnUrl_WhenLoginSucceeds()
         {
             // Arrange
-            var userDto = new AppUserDto
+            var userDto = new UserDto
             {
                 Id = "123",
                 FirstName = "John",
@@ -115,7 +115,7 @@ namespace GamerCore.CustomerSite.Pages.Account
                 Email = "john@example.com"
             };
 
-            var apiResponse = ApiResponse<AppUserDto>.CreateSuccess(userDto);
+            var apiResponse = ApiResponse<UserDto>.CreateSuccess(userDto);
             var json = JsonSerializer.Serialize(apiResponse);
             var handler = new MockHttpMessageHandler(HttpStatusCode.OK, json);
             var client = new HttpClient(handler) { BaseAddress = new Uri("https://test/") };

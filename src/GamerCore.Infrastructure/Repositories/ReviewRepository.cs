@@ -1,21 +1,20 @@
 using GamerCore.Core.Entities;
-using Microsoft.EntityFrameworkCore;
+using GamerCore.Infrastructure.Data;
 
 namespace GamerCore.Infrastructure.Repositories
 {
     public class ReviewRepository : IReviewRepository
     {
-        private readonly CatalogDbContext _context;
+        private readonly ApplicationDbContext _context;
 
-        public ReviewRepository(CatalogDbContext context)
+        public ReviewRepository(ApplicationDbContext context)
         {
             _context = context;
         }
 
         public IQueryable<ProductReview> GetQueryableReviews()
         {
-            return _context.ProductReviews
-                .Include(r => r.Product);
+            return _context.ProductReviews;
         }
 
         public void AddReview(ProductReview productReview)

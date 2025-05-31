@@ -2,14 +2,13 @@ using GamerCore.Api.Models;
 using GamerCore.Api.Services;
 using GamerCore.Core.Constants;
 using GamerCore.Core.Models;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GamerCore.Api.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/products")]
     public class ProductsController : ControllerBase
     {
         private readonly IProductService _service;
@@ -25,23 +24,21 @@ namespace GamerCore.Api.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<PaginatedList<ProductDto>>> GetProductsAsync(
+        public async Task<ActionResult<PaginatedList<ProductDto>>> GetProducts(
             [FromQuery] int page = 1,
             [FromQuery] int? pageSize = null,
             [FromQuery] string? categoryIds = null)
         {
             try
             {
-                int[]? categoryIdArray = null;
+                string[]? categoryIdArray = null;
 
                 if (!string.IsNullOrWhiteSpace(categoryIds))
                 {
-                    categoryIdArray = categoryIds
+                    categoryIdArray = [.. categoryIds
                         .Split(',', StringSplitOptions.RemoveEmptyEntries)
-                        .Select(id => int.TryParse(id, out int parsedId) ? parsedId : (int?)null)
                         .Where(id => id != null)
-                        .Select(id => id!.Value)
-                        .ToArray();
+                        .Select(id => id!)];
                 }
 
                 var result = await _service.GetFilteredProductsAsync(page, pageSize, categoryIdArray);
@@ -60,11 +57,11 @@ namespace GamerCore.Api.Controllers
             }
         }
 
-        [HttpGet("Featured")]
+        [HttpGet("featured")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<List<ProductDto>>> GetFeaturedProductsAsync()
+        public async Task<ActionResult<List<ProductDto>>> GetFeaturedProducts()
         {
             try
             {
@@ -84,11 +81,11 @@ namespace GamerCore.Api.Controllers
             }
         }
 
-        [HttpGet("{id}", Name = "GetProductDetails")]
+        [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<ProductDetailsDto>> GetProductDetailsAsync(int id)
+        public async Task<ActionResult<ProductDetailsDto>> GetProductDetails(string id)
         {
             try
             {
@@ -108,14 +105,12 @@ namespace GamerCore.Api.Controllers
             }
         }
 
-        [Authorize(
-            AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme,
-            Roles = RoleNames.Administrator)]
+        [Authorize(Roles = RoleConstants.Admin)]
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> CreateProductAsync([FromBody] CreateProductDto createProductDto)
+        public async Task<IActionResult> CreateProduct([FromBody] CreateProductDto createProductDto)
         {
             if (!ModelState.IsValid)
             {
@@ -127,7 +122,7 @@ namespace GamerCore.Api.Controllers
                 var createdProductId = await _service.CreateProductAsync(createProductDto);
 
                 return CreatedAtAction(
-                    "GetProductDetails",
+                    nameof(GetProductDetails),
                     "Products",
                     new { id = createdProductId },
                     createdProductId);
@@ -139,15 +134,13 @@ namespace GamerCore.Api.Controllers
             }
         }
 
-        [Authorize(
-            AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme,
-            Roles = RoleNames.Administrator)]
+        [Authorize(Roles = RoleConstants.Admin)]
         [HttpPut("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> UpdateProductAsync(int id, [FromBody] UpdateProductDto updateProductDto)
+        public async Task<IActionResult> UpdateProduct(string id, [FromBody] UpdateProductDto updateProductDto)
         {
             if (!ModelState.IsValid)
             {
@@ -172,14 +165,12 @@ namespace GamerCore.Api.Controllers
             }
         }
 
-        [Authorize(
-            AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme,
-            Roles = RoleNames.Administrator)]
-        [HttpDelete("{id}", Name = "DeleteProduct")]
+        [Authorize(Roles = RoleConstants.Admin)]
+        [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> DeleteProductAsync(int id)
+        public async Task<IActionResult> DeleteProduct(string id)
         {
             try
             {

@@ -5,7 +5,7 @@ namespace GamerCore.CustomerSite.Services
 {
     public class CategoryService : ICategoryService
     {
-        private readonly string _baseApiEndpoint = "/api/Categories";
+        private readonly string _baseApiEndpoint = "/api/categories";
 
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly ILogger<CategoryService> _logger;

@@ -2,8 +2,10 @@ namespace GamerCore.Api.Models
 {
     public class ProductImageDto
     {
-        public int ProductImageId { get; set; }
+        public string Id { get; set; } = string.Empty;
+
         public string Url { get; set; } = string.Empty;
+
         public bool IsPrimary { get; set; }
     }
 }

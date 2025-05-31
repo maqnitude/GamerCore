@@ -10,7 +10,7 @@ namespace GamerCore.CustomerSite.Pages.Account
 {
     public class RegisterModel : PageModel
     {
-        private readonly string _apiBaseEndpoint = "/api/Auth";
+        private readonly string _apiBaseEndpoint = "/api/auth";
 
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly ILogger<RegisterModel> _logger;
@@ -65,7 +65,7 @@ namespace GamerCore.CustomerSite.Pages.Account
                 return Page();
             }
 
-            string apiEndpoint = _apiBaseEndpoint + "/Register";
+            string apiEndpoint = _apiBaseEndpoint + "/register";
 
             try
             {

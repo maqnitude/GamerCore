@@ -4,7 +4,8 @@ namespace GamerCore.Api.Models
 {
     public class UpdateCategoryDto
     {
-        public int CategoryId { get; set; }
+        [Required]
+        public string Id { get; set; } = string.Empty;
 
         [Required]
         [StringLength(50)]

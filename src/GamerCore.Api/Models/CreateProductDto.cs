@@ -11,7 +11,7 @@ namespace GamerCore.Api.Models
         [Range(0.01, 1000000)]
         public decimal Price { get; set; }
 
-        public List<int> CategoryIds { get; set; } = [];
+        public List<string> CategoryIds { get; set; } = [];
 
         [Required]
         public string DescriptionHtml { get; set; } = string.Empty;
