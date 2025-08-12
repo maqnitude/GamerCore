@@ -1,7 +1,7 @@
 # GamerCore
 
 > [!NOTE]
-> This project is no longer being worked on. I'm building another simulated e-commerce system from scratch based on the requirements from this project, observations from real e-commerce sites, and personal preferences: [DepresStore](https://github.com/maqnitude/DepresStore) (currently private).
+> This project is no longer being worked on. Checkout [DepresStore](https://github.com/maqnitude/DepresStore) instead.
 
 ## Project Organization
 
